@@ -8,5 +8,5 @@ while true; do
   # timeout so a hung push cannot stall the loop (seen ~14:50 TW)
   timeout 60 git push -q "https://x-access-token:${GITHUB_TOKEN}@github.com/wuyulun0823-lab/race.git" main >/dev/null 2>&1 \
     || timeout 60 git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/wuyulun0823-lab/race.git" main >/dev/null 2>&1
-  sleep 60
+  sleep 150  # >build time so Pages deploys are not cancelled by the next push
 done
