@@ -1,7 +1,1 @@
-{
-  "snapshot_id": "awaiting-live-connection",
-  "series": {
-    "Grok-Trader-A": [],
-    "Grok-Trader-B": []
-  }
-}
+{"snapshot_id":"28ea8f7e62314b238234084c26f8f259","series":{"Grok-Trader-A":[[1793305202598,0.0]],"Grok-Trader-B":[[1793305202598,0.0]]}}
