@@ -1,0 +1,21 @@
+{
+  "base_commit": "78b8f17828f49334be1c787b024316387b6f420d",
+  "issue_number": 4,
+  "issue_url": "https://github.com/Fadinggo/race/issues/4",
+  "requested_by": "Fadinggo",
+  "schema": "RACE_WORK_ORDER_V1",
+  "work_order": {
+    "acceptance": [
+      "只新增指定結果文件，記錄已讀工單、喚醒來源事件與實際檢查結果",
+      "在 PR 回報 RACE_IMPLEMENTATION_V1，含完整 commit SHA 與證據，不改網站及交易資料",
+      "主管能讀取實際 commit、diff、同 head CI 與回報並寫入驗收結果"
+    ],
+    "allowed_paths": [
+      ".maintenance/results/4.md"
+    ],
+    "kind": "smoke",
+    "objective": "驗證主管派工後，Work 原生 PR 留言事件自行喚醒雲端實作並回報，主管再獨立驗收；只新增驗收結果文件。",
+    "version": 1
+  },
+  "work_order_sha256": "d31c955d5187107ecb864247ca6e3c108d0fe5bcdba97d94292a0f7e43094300"
+}
