@@ -1,0 +1,97 @@
+name: Maintenance checks
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions: {}
+
+jobs:
+  # This job's definition and executable code come from the trusted base.
+  # It inspects PR Git objects without checking out or executing PR files.
+  trusted-scope:
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.repository == 'Fadinggo/race' &&
+      github.event.pull_request.head.repo.full_name == 'Fadinggo/race' &&
+      startsWith(github.event.pull_request.head.ref, 'codex/maintenance-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the trusted main base
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Save the trusted guard outside the PR checkout
+        shell: bash
+        run: cp scripts/maintenance_guard.py "$RUNNER_TEMP/race-maintenance-guard.py"
+
+      - name: Fetch proposed Git objects without checking out PR files
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: >-
+          git -c core.hooksPath=/dev/null fetch --no-tags --no-recurse-submodules
+          https://github.com/Fadinggo/race.git "$HEAD_SHA"
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Check the original work order and every changed file
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        shell: bash
+        run: >-
+          python -I -B "$RUNNER_TEMP/race-maintenance-guard.py"
+          --repo "$GITHUB_WORKSPACE"
+          --repository "$GITHUB_REPOSITORY"
+          --head-repository "$HEAD_REPOSITORY"
+          --base-ref "$BASE_REF"
+          --base-sha "$BASE_SHA"
+          --checkout-sha "$BASE_SHA"
+          --head-sha "$HEAD_SHA"
+          --head-ref "$HEAD_REF"
+
+  # Untrusted PR tests run only in the ordinary PR event, in a separate runner.
+  regression-tests:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.repository == 'Fadinggo/race' &&
+      github.event.pull_request.head.repo.full_name == 'Fadinggo/race' &&
+      startsWith(github.event.pull_request.head.ref, 'codex/maintenance-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the proposed maintenance commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Run Python regression tests
+        run: python -B -m unittest discover -s tests -p 'test_*.py'
+
+      - name: Run dashboard regression tests
+        run: node --test tests/dashboard.test.js
