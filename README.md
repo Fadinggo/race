@@ -68,7 +68,7 @@ GitHub 託管執行器每次工作使用新的環境，`scripts/gha_snapshot.py`
 
 **Checkpoint 是 HMAC 驗證，不是加密。**公開儲存庫裡的內容可被任何人閱讀，只有已允許公開的觀測值及獨立秘密金鑰產生的不可逆識別代碼。帳戶、成交及驗簽各有不同用途標記；不保存原始 UID、order ID、trade ID、bill ID 或憑證。HMAC 驗證完整性，不隱藏已公開觀測。
 
-Pages artifact 只有 `index.html`、`dashboard.js`、`data.json`、`history.json`、`.nojekyll` 五個檔案；**不包含 checkpoint**、設定檔、腳本、Git 中繼資料或私有暫存。Checkpoint 雖不在 Pages，仍存在公開儲存庫。
+發布工具的檔案白名單為 `index.html`、`dashboard.js`、`data.json`、`history.json`、`.nojekyll`。首次實際下載驗收的 Pages artifact 只有前四個網站檔案，未包含空白 `.nojekyll`，直接部署成功；**不包含 checkpoint**、設定檔、腳本、Git 中繼資料或私有暫存。Checkpoint 雖不在 Pages，仍存在公開儲存庫。
 
 金鑰格式錯誤、驗簽失敗、三檔批次不一致、或已啟用後 checkpoint 消失，會停止更新並保留既有發布內容（fail closed）。**不可刪 checkpoint、改回待連線、任意 bootstrap 或換金鑰來繞過錯誤。**恢復需使用原 `DASHBOARD_STATE_KEY`，從已確認 commit 還原同批次三檔。若金鑰遺失、要輪替金鑰或換帳戶，必須另行確認身分與歷史保留方案；目前沒有自動遷移或任意重設功能。只輪替同帳戶 OKX 憑證，不需要更換狀態金鑰。
 
