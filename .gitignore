@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.pem
+id_ed25519*
+private/
+state/
+*.log
+*.lock
+config.private.json

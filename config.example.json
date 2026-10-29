@@ -1,0 +1,26 @@
+{
+  "bots": [
+    {
+      "name": "Grok-Trader-A",
+      "env": {
+        "api_key": "OKX_A_API_KEY",
+        "secret_key": "OKX_A_SECRET_KEY",
+        "passphrase": "OKX_A_PASSPHRASE"
+      },
+      "start": null,
+      "simulated": false
+    },
+    {
+      "name": "Grok-Trader-B",
+      "env": {
+        "api_key": "OKX_API_KEY",
+        "secret_key": "OKX_SECRET_KEY",
+        "passphrase": "OKX_PASSPHRASE"
+      },
+      "start": null,
+      "simulated": false
+    }
+  ],
+  "max_fill_pages": 20,
+  "max_history_points": 50000
+}

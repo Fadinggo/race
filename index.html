@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><title>TRADING ARENA</title>
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script><title>TRADING ARENA</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&display=swap');
 :root{--c:#00f0ff;--m:#ff2bd6;--g:#39ff88;--r:#ff3860}
@@ -23,27 +23,11 @@ table{width:100%;border-collapse:collapse;margin-top:36px;background:rgba(10,14,
 th{color:var(--c);text-align:left;padding:12px;font-family:Orbitron;font-size:12px;letter-spacing:2px;border-bottom:1px solid var(--c)}
 td{padding:12px;border-bottom:1px solid #12222c}tbody tr{opacity:0;animation:in .5s ease forwards;transition:background .2s}tbody tr:hover{background:rgba(0,240,255,.08)}
 .clock{float:right;color:var(--c);font-size:14px;text-shadow:0 0 6px var(--c)}
+.warning{color:#ffd166}.muted{color:#9bb}.data-status{font:12px/1.6 sans-serif;margin:-16px 0 24px}.trader-status{font:12px/1.5 sans-serif;margin-top:16px}.trader-updated{font:11px/1.5 sans-serif;color:#9bb}.big small{font-size:14px}.cards.is-ready .card{opacity:1;transform:none;animation:none}.chart-status{font:12px/1.5 sans-serif;color:#9bb;margin:0 0 8px}.chart-status:empty{display:none}
 </style>
 <div class="wrap"><span class="clock" id="clk"></span><h1>TRADING ARENA</h1>
-<div class="sub">禁止現貨 ／ 全標的、可多持倉</div>
+<div class="sub">Grok-Trader-A / Grok-Trader-B ／ 唯讀帳戶概況</div>
+<div class="data-status muted" id="data-status" role="status" aria-live="polite">正在讀取資料…</div>
 <div class="cards" id="cards"></div>
-<div class="card" style="opacity:1;transform:none;animation:none;margin-top:28px;border-color:#7a5cff"><h2>資產變化</h2><canvas id="eqc" height="110"></canvas></div><table><thead><tr><th>TIME (台灣)</th><th>TRADER</th><th>MARKET</th><th>SIDE</th><th>PRICE</th><th>QTY</th><th>PNL</th><th>NOTE</th></tr></thead><tbody id="rows"></tbody></table></div>
-<script>
-setInterval(()=>clk.textContent=new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false})+' 台灣',1000);
-fetch('data.json?'+Date.now()).then(r=>r.json()).then(d=>{
-let h='';for(const [n,t] of Object.entries(d.traders)){const ts=d.trades.filter(x=>x.trader==n),eq=t.equity??(t.start+ts.reduce((a,x)=>a+x.pnl,0)),p=eq-t.start,
-hr=ts.filter(x=>Date.now()-new Date(x.time.replace(' ','T')+'+08:00')<3600e3).length,dc=ts.filter(x=>x.time.slice(0,10)==new Date().toLocaleDateString("sv",{timeZone:"Asia/Taipei"})).length,db=t.day_base??t.start,dp=(eq/db-1)*100,prog=Math.max(0,Math.min(100,dp/30*100));
-h+=`<div class="card"><h2>${n}</h2><div class="big">${eq.toFixed(2)} <small style="font-size:14px">USDT</small></div>
-<div class="row"><span>報酬率</span><b class="${p>=0?'pos':'neg'}">${p>=0?'+':''}${(p/t.start*100).toFixed(2)}%</b></div>
-<div class="row"><span>起始資金</span><span>${(+t.start).toFixed(0)} U${t.deposited?`（含追加 ${(+t.deposited).toFixed(0)}）`:''}</span></div>
-<div class="row" style="margin-top:12px"><span>總筆數</span><span>${t.fills_total??ts.length+'（僅近期）'}</span></div>
-${(t.positions||[]).map(o=>`<div class="row"><span>持倉 ${o.inst} ${o.side=="long"?"多":"空"} ${o.sz}張 @${+(+o.avgPx).toPrecision(6)}</span><b class="${+o.upl>=0?"pos":"neg"}">${(+o.upl).toFixed(2)}</b></div>`).join("")}<div class="row"><span>累計手續費</span><span class="neg">${t.fees_total!=null?(-Math.abs(+t.fees_total)).toFixed(3)+' U':ts.reduce((a,x)=>a+(x.fee||0),0).toFixed(3)+' U（僅近期）'}</span></div>${t.funding_total!=null?`<div class="row"><span>累計資金費</span><span class="${+t.funding_total>=0?"pos":"neg"}">${(+t.funding_total).toFixed(3)} U</span></div>`:""}<div class="row"><span>今日筆數</span><span>${dc}</span></div><div class="row"><span>近 1 小時</span><span>${hr}</span></div></div>`}
-cards.innerHTML=h;setTimeout(()=>document.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%'),300);
-rows.innerHTML=d.trades.slice().reverse().map((x,i)=>`<tr style="animation-delay:${.3+i*.08}s"><td>${x.time.slice(11)}</td><td>${x.trader}</td><td>${x.market}</td><td>${x.side}</td><td>${x.price}</td><td>${x.qty}</td><td class="${x.pnl>=0?'pos':'neg'}">${x.pnl}</td><td>${x.note}</td></tr>`).join('')});
-setTimeout(()=>location.reload(),30000);
-
-fetch('history.json?'+Date.now()).then(r=>r.json()).then(H=>{const col={"交易員1":"#00f0ff","交易員2":"#ff2bd6"};
-new Chart(eqc,{type:'line',data:{datasets:[].concat(Object.entries(H).map(([n,p])=>({label:n,data:p.map(([x,y])=>({x,y})),segment:{borderDash:c=>c.p1.parsed.x-c.p0.parsed.x>5400e3?[4,4]:undefined},borderColor:col[n],backgroundColor:col[n]+'22',fill:true,tension:.3,pointRadius:0,borderWidth:2})))},
-options:{animation:{duration:1200},parsing:false,scales:{x:{type:'linear',ticks:{color:'#9bb',callback:v=>new Date(v).toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false})},grid:{color:'#12222c'}},y:{ticks:{color:'#9bb'},grid:{color:'#12222c'}}},
-plugins:{legend:{labels:{color:'#d8f6ff'}},annotation:{}}}})});
-</script></html>
+<div class="card" style="opacity:1;transform:none;animation:none;margin-top:28px;border-color:#7a5cff"><h2>資產變化</h2><div id="chart-status" class="chart-status" role="status"></div><canvas id="eqc" height="110"></canvas></div><table><thead><tr><th>TIME (台灣)</th><th>TRADER</th><th>MARKET</th><th>SIDE</th><th>PRICE</th><th>QTY</th><th>PNL</th><th>NOTE</th></tr></thead><tbody id="rows"></tbody></table></div>
+<script src="dashboard.js" defer></script></html>
