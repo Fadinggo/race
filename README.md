@@ -90,7 +90,7 @@ GitHub 託管執行器每次工作使用新的環境，`scripts/gha_snapshot.py`
 
 ## 管理分工與備援
 
-長期管理交給 Grok **「交易儀表板專家」**依 `HANDOFF.md` 接手，是否完成以清單證據為準。GitHub Actions 定時執行，不需每五分鐘呼叫 AI；Codex 完成部署後不建立或保留持續排程。交易策略與交易服務另行管理。
+長期監督交給 Grok **「交易儀表板專家」**依 `HANDOFF.md` 接手；Codex 負責指定範圍的程式維護並回報主管驗收。新的雲端派工協定與實際啟用狀態見 [MAINTENANCE.md](MAINTENANCE.md)，尚未通過端到端測試前不能視為已接通。資料更新仍由 GitHub Actions 定時執行，不需每五分鐘呼叫 AI，也不依賴本機 Codex 排程。交易策略與交易服務另行管理。
 
 舊 `scripts/run_sync.py` 僅保留作**手動備援**，需要自行維持主機、私有狀態與 SSH 設定，不是正式部署，不能保障個人電腦關機後更新。它與 Actions checkpoint 不是可自動互換的狀態格式，未另行規畫恢復與協調前，不得與正式 workflow 同時推送。
 

@@ -13,7 +13,7 @@
 - Checkpoint 以獨立金鑰 HMAC 驗證，**不是加密**。公開儲存庫只有已允許公開觀測及不可逆識別代碼，不加入原始 UID、訂單／成交 ID 或秘密。
 - data/history/checkpoint 必須同 snapshot_id、同 commit。Pages 打包白名單是 index.html、dashboard.js、data.json、history.json、.nojekyll；首次實際 artifact 省略空白 .nojekyll，只有四個網站檔案，不含 checkpoint。
 - 日常 Run workflow 保持 bootstrap false。只有完整待連線配對可首次 bootstrap。驗簽失敗或缺檔不能刪除重設，需原金鑰與可信 commit 的同批次三檔恢復；換金鑰或帳戶須另定遷移方案。
-- Codex 部署完成後不保留持續監控或排程。run_sync.py 只是手動備援，不得未協調就與 Actions 同時推送。
+- Codex 不保留本機持續監控或排程；使用者已指定專家監督、Codex 實作維護，雲端派工的實際啟用狀態見 `MAINTENANCE.md`。run_sync.py 只是手動備援，不得未協調就與 Actions 同時推送。
 
 ## 初始驗收紀錄
 
