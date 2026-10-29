@@ -6,7 +6,7 @@
 
 ## 固定架構與邊界
 
-- 正式執行在 GitHub 託管 Actions，cron `2-57/5 * * * *`（UTC，約五分鐘，可能延遲）。Pages source 是 GitHub Actions，同次 workflow 直接部署；個人電腦不需開機。
+- 正式執行在 GitHub 託管 Actions，cron `3,8,13,18,23,28,33,38,43,48,53,58 * * * *`（UTC，約五分鐘，可能延遲）。Pages source 是 GitHub Actions，同次 workflow 直接部署；個人電腦不需開機。
 - 採集器只讀資料，不負責機器人持續交易。交易服務另外管理。
 - A/B 為 `Grok-Trader-A`、`Grok-Trader-B`，起始本金未確認保持 null，不把計畫的 10 USDT 當已入金。
 - 七個 secrets 僅記名稱：`OKX_A_API_KEY`、`OKX_A_SECRET_KEY`、`OKX_A_PASSPHRASE`、`OKX_B_API_KEY`、`OKX_B_SECRET_KEY`、`OKX_B_PASSPHRASE`、`DASHBOARD_STATE_KEY`。B 在 workflow 已映射到既有 `OKX_API_KEY`、`OKX_SECRET_KEY`、`OKX_PASSPHRASE`。
@@ -57,3 +57,9 @@
 - 此次檢查要求真正 event=schedule 成功、網站同批新資料、A/B 各自 ok 與歷史延續；不能用手動執行代替。
 - 結果回報專家聊天及「交易競賽群」，回報後刪除該一次性例行程序。這是接手者的驗收通知，不是第二套採集或推送程序；沒有建立 Codex 後續監控。
 - 後續驗收尚未發生，不能把已排定的檢查當作已通過。
+
+## 排程觸發修復紀錄（2026-10-30）
+
+05:30 的一次性唯讀驗收實際執行，專家於 05:31 回報尚無 event=schedule，只有兩次成功 manual run，並已刪除一次性例行程序。因此自動更新仍未驗收。05:34 再次公開 API 核對同樣為 0 個 schedule run、workflow active、main 設定存在。
+
+目前僅將 cron 分鐘改為 3、8、13……58，維持每五分鐘一次，讓 GitHub 重新處理排程與 actor 關聯。這是修復嘗試，必須觀察真實 schedule run、成功部署及網站時間前進後才能判定有效；不以手動執行代替。未修改 Secrets、bootstrap、帳戶、採集或歷史。
