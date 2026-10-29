@@ -29,8 +29,8 @@
 | A 狀態、最後成功時間、確認的權益 | 首次採集 ok，台灣 04:20:02，0.0 USDT、無持倉及近期成交 |
 | B 狀態、最後成功時間、確認的權益 | 首次採集 ok，台灣 04:20:02，0.0 USDT、無持倉及近期成交 |
 | 首次三檔相同 snapshot_id | `28ea8f7e62314b238234084c26f8f259`；資料 commit `2c24cb947ec9ce0675398a7b2df3baa785278cba` |
-| 後續 schedule run URL 與時間 | 待填 |
-| 後續 snapshot_id、各帳戶成功時間已前進 | 待填 |
+| 後續 schedule run URL 與時間 | 尚未驗收；截至台灣 2026-10-30 04:49:46 仍為 0 個 schedule run，workflow active。未以兩次 manual 成功替代自動觸發驗收 |
+| 後續 snapshot_id、各帳戶成功時間已前進 | 手動續跑已前進至 04:29:09；schedule 的後續批次仍待確認 |
 | 歷史觀測延續，未於每次工作歸零 | 第二次手動執行 [40949423609](https://github.com/Fadinggo/race/actions/runs/40949423609) 成功，bootstrap false；04:29:09 新批次 `0fca3d34887a47acbf23fd447ce5ddd9`，A/B 各 2 點，首筆 04:20:02 完整保留 |
 | 線上網站可見資料符合該批 JSON | 已由公開 HTTPS JSON 與瀏覽器畫面交叉確認 A/B 數值、狀態、時間一致 |
 | Pages artifact 內容驗證 | 實際下載檢查只有 index.html、dashboard.js、data.json、history.json 四檔；`.nojekyll` 未進入最終 artifact，直接 Pages 部署成功；不含 checkpoint 或私有檔 |
@@ -50,3 +50,10 @@
 - 狀態金鑰備份留在 Grok 雲端 `/workspace/race-sync/private/github-state.key`（目錄 0700、檔案 0600），不可貼出內容或任意更換。
 - Grok 連接器可讀 workflow、jobs、logs 及 repository 內容，但未提供寫檔或設定 Secrets 工具；雲端 SSH 連線受限。這次以已登入的 GitHub 網頁完成程式提交，沒有繞過網路限制。未來需改程式時由接手者使用可用的 GitHub 網頁或經授權的 HTTPS 流程。
 - 首次 artifact ZIP 的 SHA256 為 `258a1af174597c11ee2d004f2231c49186bb7bb8f482a8c49e58d362e678ffee`，與 Actions UI digest 一致。
+
+## 接手者的一次性後續驗收
+
+- Grok「交易儀表板專家」已實際建立原生雲端例行程序「race 首次自動排程唯讀驗收（2026-10-30 05:30）」。在右側網頁打開例行程序，已核對觸發器為 Once October 30 at 5:30 AM，指示限定唯讀驗收與結果回報。
+- 此次檢查要求真正 event=schedule 成功、網站同批新資料、A/B 各自 ok 與歷史延續；不能用手動執行代替。
+- 結果回報專家聊天及「交易競賽群」，回報後刪除該一次性例行程序。這是接手者的驗收通知，不是第二套採集或推送程序；沒有建立 Codex 後續監控。
+- 後續驗收尚未發生，不能把已排定的檢查當作已通過。
