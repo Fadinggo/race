@@ -7,7 +7,7 @@
         "secret_key": "OKX_A_SECRET_KEY",
         "passphrase": "OKX_A_PASSPHRASE"
       },
-      "start": null,
+      "start": 10,
       "simulated": false
     },
     {
@@ -17,7 +17,7 @@
         "secret_key": "OKX_SECRET_KEY",
         "passphrase": "OKX_PASSPHRASE"
       },
-      "start": null,
+      "start": 10,
       "simulated": false
     }
   ],

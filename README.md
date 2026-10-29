@@ -41,7 +41,7 @@ B 的 GitHub secrets 已映射成 B 現有的 `OKX_` 環境變數名稱，不需
 
 `DASHBOARD_STATE_KEY` 必須獨立產生、妥善備份，為 **32 隨機位元組**，以 64 個十六進位字元或標準 Base64 表示。它應長期穩定，不能由 OKX API key 衍生，也不能因更新 API key 而順便更換。儲存庫沒有預設金鑰。
 
-`config.example.json` 是正式非秘密設定，包含 bot 名稱、環境變數名稱、`start: null`、`simulated: false` 及資料上限。不要填入憑證值或原始 UID。採集器只允許固定 `https://www.okx.com` 的唯讀 GET 端點：account/config、account/balance、account/positions、trade/fills，不允許重新導向或交易請求。OKX API key 應使用符合唯讀用途的權限。（OKX，無日期）
+`config.example.json` 是正式非秘密設定，包含 bot 名稱、環境變數名稱、`start: 10`、`simulated: false` 及資料上限。不要填入憑證值或原始 UID。採集器只允許固定 `https://www.okx.com` 的唯讀 GET 端點：account/config、account/balance、account/positions、trade/fills，不允許重新導向或交易請求。OKX API key 應使用符合唯讀用途的權限。（OKX，無日期）
 
 在 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。正式流程直接部署同次工作的 Pages artifact，不使用「Deploy from a branch」，也不依賴 `GITHUB_TOKEN` 推送後再觸發另一個 push 工作流程。採集需要 `contents: write`；部署需要 `pages: write`、`id-token: write` 及 `github-pages` environment。確認該 environment 允許 `main` 部署，審核設定符合自動發布需求。（GitHub，無日期-e）正式執行使用工作流程提供的 `GITHUB_TOKEN`，不依賴個人電腦登入或 SSH 私鑰。
 
@@ -57,7 +57,7 @@ B 的 GitHub secrets 已映射成 B 現有的 `OKX_` 環境變數名稱，不需
 ## 資料意義
 
 - 卡片是 **USDT 權益**（USDT `details.eq`），不把 USD `totalEq` 或其他幣別直接當 USDT。成功確認為零才顯示 `0.00 USDT`；未知或首次讀取失敗保持 null。（OKX，無日期）
-- `start: null` 表示本金未確認，ROI 不臆測。計畫投入的 10 USDT 不是已確認本金。日後設定本金後，簡單報酬率是 `(equity / start - 1) × 100%`；有入金或出金時，不可當作已排除資金流的純交易績效。
+- 使用者於 2026-10-30 明確確認 A、B 起始本金各 **10 USDT**，正式設定為 `start: 10`。此值是報酬率基準，不會轉帳或改動帳戶餘額。簡單報酬率是 `(equity / start - 1) × 100%`；有入金或出金時，不可當作已排除資金流的純交易績效。
 - 成交取近期三天，分頁並去重。達分頁上限時標示不完整、筆數使用 `≥`；未知全期 `fees_total`、`funding_total`、`fills_total` 保持 null。費用正負、損益幣別、合約張數保留，缺幣別則明示未知。（OKX，無日期）
 - 歷史只記錄本採集器成功觀測值，目前每帳戶最多 50,000 點，不回填原作者曲線或推測未觀測時段。
 - A/B 必須不同帳戶，每次檢查與既有身分一致。更換帳戶不能直接接上舊曲線；同帳戶的 API 憑證輪替則可保留綁定。

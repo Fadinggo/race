@@ -1,6 +1,8 @@
 # 雲端維護派工
 
-本文件定義 Grok「交易儀表板專家」與 Codex 的維護協定。**目前為部署準備稿；程式存在、登入成功或測試通過，都不代表跨平台派工已驗收。**實際啟用狀態與測試紀錄待完成端到端測試後更新。
+本文件定義 Grok「交易儀表板專家」與 Codex 的維護協定。**派工與檢查程式已部署，但端到端測試因 Codex 雲端環境阻塞而未通過。**不能視為已啟用自動維護。
+
+實測記錄（2026-10-30）：主管建立 [Issue #1](https://github.com/Fadinggo/race/issues/1)，Actions 建立工單分支，主管建立 [PR #2](https://github.com/Fadinggo/race/pull/2)，並收到官方 bot 的[環境需求回覆](https://github.com/Fadinggo/race/pull/2#issuecomment-6508939343)。新 Cloud 環境雖已發布，GitHub 實作入口仍要求 Legacy 環境；帳戶的官方 Legacy 設定頁目前導回首頁，尚未解除。PR 只有初始工單、沒有實作結果。兩項 CI 成功不能代替實作驗收；主管已留下 [blocked 回條](https://github.com/Fadinggo/race/pull/2#issuecomment-6509634422)，保留 PR 並暫停 smoke 事件例行程序。未啟用獨立付費 API 替代方案。
 
 ## 分工與流程
 
@@ -39,6 +41,7 @@ Issue 可包含說明文字，但只能有一個 `RACE_WORK_ORDER_V1` fenced blo
 
 - 同一 Issue 固定對應同一分支與原始工單摘要。已建立後不得修改範圍再重派；需求改變時另開 Issue，保留舊紀錄。
 - 主管建立 PR 前先搜尋同一 head/base 是否已有 PR。已有則沿用，不重建。
+- 已核實官方 bot 的環境、額度或權限錯誤也需處理，即使沒有實作回報或新 head；以原因類別加 head 去重，記錄 blocked 後暫停，不自動重派。
 - 每次只在新的實作回報或新的 head/CI 結果出現時驗收，記錄 `RACE_ACCEPTANCE_V1 issue=N head=完整SHA result=accepted|changes_requested|blocked`。
 - 忽略主管自己的留言及已處理過的 head/event，不因自己的回覆再次派工。沒有新回報或可採取行動的變更時保持安靜。
 - Codex 回報需有 `RACE_IMPLEMENTATION_V1`、完整 head SHA、修改檔案、執行指令、通過／失敗／略過結果與逐項驗收證據。

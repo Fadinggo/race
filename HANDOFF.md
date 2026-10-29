@@ -8,7 +8,7 @@
 
 - 正式執行在 GitHub 託管 Actions，cron `3,8,13,18,23,28,33,38,43,48,53,58 * * * *`（UTC，約五分鐘，可能延遲）。Pages source 是 GitHub Actions，同次 workflow 直接部署；個人電腦不需開機。
 - 採集器只讀資料，不負責機器人持續交易。交易服務另外管理。
-- A/B 為 `Grok-Trader-A`、`Grok-Trader-B`，起始本金未確認保持 null，不把計畫的 10 USDT 當已入金。
+- A/B 為 `Grok-Trader-A`、`Grok-Trader-B`，使用者於 2026-10-30 明確確認兩者起始本金各 10 USDT；正式設定 `start: 10`，正常更新生效，不重新 bootstrap。
 - 七個 secrets 僅記名稱：`OKX_A_API_KEY`、`OKX_A_SECRET_KEY`、`OKX_A_PASSPHRASE`、`OKX_B_API_KEY`、`OKX_B_SECRET_KEY`、`OKX_B_PASSPHRASE`、`DASHBOARD_STATE_KEY`。B 在 workflow 已映射到既有 `OKX_API_KEY`、`OKX_SECRET_KEY`、`OKX_PASSPHRASE`。
 - Checkpoint 以獨立金鑰 HMAC 驗證，**不是加密**。公開儲存庫只有已允許公開觀測及不可逆識別代碼，不加入原始 UID、訂單／成交 ID 或秘密。
 - data/history/checkpoint 必須同 snapshot_id、同 commit。Pages 打包白名單是 index.html、dashboard.js、data.json、history.json、.nojekyll；首次實際 artifact 省略空白 .nojekyll，只有四個網站檔案，不含 checkpoint。
@@ -56,10 +56,17 @@
 - Grok「交易儀表板專家」已實際建立原生雲端例行程序「race 首次自動排程唯讀驗收（2026-10-30 05:30）」。在右側網頁打開例行程序，已核對觸發器為 Once October 30 at 5:30 AM，指示限定唯讀驗收與結果回報。
 - 此次檢查要求真正 event=schedule 成功、網站同批新資料、A/B 各自 ok 與歷史延續；不能用手動執行代替。
 - 結果回報專家聊天及「交易競賽群」，回報後刪除該一次性例行程序。這是接手者的驗收通知，不是第二套採集或推送程序；沒有建立 Codex 後續監控。
-- 後續驗收尚未發生，不能把已排定的檢查當作已通過。
+- 此次驗收已執行且未通過，例行程序已刪除；專家回報未向群聊公告。下方記錄後續修復與核對結果。
 
 ## 排程觸發修復紀錄（2026-10-30）
 
 05:30 的一次性唯讀驗收實際執行，專家於 05:31 回報尚無 event=schedule，只有兩次成功 manual run，並已刪除一次性例行程序。因此自動更新仍未驗收。05:34 再次公開 API 核對同樣為 0 個 schedule run、workflow active、main 設定存在。
 
 目前僅將 cron 分鐘改為 3、8、13……58，維持每五分鐘一次，讓 GitHub 重新處理排程與 actor 關聯。這是修復嘗試，必須觀察真實 schedule run、成功部署及網站時間前進後才能判定有效；不以手動執行代替。未修改 Secrets、bootstrap、帳戶、採集或歷史。
+
+## 06:24 更新與待解問題（2026-10-30 台灣時間）
+
+- 修改 cron 後，截至 06:18 仍無任何 schedule run。06:23–06:24 透過 GitHub 正式 UI 停用後重新啟用，已讀回 `active`；尚無排程恢復成功的證據。
+- 第三次手動正常更新 [40965403858](https://github.com/Fadinggo/race/actions/runs/40965403858) 成功，未 bootstrap。公開資料時間 06:22:54，批次 `bb1d6015b1194b6cb114b54da8437285`；A 10 USDT，B 約 10.04 USDT，B 有一筆 BTC-USDT-SWAP 空單及近期成交。A/B 歷史各 3 點，舊點保留。畫面與公開 JSON 一致。這只證明手動更新與部署成功。
+- 使用者隨後確認起始本金各 10 USDT，本次設定提交後須由正常 exporter 產生新批次，不能手改已簽章 checkpoint。
+- 自動維護 smoke 的 Issue #1、PR #2 已實際建立；官方 Codex bot 要求尚不可用的 Legacy 環境。主管已記錄 blocked，測試例行程序已暫停；詳見 MAINTENANCE.md。尚未啟用任何獨立付費 OpenAI API 維護器。
