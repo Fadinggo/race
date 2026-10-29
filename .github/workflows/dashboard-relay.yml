@@ -1,0 +1,50 @@
+name: Cloud dashboard refresh relay
+
+on:
+  issues:
+    types: [edited]
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Bounded smoke test slots (1-12, five minutes apart)'
+        required: true
+        default: 2
+        type: number
+
+permissions: {}
+
+concurrency:
+  # This must differ from race-dashboard-publish, or dispatched runs would wait
+  # for their own relay to finish before collecting anything.
+  group: race-dashboard-relay
+  cancel-in-progress: false
+
+jobs:
+  relay:
+    if: >-
+      github.repository == 'Fadinggo/race' && github.ref == 'refs/heads/main' &&
+      github.actor == 'Fadinggo' && github.actor_id == '257707061' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.action == 'edited' && github.event.issue.number == 3 &&
+        github.event.issue.state == 'open' && !github.event.issue.pull_request &&
+        github.event.issue.title == 'Dashboard cloud refresh heartbeat' &&
+        github.event.issue.user.login == 'Fadinggo' && github.event.issue.user.id == 257707061 &&
+        github.event.sender.login == 'Fadinggo' && github.event.sender.id == 257707061 &&
+        github.event.changes.body != null))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Check out the trusted relay from main
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Validate the trigger and dispatch the bounded refresh window
+        run: python3 -B scripts/dashboard_relay.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
