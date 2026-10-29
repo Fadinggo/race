@@ -1,0 +1,21 @@
+{
+  "base_commit": "a54f8d4c073a02d794b2838c3c43ea1baefb67b3",
+  "issue_number": 1,
+  "issue_url": "https://github.com/Fadinggo/race/issues/1",
+  "requested_by": "Fadinggo",
+  "schema": "RACE_WORK_ORDER_V1",
+  "work_order": {
+    "acceptance": [
+      "只新增指定結果文件，記錄已讀工單與實際檢查結果",
+      "在 PR 回報實作 commit 與證據，不改網站及交易資料",
+      "主管能由 PR 事件收到回報並寫入驗收結果"
+    ],
+    "allowed_paths": [
+      ".maintenance/results/1.md"
+    ],
+    "kind": "smoke",
+    "objective": "驗證主管派工、Codex 雲端執行與主管收件驗收；只新增驗收結果文件。",
+    "version": 1
+  },
+  "work_order_sha256": "d43e139e6a0ef18b3c5e0fb8c67c979d47cbeeece38a21ac1e9e226afd36a513"
+}
