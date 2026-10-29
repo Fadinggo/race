@@ -2,7 +2,7 @@
 
 [網站](https://fadinggo.github.io/race/) · [儲存庫](https://github.com/Fadinggo/race) · [更新工作流程](https://github.com/Fadinggo/race/actions/workflows/update-dashboard.yml) · [管理交接清單](HANDOFF.md)
 
-正式部署由 **GitHub Actions 的 GitHub 託管執行器**讀取 `Grok-Trader-A`、`Grok-Trader-B` 的 OKX 資料，再直接部署 GitHub Pages。工作在 GitHub 提供的環境執行，**個人電腦關機不會中止更新流程**，不需要本機常駐 Python、SSH 私鑰或 Codex 排程。（GitHub，無日期-c）
+正式更新由 **ChatGPT Work 原生雲端任務每小時喚醒 GitHub Actions relay**，再由 GitHub 託管執行器讀取 `Grok-Trader-A`、`Grok-Trader-B` 的 OKX 資料並部署 GitHub Pages。不需要本機常駐 Python、SSH 私鑰或 Codex 排程；已驗證雲端自動觸發，但尚未實際關閉使用者電腦測試。（GitHub，無日期-c；OpenAI，無日期-a）
 
 這是唯讀儀表板，不下單、撤單、改槓桿或轉移資金，**也不負責讓交易機器人本身持續交易**。交易程序的執行環境、策略與存活狀態由各自服務維持。
 
@@ -11,17 +11,21 @@
 ## 正式更新流程
 
 ```text
-GitHub 排程或手動啟動 → checkout main、測試
+ChatGPT Work 每小時第 25 分鐘 → 更新固定 Issue #3
+→ GitHub 有界 relay：每輪最多 12 次、約每五分鐘 workflow_dispatch
+→ 固定 main、bootstrap false → checkout main、測試
 → 驗證 checkpoint、唯讀查詢兩個 OKX 帳戶
 → 同一 commit 保存 data.json、history.json、state-checkpoint.json
 → 只打包允許公開的網站檔案 → 同一次 workflow 直接部署 Pages
 ```
 
-工作流程是 `.github/workflows/update-dashboard.yml`，cron 為 `3,8,13,18,23,28,33,38,43,48,53,58 * * * *`：UTC 每小時第 3、8、13……58 分鐘，約每五分鐘；台灣時間的分鐘數相同。GitHub 排程可能延遲，壅塞時也可能略過工作，**不是每五分鐘準時更新的 SLA**。排程使用預設分支，本專案固定 `main`；公開儲存庫長時間沒有活動也可能停用排程。（GitHub，無日期-b）
+專用 Work 任務 `6ae3d47305848190bd4bbde68ad3b268` 在 Asia/Taipei 每小時第 25 分鐘更新 [Issue #3](https://github.com/Fadinggo/race/issues/3)，觸發 `.github/workflows/dashboard-relay.yml`。Relay 固定呼叫 `.github/workflows/update-dashboard.yml`，每輪最多 12 次，逾期時間槽跳過，不集中補跑或遞迴啟動自己。舊 GitHub `schedule` 區塊已移除；**這是替代觸發架構，不代表 GitHub cron 已恢復**。每輪內派送間隔為五分鐘，跨輪、排隊及部署仍可能有時間差，不是準時更新的 SLA。設定、停用與驗收細節見 [CLOUD-REFRESH.md](CLOUD-REFRESH.md)。
+
+2026-10-30 的 07:25 Work 場次已自動觸發 relay [40973201815](https://github.com/Fadinggo/race/actions/runs/40973201815)。兩個子工作 [40973213052](https://github.com/Fadinggo/race/actions/runs/40973213052)、[40973774300](https://github.com/Fadinggo/race/actions/runs/40973774300) 分別於台灣時間 07:26:58、07:31:58 啟動，相隔 300 秒，collect/deploy 均成功。公開資料依序更新至 07:27:06.878（批次 `5635a251524940ac9915f9ab70846dc0`、A/B 各 7 個歷史點）及 07:32:06.145（批次 `bef46c472edc4bebbdaba41fe7b321f9`、各 8 點），兩次 A/B 均為 ok。這證明原生自動觸發及兩次連續更新，尚未涵蓋整輪 12 次或實際關機驗收。
 
 網頁每 30 秒檢查新 JSON，採集、部署及 CDN 更新會增加延遲。每張卡片保留自己的最後成功時間，超過 15 分鐘顯示過期。單一帳戶失敗時保留最後成功值並顯示錯誤，首次未知值保持 `null`。工作流程以 concurrency 排序，不取消正在發布的工作。
 
-公開儲存庫使用標準 GitHub 託管執行器，其運算使用免費。本方案採標準 `ubuntu-24.04`，不要求額外常駐主機或大型執行器。GitHub Pro 不提供精準排程保證；其他儲存、限制及實際費用仍以帳戶 Billing 頁面為準。（GitHub，無日期-a）
+公開儲存庫使用標準 GitHub 託管執行器，其運算使用免費。本方案採標準 `ubuntu-24.04`，不要求額外常駐主機或大型執行器；其他儲存、限制及實際費用仍以帳戶 Billing 頁面為準。（GitHub，無日期-a）沒有新增付費 API 服務，但每小時的 Work 任務使用現有 Work／Codex 共用方案額度，不能視為無限免費輪詢。（OpenAI，無日期-b）
 
 ## GitHub 設定與七個 Secrets
 
@@ -50,9 +54,9 @@ B 的 GitHub secrets 已映射成 B 現有的 `OKX_` 環境變數名稱，不需
 1. 確認正式程式已在 `main`、七個 Secrets 齊全、Pages source 正確，`data.json` 與 `history.json` 是完整、同批 `awaiting-live-connection` 待連線資料：正確 bot 名稱、未知數值為 null、歷史和成交為空。
 2. 到 **Actions → Update trading dashboard → Run workflow**，選 `main`。只有第一次建立新 checkpoint，才把 `bootstrap` 設為 `true`，再按 Run workflow。（GitHub，無日期-d）
 3. 查看 `collect`、`deploy` 結果。採集成功發布「帳戶讀取失敗」狀態也可能是綠色工作，因此還要確認 A/B 各自狀態、最後成功時間與實際資料。
-4. 對照三個資料檔相同的 `snapshot_id` 及線上網站；再等待一次 **schedule** 事件完成，確認新批次、時間前進、歷史延續。將實際 run URL、commit 及結果填入 `HANDOFF.md`。
+4. 對照三個資料檔相同的 `snapshot_id` 及線上網站；再等待 Work 自動更新 Issue #3，確認 relay 的 **issues** 事件及其子 **workflow_dispatch** 成功、新批次時間前進、歷史延續。將實際 run URL、commit 及結果填入 `HANDOFF.md`。單獨手動補跑不等於自動觸發驗收。
 
-日後手動補更新時，使用同一 GUI 流程，**保持 `bootstrap: false`**。正常排程不會 bootstrap。勾選 bootstrap 不會授權重設現有身分或歷史；缺檔、混合批次、殘留已啟用資料或原作者檔案都不能作為首次連線來源。
+日後手動補更新時，使用同一 GUI 流程，**保持 `bootstrap: false`**。Relay 的正常更新也固定為 false。勾選 bootstrap 不會授權重設現有身分或歷史；缺檔、混合批次、殘留已啟用資料或原作者檔案都不能作為首次連線來源。
 
 ## 資料意義
 
@@ -86,11 +90,11 @@ GitHub 託管執行器每次工作使用新的環境，`scripts/gha_snapshot.py`
 | `active_checkpoint_missing`、`checkpoint_authentication_failed`、`checkpoint_public_pair_mismatch`、`checkpoint_or_public_file_unreadable`、`invalid_bootstrap_source` | 檢查缺檔或混批，使用原金鑰與可信 commit 的同批次三檔恢復 |
 | 遠端分支變動或 push 失敗 | 不 force push，從最新 main 重跑並檢查保護規則 |
 | collect 成功、deploy 失敗 | 查 Pages source、environment 與部署權限；網站仍可能是舊版 |
-| 長時間沒 schedule 工作 | 查 workflow 是否停用、預設分支及排程延遲；可手動補跑，bootstrap false |
+| 長時間沒有自動更新 | 依序查 Work 任務是否啟用及有額度、Issue #3 時間、relay 的 issues 事件與派送數、子工作 collect/deploy；可手動補跑，bootstrap false |
 
 ## 管理分工與備援
 
-長期監督交給 Grok **「交易儀表板專家」**依 `HANDOFF.md` 接手；Codex 負責指定範圍的程式維護並回報主管驗收。新的雲端派工協定與實際啟用狀態見 [MAINTENANCE.md](MAINTENANCE.md)，尚未通過端到端測試前不能視為已接通。資料更新仍由 GitHub Actions 定時執行，不需每五分鐘呼叫 AI，也不依賴本機 Codex 排程。交易策略與交易服務另行管理。
+長期監督交給 Grok **「交易儀表板專家」**依 `HANDOFF.md` 接手；Codex 負責指定範圍的程式維護並回報主管驗收。新的雲端派工協定與實際啟用狀態見 [MAINTENANCE.md](MAINTENANCE.md)，尚未通過端到端測試前不能視為已接通。資料更新由 Work 每小時喚醒 GitHub relay，再由程式完成該輪計時與採集；不需每五分鐘呼叫 AI，也不依賴本機 Codex 排程。交易策略與交易服務另行管理。
 
 舊 `scripts/run_sync.py` 僅保留作**手動備援**，需要自行維持主機、私有狀態與 SSH 設定，不是正式部署，不能保障個人電腦關機後更新。它與 Actions checkpoint 不是可自動互換的狀態格式，未另行規畫恢復與協調前，不得與正式 workflow 同時推送。
 
@@ -107,8 +111,6 @@ node --test tests/dashboard.test.js
 
 GitHub。（無日期-a）。[Billing and usage](https://docs.github.com/en/actions/concepts/billing-and-usage)。GitHub Docs。2026 年 10 月 30 日檢索。
 
-GitHub。（無日期-b）。[Events that trigger workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)。GitHub Docs。2026 年 10 月 30 日檢索。
-
 GitHub。（無日期-c）。[GitHub-hosted runners](https://docs.github.com/en/actions/concepts/runners/github-hosted-runners)。GitHub Docs。2026 年 10 月 30 日檢索。
 
 GitHub。（無日期-d）。[Manually running a workflow](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)。GitHub Docs。2026 年 10 月 30 日檢索。
@@ -118,5 +120,9 @@ GitHub。（無日期-e）。[Using custom workflows with GitHub Pages](https://
 GitHub。（無日期-f）。[Using secrets in GitHub Actions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)。GitHub Docs。2026 年 10 月 30 日檢索。
 
 OKX。（無日期）。[OKX API documentation](https://www.okx.com/docs-v5/en/)。2026 年 10 月 30 日檢索。
+
+OpenAI。（無日期-a）。[Scheduled tasks](https://learn.chatgpt.com/docs/automations)。ChatGPT Learn。2026 年 10 月 30 日檢索。
+
+OpenAI。（無日期-b）。[Pricing](https://learn.chatgpt.com/docs/pricing)。ChatGPT Learn。2026 年 10 月 30 日檢索。
 
 wuyulun0823-lab。（無日期）。[race](https://github.com/wuyulun0823-lab/race)［原始碼儲存庫］。GitHub。

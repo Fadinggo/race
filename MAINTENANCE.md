@@ -1,6 +1,6 @@
 # 雲端維護派工
 
-本文件定義 Grok「交易儀表板專家」與 ChatGPT Work「race 雲端維護」的維護協定。**雲端瀏覽器登入、雙向握手、第一輪實作與主管事件驗收已通過；Work 正式託管派工事件仍在接通中。**不能把人工啟動的第一輪當成已啟用自動派工。
+本文件定義 Grok「交易儀表板專家」與 ChatGPT Work「race 雲端維護」的維護協定。**雲端瀏覽器登入、雙向握手、第一輪實作與主管事件驗收已通過；Work 原生託管 PR 事件任務已啟用，第二輪真正事件派工正在驗收。**不能把人工啟動的第一輪當成自動派工證據。
 
 實測記錄（2026-10-30）：[Issue #1](https://github.com/Fadinggo/race/issues/1) 與 [PR #2](https://github.com/Fadinggo/race/pull/2) 的舊 GitHub bot 路徑收到[環境需求回覆](https://github.com/Fadinggo/race/pull/2#issuecomment-6508939343)，主管曾留下 [blocked 回條](https://github.com/Fadinggo/race/pull/2#issuecomment-6509634422)。使用者隨後授權改走 Work 雲端瀏覽器；新雲端對話於 07:02（台灣時間）實際向專家送訊，讀回 `RACE_CLOUD_BROWSER_READY`。專家已恢復原有 PR #2 事件驗收例程，新的實作必須按新 head 重新核對，不沿用舊環境阻塞。沒有啟用獨立付費 API 維護器。
 
@@ -13,9 +13,9 @@
 1. 主管使用已連接的 GitHub 帳戶在 `Fadinggo/race` 建立 Issue，加入 `codex-maintenance` 標籤，並放入下列唯一一段工單 JSON。
 2. `maintenance-dispatch.yml` 驗證儲存庫、作者、觸發者與工單格式，從最新 `main` 建立 `codex/maintenance-N`，只新增不可變更的工單檔案，並在 Issue 留下準備完成回條與初始 commit。
 3. 主管在建立 Issue 的當次工作中有界等候完成回條；若準備仍排隊，安排一次性延後檢查，不假設 Issue 留言會喚醒主管。讀取回條後，使用現有 GitHub 連接器建立該分支到 `main` 的 PR。準備流程不以 `GITHUB_TOKEN` 建立 PR，以免形成需要人工批准才執行的檢查。（GitHub，無日期）
-4. 主管先建立範圍限定該 PR 的 Grok 原生事件驗收例程，再由自己的既有 GitHub 連線在 PR 留下 `RACE_DISPATCH_V1 issue=N`，附原始工單與明確實作要求。實作入口改為既有 Work 雲端對話的 GitHub PR 事件任務；不得再呼叫舊 GitHub bot。Work 任務尚未啟用或未驗證時，必須明示待接通，不能把人工送訊當成自動派工。Work 支援 GitHub PR 活動事件與既有雲端對話，但本帳戶的實際事件接收仍須另行驗收。（OpenAI，無日期）
+4. 主管由自己的既有 GitHub 連線在 PR 留下一則頂層 `RACE_DISPATCH_V1 issue=N`，附原始工單與明確實作要求。實作入口是既有 Work 雲端對話的原生 GitHub PR 事件任務；不得再呼叫舊 GitHub bot，不手動向 Work 重送同一工作。啟用任務名稱「race 雲端維護派工」，ID `6ae3d5b70c048191b7c50f7df87268d3`；設定頁已讀回儲存庫 `fadinggo/race`、PR 與審查留言事件，入口再核對留言作者 `Fadinggo`／ID `257707061`、協定、不可變工單與去重。建立啟用不等於事件實測成功。（OpenAI，無日期）
 5. Codex 在 PR 分支實作並提交 `RACE_IMPLEMENTATION_V1` 回報。`maintenance-checks.yml` 的 `pull_request_target` 工作只執行正式基底分支的可信範圍檢查，讀取 PR Git 內容，不執行 PR 程式；另一個 `pull_request` 工作才執行離線 Python／Node 測試。兩者都只有 contents 讀取權限，沒有 OKX 憑證。
-6. 主管接到事件後核對回報 commit、當前 PR head、全部變更檔案、工作流程未被變更／刪除、來自 `pull_request_target` 的可信範圍檢查、同一 head 的回歸測試及原始驗收條件，不能只依賴綠色狀態。合格才接受；不合格在同一 PR 給出具體修正要求。驗收完畢後停用該 PR 的例行程序，避免重複喚醒。
+6. Work 用已登入的雲端瀏覽器把原 PR、精確實作 head、CI 和回報連結送到指定 Grok 專家對話，主管獨立核對完整變更、可信範圍檢查、同一 head 的回歸測試及原始驗收條件，再於原 PR 寫入 accepted 或 changes_requested。此路徑不要求每張 PR 另建 Grok 例程；若該 PR 已有事件驗收例程，須去重並於完成後停用。Work 讀回實際驗收留言；changes_requested 由相同 PR 留言入口最多接兩輪修正，accepted 終止此不可變工單。所有初始連線 smoke PR 保持 open、不合併、不關閉。
 
 ## 工單格式
 

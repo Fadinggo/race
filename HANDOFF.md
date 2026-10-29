@@ -6,7 +6,8 @@
 
 ## 固定架構與邊界
 
-- 正式執行在 GitHub 託管 Actions，cron `3,8,13,18,23,28,33,38,43,48,53,58 * * * *`（UTC，約五分鐘，可能延遲）。Pages source 是 GitHub Actions，同次 workflow 直接部署；個人電腦不需開機。
+- 正式觸發為 Work 原生雲端任務 `6ae3d47305848190bd4bbde68ad3b268`（Asia/Taipei 每小時 25 分）→ 固定 Issue #3 → GitHub relay 每輪最多 12 次、約五分鐘一次 → `update-dashboard.yml` 固定 main／bootstrap false 採集及直接部署 Pages。舊 `schedule` 區塊已移除，GitHub cron 並未取得恢復證據；詳見 `CLOUD-REFRESH.md`。
+- Work 與 GitHub 執行器不依賴本機程序；已驗證原生自動觸發及兩次連續更新，但尚未實際關閉使用者電腦測試，也未驗收整輪 12 次及後續每小時持續運行。沒有新增付費 API 服務；每小時 Work 執行會使用現有 Work／Codex 方案額度。
 - 採集器只讀資料，不負責機器人持續交易。交易服務另外管理。
 - A/B 為 `Grok-Trader-A`、`Grok-Trader-B`，使用者於 2026-10-30 明確確認兩者起始本金各 10 USDT；正式設定 `start: 10`，正常更新生效，不重新 bootstrap。
 - 七個 secrets 僅記名稱：`OKX_A_API_KEY`、`OKX_A_SECRET_KEY`、`OKX_A_PASSPHRASE`、`OKX_B_API_KEY`、`OKX_B_SECRET_KEY`、`OKX_B_PASSPHRASE`、`DASHBOARD_STATE_KEY`。B 在 workflow 已映射到既有 `OKX_API_KEY`、`OKX_SECRET_KEY`、`OKX_PASSPHRASE`。
@@ -39,8 +40,8 @@
 
 ## 日常處理順序
 
-1. 看 A/B 各自最後成功時間與錯誤，再看 Actions 最近 schedule 或 workflow_dispatch 結果。
-2. 區分 OKX 讀取、checkpoint、Git 推送、Pages 部署及排程延遲，依 README 排查。工作綠色仍須確認帳戶不是 error。
+1. 看 A/B 各自最後成功時間與錯誤，再依序核對 Work 任務、Issue #3 時間、relay 的 issues 事件，以及子 workflow_dispatch 結果。
+2. 區分 Work 喚醒、Issue 觸發、relay 派送、OKX 讀取、checkpoint、Git 推送與 Pages 部署，依 README 排查。工作綠色仍須確認派送數不為零、帳戶不是 error，且網站時間有前進。
 3. 必要時手動補更新，bootstrap false；修復後驗證線上新批次、成功時間前進及歷史延續。
 4. 涉及帳戶變更、狀態金鑰輪替、歷史重設或交易本身，另行確認授權與恢復方案。
 5. 維護紀錄只留時間、run URL、commit、固定錯誤碼、處理動作與驗收結果，不寫秘密或原始帳戶識別。
@@ -62,7 +63,7 @@
 
 05:30 的一次性唯讀驗收實際執行，專家於 05:31 回報尚無 event=schedule，只有兩次成功 manual run，並已刪除一次性例行程序。因此自動更新仍未驗收。05:34 再次公開 API 核對同樣為 0 個 schedule run、workflow active、main 設定存在。
 
-目前僅將 cron 分鐘改為 3、8、13……58，維持每五分鐘一次，讓 GitHub 重新處理排程與 actor 關聯。這是修復嘗試，必須觀察真實 schedule run、成功部署及網站時間前進後才能判定有效；不以手動執行代替。未修改 Secrets、bootstrap、帳戶、採集或歷史。
+當時僅將 cron 分鐘改為 3、8、13……58，維持每五分鐘一次，讓 GitHub 重新處理排程與 actor 關聯。這是修復嘗試，必須觀察真實 schedule run、成功部署及網站時間前進後才能判定有效；不以手動執行代替。未修改 Secrets、bootstrap、帳戶、採集或歷史。後續改採 Work／Issue relay，見下方紀錄；此段保留原始修復歷程。
 
 ## 06:24 更新與待解問題（2026-10-30 台灣時間）
 
@@ -70,3 +71,21 @@
 - 第三次手動正常更新 [40965403858](https://github.com/Fadinggo/race/actions/runs/40965403858) 成功，未 bootstrap。公開資料時間 06:22:54，批次 `bb1d6015b1194b6cb114b54da8437285`；A 10 USDT，B 約 10.04 USDT，B 有一筆 BTC-USDT-SWAP 空單及近期成交。A/B 歷史各 3 點，舊點保留。畫面與公開 JSON 一致。這只證明手動更新與部署成功。
 - 使用者隨後確認起始本金各 10 USDT，本次設定提交後須由正常 exporter 產生新批次，不能手改已簽章 checkpoint。
 - 自動維護 smoke 的 Issue #1、PR #2 已實際建立；官方 Codex bot 要求尚不可用的 Legacy 環境。主管已記錄 blocked，測試例行程序已暫停；詳見 MAINTENANCE.md。尚未啟用任何獨立付費 OpenAI API 維護器。
+
+## 07:25 原生 Work 自動更新驗收（2026-10-30 台灣時間）
+
+GitHub 原生 cron 仍未取得實際成功證據，因此改採 Work 原生雲端任務「race 每小時資料喚醒」，任務 ID `6ae3d47305848190bd4bbde68ad3b268`，Asia/Taipei 每小時第 25 分鐘。此任務更新固定 Issue #3，由 GitHub 的有界 relay 完成每輪最多 12 次、約五分鐘一次的正式採集與 Pages 發布。舊 cron 定義已移除，`workflow_dispatch`、採集設定、Secrets、checkpoint 及部署設定保留。
+
+| 項目 | 已觀測證據 |
+|---|---|
+| 原生自動喚醒 | Work 的 07:25 場次自動編輯 [Issue #3](https://github.com/Fadinggo/race/issues/3)，非人工代發事件 |
+| Relay run | [40973201815](https://github.com/Fadinggo/race/actions/runs/40973201815)，事件 `issues` |
+| 第一個子工作 | [40973213052](https://github.com/Fadinggo/race/actions/runs/40973213052)，07:26:58 啟動，collect/deploy 均 success |
+| 第一批資料 | snapshot `5635a251524940ac9915f9ab70846dc0`，更新 07:27:06.878，A/B 均 ok，歷史各 7 點 |
+| 第二個子工作 | [40973774300](https://github.com/Fadinggo/race/actions/runs/40973774300)，07:31:58 啟動，與第一個精確相隔 300 秒，collect/deploy 均 success |
+| 第二批資料 | 公開 data/history 同 snapshot `bef46c472edc4bebbdaba41fe7b321f9`，更新 07:32:06.145，A/B 均 ok，歷史各 8 點 |
+| 驗收邊界 | 已證明原生 Work → Issue → relay → 兩個子工作 → 公開資料連續更新；未驗收整輪 12 次、後續每小時持續運行或實際關機情境 |
+
+這是替代觸發架構的成功證據，**不是 GitHub cron 修復成功**。執行不需要本機程序，也沒有新增 API 服務，但每小時的 Work 任務仍使用現有方案額度。Relay 摘要的派送數及子工作結果必須一起核對；綠燈、設定已儲存或已收到排程確認，均不能單獨代替網站驗收。跨輪的實際間隔也可能受啟動延遲影響。
+
+原本的初始化、cron 修復失敗及 Legacy 維護阻塞紀錄以上方歷史段落保留。資料更新路徑的成功不等於自動維護 smoke 已通過；維護流程另依 `MAINTENANCE.md` 驗收。
