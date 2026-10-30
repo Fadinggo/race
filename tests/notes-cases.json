@@ -1077,5 +1077,2553 @@
     "valid": false,
     "visible_count": 0,
     "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_valid_signed_values",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_all_unknown",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": null,
+            "unrealized_pnl": null,
+            "fees": null,
+            "funding": null,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": null
+            },
+            "api_cost_total": null,
+            "net_after_costs": null,
+            "cum": {
+              "realized_pnl": null,
+              "unrealized_pnl": null,
+              "fees": null,
+              "funding": null,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": null
+              },
+              "api_cost_total": null,
+              "net_after_costs": null
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_zero_values",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 0,
+            "unrealized_pnl": 0,
+            "fees": 0,
+            "funding": 0,
+            "api_cost_by_model": {},
+            "api_cost_total": 0,
+            "net_after_costs": 0,
+            "cum": {
+              "realized_pnl": 0,
+              "unrealized_pnl": 0,
+              "fees": 0,
+              "funding": 0,
+              "api_cost_by_model": {},
+              "api_cost_total": 0,
+              "net_after_costs": 0
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_empty_models_unknown_total",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {},
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_leap_day",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2024-02-29",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_year_one",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "0001-01-01",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_year_max",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "9999-12-31",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_late_submission",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-29",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_future_date_only_format",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-31",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_nonleap",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-02-29",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_bad_month",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-13-01",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_bad_day",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-04-31",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_year_zero",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "0000-01-01",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_short_month",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-1-01",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_date_time",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30T00:00:00",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_non_text_date",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": null,
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_fullwidth_date",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "２０２６-１０-３０",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_date"
+  },
+  {
+    "name": "settlement_missing_date",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "settlement_missing_table",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "settlement_extra_note_field",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          },
+          "plan": "extra"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "settlement_table_null",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": null
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_table_array",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": []
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_table_missing_number",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_table_extra_field",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            },
+            "extra": null
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_cum_null",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": null
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_cum_array",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": []
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_cum_missing_number",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_cum_extra_field",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255,
+              "extra": null
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_cum_nested_cum",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255,
+              "cum": {
+                "realized_pnl": 2.5,
+                "unrealized_pnl": -0.25,
+                "fees": -0.01,
+                "funding": 0.03,
+                "api_cost_by_model": {
+                  "gpt-4.1-mini": 0.012,
+                  "gpt-4o-mini": 0.003
+                },
+                "api_cost_total": 0.015,
+                "net_after_costs": 2.255
+              }
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_table"
+  },
+  {
+    "name": "settlement_boolean_cell",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": false,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_number"
+  },
+  {
+    "name": "settlement_string_cell",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": "1.2",
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_number"
+  },
+  {
+    "name": "settlement_array_cell",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": [],
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_number"
+  },
+  {
+    "name": "settlement_cum_string",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": "0"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_number"
+  },
+  {
+    "name": "settlement_model_string",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-test": "0.1"
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_number"
+  },
+  {
+    "name": "settlement_model_boolean",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-test": true
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_settlement_number"
+  },
+  {
+    "name": "settlement_negative_api_total",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": -0.1,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_cost"
+  },
+  {
+    "name": "settlement_negative_model_cost",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-test": -0.1
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_cost"
+  },
+  {
+    "name": "settlement_negative_cum_api",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": -0.1,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_cost"
+  },
+  {
+    "name": "settlement_models_null",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": null,
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_models"
+  },
+  {
+    "name": "settlement_models_array",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": [],
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_models"
+  },
+  {
+    "name": "settlement_models_many",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "model-0": 0,
+              "model-1": 0,
+              "model-2": 0,
+              "model-3": 0,
+              "model-4": 0,
+              "model-5": 0,
+              "model-6": 0,
+              "model-7": 0,
+              "model-8": 0,
+              "model-9": 0,
+              "model-10": 0,
+              "model-11": 0,
+              "model-12": 0,
+              "model-13": 0,
+              "model-14": 0,
+              "model-15": 0,
+              "model-16": 0,
+              "model-17": 0,
+              "model-18": 0,
+              "model-19": 0,
+              "model-20": 0,
+              "model-21": 0,
+              "model-22": 0,
+              "model-23": 0,
+              "model-24": 0,
+              "model-25": 0,
+              "model-26": 0,
+              "model-27": 0,
+              "model-28": 0,
+              "model-29": 0,
+              "model-30": 0,
+              "model-31": 0,
+              "model-32": 0,
+              "model-33": 0,
+              "model-34": 0,
+              "model-35": 0,
+              "model-36": 0,
+              "model-37": 0,
+              "model-38": 0,
+              "model-39": 0,
+              "model-40": 0,
+              "model-41": 0,
+              "model-42": 0,
+              "model-43": 0,
+              "model-44": 0,
+              "model-45": 0,
+              "model-46": 0,
+              "model-47": 0,
+              "model-48": 0,
+              "model-49": 0,
+              "model-50": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_models"
+  },
+  {
+    "name": "settlement_model_empty",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_model"
+  },
+  {
+    "name": "settlement_model_space",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              " gpt-test": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_model"
+  },
+  {
+    "name": "settlement_model_long",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_api_model"
+  },
+  {
+    "name": "settlement_model_secret",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "token: EXAMPLE": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_model_random",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "AbCdEfGhIjKlMnOpQrStUvWxYz012345": 0
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_model_zero_width",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt​-test": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_unknown_model_breakdown",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": null,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_multiple_models_not_combined",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0,
+              "gpt-4o-mini": 0,
+              "o3-mini": 0,
+              "gpt-4.1": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_model_plain_html",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "<b>gpt-test</b>": 0
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_duplicate_trader_day",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        },
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305262.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "duplicate_settlement"
+  },
+  {
+    "name": "settlement_same_date_two_traders",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        },
+        {
+          "trader": "Grok-Trader-B",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 2
+  },
+  {
+    "name": "settlement_same_trader_two_dates",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        },
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-29",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 2
+  },
+  {
+    "name": "settlement_dated_openai_model",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4o-mini-audio-preview-2024-12-17": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_dated_chatgpt_model",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "chatgpt-4o-latest-preview-2024-12-17": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_embedding_model",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "text-embedding-3-large": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_model_credential_segment",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4o-sk-fake": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_model_random_segment",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4o-AbCdEfGhIjKlMnOpQrStUvWxYz012345": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_model_numeric_identifier",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4o-preview-12345678": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_long_other_model",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "other-family-mini-audio-preview-2024-12-17": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "settlement_fullwidth_dated_model",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "ｇｐｔ-４ｏ-ｍｉｎｉ-ａｕｄｉｏ-ｐｒｅｖｉｅｗ-２０２４-１２-１７": null
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_model_normalized_overlong",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-ﬀﬀﬀﬀﬀﬀﬀﬀ-ﬀﬀﬀﬀﬀﬀﬀﬀ-ﬀﬀﬀﬀﬀﬀﬀﬀ-ﬀﬀﬀﬀﬀﬀﬀﬀ-ﬀﬀﬀﬀﬀﬀﬀﬀ-ﬀﬀﬀﬀﬀﬀﬀﬀ-ﬀﬀﬀﬀﬀﬀﬀﬀ-ﬀﬀﬀﬀﬀﬀﬀﬀ": 0.1
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "AbCdEfGhIjKlMnOpQrStUvWxYz012345": 0
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
   }
 ]
