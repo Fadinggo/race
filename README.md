@@ -94,7 +94,7 @@ GitHub 託管執行器每次工作使用新的環境，`scripts/gha_snapshot.py`
 
 ## 管理分工與備援
 
-長期監督交給 Grok **「交易儀表板專家」**依 `HANDOFF.md` 接手；Codex 負責指定範圍的程式維護並回報主管驗收。新的雲端派工協定與實際啟用狀態見 [MAINTENANCE.md](MAINTENANCE.md)，尚未通過端到端測試前不能視為已接通。資料更新由 Work 每小時喚醒 GitHub relay，再由程式完成該輪計時與採集；不需每五分鐘呼叫 AI，也不依賴本機 Codex 排程。交易策略與交易服務另行管理。
+長期監督交給 Grok **「交易儀表板專家」**依 `HANDOFF.md` 接手；Work「race 雲端維護」負責指定範圍的程式維護並回報主管驗收。[PR #5](https://github.com/Fadinggo/race/pull/5) 已由原生事件啟動實作、經雲端瀏覽器回報並取得主管 accepted，但本輪 Grok 協作寫入曾使用單次批准；持續允許規則尚未成功儲存，因此不能稱為完全免批准。協定、證據與剩餘限制見 [MAINTENANCE.md](MAINTENANCE.md)。資料更新由 Work 每小時喚醒 GitHub relay，再由程式完成該輪計時與採集，不受此維護審核限制影響；不需每五分鐘呼叫 AI，也不依賴本機 Codex 排程。交易策略與交易服務另行管理。
 
 舊 `scripts/run_sync.py` 僅保留作**手動備援**，需要自行維持主機、私有狀態與 SSH 設定，不是正式部署，不能保障個人電腦關機後更新。它與 Actions checkpoint 不是可自動互換的狀態格式，未另行規畫恢復與協調前，不得與正式 workflow 同時推送。
 

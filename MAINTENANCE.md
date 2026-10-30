@@ -1,6 +1,6 @@
 # 雲端維護派工
 
-本文件定義 Grok「交易儀表板專家」與 ChatGPT Work「race 雲端維護」的維護協定。**雲端瀏覽器登入、雙向握手、第一輪實作與主管事件驗收已通過；Work 原生託管 PR 事件任務已啟用，第二輪真正事件派工正在驗收。**不能把人工啟動的第一輪當成自動派工證據。
+本文件定義 Grok「交易儀表板專家」與 ChatGPT Work「race 雲端維護」的維護協定。**Work 原生 PR 事件已自行喚醒實作，雲端瀏覽器回報及主管 accepted 已讀回；Grok 寫入動作的逐次審核仍是完全無人值守的限制。**第二輪過程曾由部署端單次批准 Grok 派工與驗收留言，不能稱為全程無人工批准。
 
 實測記錄（2026-10-30）：[Issue #1](https://github.com/Fadinggo/race/issues/1) 與 [PR #2](https://github.com/Fadinggo/race/pull/2) 的舊 GitHub bot 路徑收到[環境需求回覆](https://github.com/Fadinggo/race/pull/2#issuecomment-6508939343)，主管曾留下 [blocked 回條](https://github.com/Fadinggo/race/pull/2#issuecomment-6509634422)。使用者隨後授權改走 Work 雲端瀏覽器；新雲端對話於 07:02（台灣時間）實際向專家送訊，讀回 `RACE_CLOUD_BROWSER_READY`。專家已恢復原有 PR #2 事件驗收例程，新的實作必須按新 head 重新核對，不沿用舊環境阻塞。沒有啟用獨立付費 API 維護器。
 
@@ -62,6 +62,20 @@ Issue 可包含說明文字，但只能有一個 `RACE_WORK_ORDER_V1` fenced blo
 
 GitHub 更新流程部署的是 `main`，因此一般修正經主管接受並合併後，仍需觀察下一次正式更新與 Pages 發布結果，才能稱為網站修復完成。
 
+## 第二輪原生事件實測與剩餘限制（2026-10-30）
+
+- 工單 [Issue #4](https://github.com/Fadinggo/race/issues/4)、[PR #5](https://github.com/Fadinggo/race/pull/5)，初始提交 `45f69241fe65300c3f37d994e9ed5d718ce2f174`，工單 SHA-256 `d31c955d5187107ecb864247ca6e3c108d0fe5bcdba97d94292a0f7e43094300`。
+- 原生事件實際提供 `issue_comment/created`、repository、repository_id、PR number（字串）及 delivery_id，沒有 comment ID/body。第一次入口因此停止，沒有實作。已更新同一 Work 任務：只從事件指定 PR 的實際留言恢復可信且未處理的工單，仍驗作者、不可變工單、範圍及去重；不跨 PR 任選工作。
+- [原始派工](https://github.com/Fadinggo/race/pull/5#issuecomment-6511087412)及[修線後恢復事件](https://github.com/Fadinggo/race/pull/5#issuecomment-6511195456)已歸併一件。實作由原生事件啟動，部署端沒有用人工訊息叫 Work 執行此工單。
+- 實作 head `8c3dbdcb35ac9176023149656e24ab93fadd8073` 的 parent 就是初始提交，只新增 `.maintenance/results/4.md`；工單 blob `ca148fdf836161399b709f7dc3580988bb75f7ea` 不變。[實作回報](https://github.com/Fadinggo/race/pull/5#issuecomment-6511259207)記錄來源與真實測試。
+- [可信範圍 CI](https://github.com/Fadinggo/race/actions/runs/40975452375)讀回 guard head 等於實作 head；[回歸 CI](https://github.com/Fadinggo/race/actions/runs/40975454633)實際 checkout 同一 head。Python 160 項（157 pass、3 個可選 PyNaCl skip），Node 11 pass，兩套 CI 都是首次執行成功。
+- Work 經已登入的雲端 Grok 瀏覽器自行送回 PR/head/證據，主管獨立審查後留下 [accepted 回條](https://github.com/Fadinggo/race/pull/5#issuecomment-6511307019)。PR 保持 open、未合併。
+
+**尚未完成完全無人值守：**Grok 的 Auto-review 分類服務對限定協作動作發生錯誤，派工及驗收留言在本輪曾使用單次批准。使用者已明確授權持續有效、僅限此專案合規工單、maintenance 分支 PR 與協定留言的允許規則；聊天確認卡按 OK 後，Grok 明確回報此網頁版本無法儲存規則，設定頁尚未找到對應入口。未改為全域允許，也未繞過關閉 PR #2 的審核拒絕。規則尚未取得儲存／讀回證據；因此後續可能停在待批准，不能承諾完全不用使用者介入。這不影響獨立的每小時資料更新任務。
+官方 changelog 已記載 Grok Bot 的 Permissions／Add Rule 入口與聊天規則確認功能（需 0.75.2+），但本次已登入的網頁設定未提供該入口，不能據此判定所有客戶端都不支援；目前無法區分客戶端版本、網頁功能差異或帳戶 rollout。之後須在支援的正式設定介面儲存既有授權的窄規則，再讀回規則並測試一則無派工效力的狀態留言，才可更新驗收狀態。（SpaceXSI，2026）
+
+已完成的 PR #2 smoke 驗收例程已在 Grok 設定暫停並讀回「已暫停」；兩個 Work 正式雲端任務保持啟用，PR #2／#5 保留 open、未合併作為證據。
+
 ## 參考文獻
 
 OpenAI. (無日期). *Scheduled tasks*. https://learn.chatgpt.com/docs/automations
@@ -69,3 +83,5 @@ OpenAI. (無日期). *Scheduled tasks*. https://learn.chatgpt.com/docs/automatio
 OpenAI. (無日期). *Using cloud browser in ChatGPT*. https://help.openai.com/en/articles/20001280-using-cloud-browser-in-chatgpt
 
 GitHub. (無日期). *GITHUB_TOKEN*. https://docs.github.com/en/actions/concepts/security/github_token
+
+SpaceXSI. (2026). *Grok Bot changelog*. https://x.ai/changelog/bot
