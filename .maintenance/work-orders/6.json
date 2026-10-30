@@ -1,0 +1,26 @@
+{
+  "base_commit": "2abdc552b6b5a62ba1477603bd56f11baa76021a",
+  "issue_number": 6,
+  "issue_url": "https://github.com/Fadinggo/race/issues/6",
+  "requested_by": "Fadinggo",
+  "schema": "RACE_WORK_ORDER_V1",
+  "work_order": {
+    "acceptance": [
+      "normalizeTrade 保留數值 fee 與 fee_ccy（若有），非數值視為未知，不當成 0",
+      "fees_total 有數值時顯示原值，不被加總覆蓋",
+      "fees_total 為 null 且該交易員有已知 fee 的成交時，顯示加總值（3 位小數與幣別）並加註「（僅近期 N 筆）」；fills_partial 為 true 時加註資料不完整；沒有任何已知 fee 時仍顯示「未統計」",
+      "funding_total 為 null 時顯示「未採集」，有數值時沿用原值",
+      "API 失敗沿用前次資料的既有行為不變，不把未知值變成 0",
+      "tests/dashboard.test.js 新增上述情境測試，既有 Python 與 Node 測試全部通過",
+      "不修改採集程式、工作流程、資料檔、Secrets 或交易設定"
+    ],
+    "allowed_paths": [
+      "dashboard.js",
+      "tests/dashboard.test.js"
+    ],
+    "kind": "maintenance",
+    "objective": "當交易員 fees_total 為 null 時，dashboard.js 以 data.json trades 中該交易員每筆成交的 fee 欄位加總顯示累計手續費，並清楚標示僅涵蓋已發布的近期成交；fees_total 有值時沿用原值。資金費維持現狀但改顯示為「未採集」說明。",
+    "version": 1
+  },
+  "work_order_sha256": "ee6ec97bcce56862cf8cd3fd20f3f6ebd115865d1553546e8d910146e697b777"
+}
