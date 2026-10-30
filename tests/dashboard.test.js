@@ -63,7 +63,7 @@ test('unknown equity is never reconstructed from trade PNL or shown as a zero ba
   assert.equal(snapshot.traders[0].equity, null);
   assert.equal(view.roi, null);
   assert.equal(view.today, '—');
-  assert.equal(view.total, '—');
+  assert.equal(view.total, '—（partial／待補齊）');
 });
 
 test('rejects mismatched batches, malformed values, foreign sources and legacy unversioned pairs', () => {
@@ -82,7 +82,7 @@ test('rejects mismatched batches, malformed values, foreign sources and legacy u
   }
 });
 
-test('a capped fills window displays only lower-bound counts, including zero and verified total fields', () => {
+test('recent window incompleteness never substitutes its counts for global totals', () => {
   const data = makeData({ trades: [
     { trader: 'Grok-Trader-A', ts: now - 60000 },
     { trader: 'Grok-Trader-A', ts: now - 2 * 3600000 }
@@ -91,13 +91,13 @@ test('a capped fills window displays only lower-bound counts, including zero and
   data.traders['Grok-Trader-B'].fills_partial = true;
   const snapshot = dashboard.pairSnapshot(data, makeHistory());
   const view = dashboard.traderView(snapshot.traders[0], snapshot.trades, now);
-  assert.equal(view.total, '≥2（近期資料不完整）');
+  assert.equal(view.total, '—（partial／待補齊）');
   assert.equal(view.today, '≥2');
   assert.equal(view.lastHour, '≥1');
   const emptyView = dashboard.traderView(snapshot.traders[1], snapshot.trades, now);
   assert.equal(emptyView.today, '≥0');
-  assert.equal(emptyView.total, '≥0（近期資料不完整）');
-  assert.equal(dashboard.traderView({ ...snapshot.traders[0], fillsTotal: 20 }, [], now).total, '≥20（資料不完整）');
+  assert.equal(emptyView.total, '—（partial／待補齊）');
+  assert.equal(dashboard.traderView({ ...snapshot.traders[0], fillsTotal: 20 }, [], now).total, '≥20（partial／資料不完整）');
 });
 
 test('uses epoch ts before legacy Taiwan time and excludes future trades from counts', () => {
@@ -163,7 +163,7 @@ test('renders injection strings as text, signed fee rebates correctly, and unkno
   assert.equal(descendants(card).some(node => node.tagName === 'img' || node.tagName === 'script'), false);
   assert.ok(card.textContent.includes('幣別未提供'));
   assert.ok(descendants(card).some(node => node.textContent.includes('0.123') && node.className === 'pos'));
-  assert.ok(card.textContent.includes('未統計'));
+  assert.ok(card.textContent.includes('—（partial／待補齊）'));
 });
 
 test('renders each fill PNL in its own settlement currency and never assumes USDT', () => {
@@ -191,4 +191,93 @@ test('a failed HTTP response or mixed pair cannot replace the previous snapshot'
     ? makeData() : makeHistory({ snapshot_id: 'another-batch' }) });
   await assert.rejects(dashboard.fetchPair(mixedFetcher, previous, undefined, 'test'), /same update/);
   assert.equal(JSON.stringify(previous), before);
+});
+
+test('global totals include their own start and update times and survive an empty recent table', () => {
+  const data = makeData();
+  Object.assign(data.traders['Grok-Trader-A'], {
+    totals_since: (now - 7 * 86400000) / 1000, totals_updated: (now - 30000) / 1000,
+    totals_status: 'complete', fills_total: 120, fees_total: '-0.3', funding_total: '0.125',
+    fills_total_partial: false, fees_total_partial: false, funding_total_partial: false,
+    fills_partial: true
+  });
+  const snapshot = dashboard.pairSnapshot(data, makeHistory());
+  const trader = snapshot.traders[0];
+  assert.equal(trader.totalsSince, now - 7 * 86400000);
+  assert.equal(trader.totalsUpdated, now - 30000);
+  assert.equal(dashboard.traderView(trader, [], now).total, '120');
+  const card = dashboard.renderCard(documentSink, trader, [], now);
+  const values = new Map(card.children.filter(node => node.className === 'row')
+    .map(node => node.children.map(child => child.textContent)));
+  assert.equal(values.get('全局累計總筆數'), '120');
+  assert.equal(values.get('全局累計手續費'), '-0.300 USDT');
+  assert.equal(values.get('全局累計資金費'), '0.125 USDT');
+  assert.equal(values.get('累計資料'), 'complete／完整');
+  assert.match(values.get('統計起點'), /2026\/10\/23.*台灣/);
+  assert.match(values.get('累計更新'), /2026\/10\/30.*台灣/);
+  assert.equal(card.textContent.includes('僅近期'), false);
+});
+
+test('global zero counts and signed amounts are rendered only from explicit values', () => {
+  const data = makeData();
+  Object.assign(data.traders['Grok-Trader-A'], {
+    totals_since: now / 1000, totals_updated: now / 1000, totals_status: 'complete',
+    fills_total: 0, fees_total: 0, funding_total: 0,
+    fills_total_partial: false, fees_total_partial: false, funding_total_partial: false
+  });
+  const trader = dashboard.pairSnapshot(data, makeHistory()).traders[0];
+  assert.equal(dashboard.traderView(trader, [], now).total, '0');
+  const card = dashboard.renderCard(documentSink, trader, [], now);
+  assert.equal(descendants(card).filter(node => node.tagName === 'span' && node.textContent === '0.000 USDT').length, 2);
+  assert.equal(card.textContent.includes('partial'), false);
+});
+
+test('each cumulative field reports partial independently from recent pagination and other totals', () => {
+  const data = makeData();
+  Object.assign(data.traders['Grok-Trader-A'], {
+    totals_since: now / 1000 - 86400, totals_updated: now / 1000, totals_status: 'partial',
+    fills_total: 25, fees_total: '-0.02', funding_total: null,
+    fills_total_partial: false, fees_total_partial: true, funding_total_partial: true,
+    fills_partial: true
+  });
+  const trader = dashboard.pairSnapshot(data, makeHistory()).traders[0];
+  assert.equal(dashboard.traderView(trader, [], now).total, '25');
+  const card = dashboard.renderCard(documentSink, trader, [], now);
+  const values = new Map(card.children.filter(node => node.className === 'row')
+    .map(node => node.children.map(child => child.textContent)));
+  assert.equal(values.get('全局累計手續費'), '-0.020 USDT（partial／資料不完整）');
+  assert.equal(values.get('全局累計資金費'), '—（partial／待補齊）');
+  assert.equal(values.get('累計資料'), 'partial／資料不完整');
+  assert.equal(dashboard.traderView({ ...trader, fillsTotalPartial: true }, [], now).total,
+    '≥25（partial／資料不完整）');
+});
+
+test('legacy snapshots and missing coverage metadata cannot claim complete global counts', () => {
+  const data = makeData({ trades: [{ trader: 'Grok-Trader-A', ts: now }] });
+  Object.assign(data.traders['Grok-Trader-A'], {
+    fills_total: 99, fills_total_partial: false, fees_total_partial: false, funding_total_partial: false
+  });
+  const trader = dashboard.pairSnapshot(data, makeHistory()).traders[0];
+  assert.equal(trader.fillsTotal, null);
+  assert.equal(trader.feesTotalPartial, true);
+  assert.equal(dashboard.traderView(trader, [], now).total, '—（partial／待補齊）');
+  const card = dashboard.renderCard(documentSink, trader, [], now);
+  assert.match(card.textContent, /-0\.300 USDT（partial／資料不完整）/);
+  assert.match(card.textContent, /統計起點待確認/);
+});
+
+test('an account read failure preserves cumulative values and their last update timestamp', () => {
+  const data = makeData();
+  Object.assign(data.traders['Grok-Trader-A'], {
+    totals_since: now / 1000 - 86400, totals_updated: now / 1000,
+    totals_status: 'complete', fills_total: 4, fees_total: -0.04, funding_total: 0,
+    fills_total_partial: false, fees_total_partial: false, funding_total_partial: false
+  });
+  const previous = dashboard.pairSnapshot(data, makeHistory());
+  data.traders['Grok-Trader-A'] = { status: 'error', fills_total: 0, totals_updated: now / 1000 + 300 };
+  const next = dashboard.pairSnapshot(data, makeHistory(), previous).traders[0];
+  assert.equal(next.fillsTotal, 4);
+  assert.equal(next.feesTotal, -0.04);
+  assert.equal(next.fundingTotal, 0);
+  assert.equal(next.totalsUpdated, now);
 });

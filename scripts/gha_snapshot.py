@@ -69,11 +69,23 @@ def sanitized_state(state, config):
     if set(state) != {"format", "bot_names", "modes", "uids", "bots"} or set(state["bots"]) != set(state["bot_names"]):
         raise collector.SnapshotError("checkpoint_not_sanitized")
     for name, stored in state["bots"].items():
-        if not isinstance(stored, dict) or set(stored) != {"public", "fills", "history"}:
+        if not isinstance(stored, dict) or set(stored) not in ({"public", "fills", "history"},
+                                                              {"public", "fills", "history", "totals"}):
             raise collector.SnapshotError("checkpoint_not_sanitized")
         public, fills, history = stored["public"], stored["fills"], stored["history"]
-        if not isinstance(public, dict) or set(public) != TRADER_FIELDS:
+        if not isinstance(public, dict) or set(public) not in (TRADER_FIELDS, TRADER_FIELDS | collector.TOTAL_FIELDS):
             raise collector.SnapshotError("checkpoint_not_sanitized")
+        if "totals_status" in public:
+            if public["totals_status"] not in ("complete", "partial") or any(
+                    type(public[field]) is not bool for field in
+                    ("fills_total_partial", "fees_total_partial", "funding_total_partial")):
+                raise collector.SnapshotError("checkpoint_not_sanitized")
+            for field in ("totals_since", "totals_updated"):
+                value = public[field]
+                if value is not None and (type(value) not in (int, float) or collector.number(value) is None or value <= 0):
+                    raise collector.SnapshotError("checkpoint_not_sanitized")
+        if "totals" in stored:
+            sanitized_totals(stored["totals"])
         positions = public["positions"]
         if positions is not None and (not isinstance(positions, list) or any(
                 not isinstance(position, dict) or set(position) != POSITION_FIELDS for position in positions)):
@@ -90,6 +102,44 @@ def sanitized_state(state, config):
             if collector.number(point[0]) is None or collector.number(point[1]) is None:
                 raise collector.SnapshotError("checkpoint_not_sanitized")
     canonical(state)  # Also reject NaN/Infinity before authentication or publication.
+
+
+def sanitized_totals(totals):
+    def reject():
+        raise collector.SnapshotError("checkpoint_not_sanitized")
+
+    if not isinstance(totals, dict) or set(totals) != {"since", "streams"}:
+        reject()
+    since = totals["since"]
+    if since is not None and (type(since) not in (int, float) or collector.number(since) is None or since <= 0):
+        reject()
+    streams = totals["streams"]
+    if not isinstance(streams, dict) or set(streams) not in (set(), set(collector.TOTAL_STREAMS)):
+        reject()
+    if since is None and streams:
+        reject()
+    for source in streams.values():
+        if not isinstance(source, dict) or set(source) != {"through", "gap", "partial", "events"}:
+            reject()
+        through = source["through"]
+        if through is not None and (type(through) not in (int, float) or collector.number(through) is None or through < since):
+            reject()
+        if type(source["gap"]) is not bool or type(source["partial"]) is not bool or not isinstance(source["events"], dict):
+            reject()
+        if not source["partial"] and (source["gap"] or through is None):
+            reject()
+        for identity, event in source["events"].items():
+            if not isinstance(identity, str) or not HEX_DIGEST.fullmatch(identity):
+                reject()
+            if not isinstance(event, dict) or set(event) != {"ts", "amount", "ccy"}:
+                reject()
+            if type(event["ts"]) is not int or event["ts"] < int(since * 1000):
+                reject()
+            if event["amount"] is not None and (not isinstance(event["amount"], str) or
+                    collector.decimal_amount(event["amount"]) != event["amount"]):
+                reject()
+            if event["ccy"] is not None and (not isinstance(event["ccy"], str) or not collector.CCY.fullmatch(event["ccy"])):
+                reject()
 
 
 def seal(state, config, snapshot_id, key):

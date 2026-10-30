@@ -45,7 +45,7 @@ B 的 GitHub secrets 已映射成 B 現有的 `OKX_` 環境變數名稱，不需
 
 `DASHBOARD_STATE_KEY` 必須獨立產生、妥善備份，為 **32 隨機位元組**，以 64 個十六進位字元或標準 Base64 表示。它應長期穩定，不能由 OKX API key 衍生，也不能因更新 API key 而順便更換。儲存庫沒有預設金鑰。
 
-`config.example.json` 是正式非秘密設定，包含 bot 名稱、環境變數名稱、`start: 10`、`simulated: false` 及資料上限。不要填入憑證值或原始 UID。採集器只允許固定 `https://www.okx.com` 的唯讀 GET 端點：account/config、account/balance、account/positions、trade/fills，不允許重新導向或交易請求。OKX API key 應使用符合唯讀用途的權限。（OKX，無日期）
+`config.example.json` 是正式非秘密設定，包含 bot 名稱、環境變數名稱、`start: 10`、`statistics_start`、`simulated: false` 及資料上限。不要填入憑證值或原始 UID。採集器只允許固定 `https://www.okx.com` 的唯讀 GET 端點：account/config、account/balance、account/positions、trade/fills、trade/fills-history、account/bills-archive，不允許重新導向或交易請求。歷史成交依 SPOT、MARGIN、SWAP、FUTURES、OPTION 五類分別查詢，資金費只查 `bills-archive` 的 `type=8`。OKX API key 應使用符合唯讀用途的權限。（OKX，無日期）
 
 在 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。正式流程直接部署同次工作的 Pages artifact，不使用「Deploy from a branch」，也不依賴 `GITHUB_TOKEN` 推送後再觸發另一個 push 工作流程。採集需要 `contents: write`；部署需要 `pages: write`、`id-token: write` 及 `github-pages` environment。確認該 environment 允許 `main` 部署，審核設定符合自動發布需求。（GitHub，無日期-e）正式執行使用工作流程提供的 `GITHUB_TOKEN`，不依賴個人電腦登入或 SSH 私鑰。
 
@@ -62,13 +62,20 @@ B 的 GitHub secrets 已映射成 B 現有的 `OKX_` 環境變數名稱，不需
 
 - 卡片是 **USDT 權益**（USDT `details.eq`），不把 USD `totalEq` 或其他幣別直接當 USDT。成功確認為零才顯示 `0.00 USDT`；未知或首次讀取失敗保持 null。（OKX，無日期）
 - 使用者於 2026-10-30 明確確認 A、B 起始本金各 **10 USDT**，正式設定為 `start: 10`。此值是報酬率基準，不會轉帳或改動帳戶餘額。簡單報酬率是 `(equity / start - 1) × 100%`；有入金或出金時，不可當作已排除資金流的純交易績效。
-- 成交取近期三天，分頁並去重。達分頁上限時標示不完整、筆數使用 `≥`；未知全期 `fees_total`、`funding_total`、`fills_total` 保持 null。費用正負、損益幣別、合約張數保留，缺幣別則明示未知。（OKX，無日期）
+- 卡片的 **全局累計總筆數、手續費、資金費** 從共同比賽起點累積，輸出為 `fills_total`、`fees_total`、`funding_total`。使用者確認以歷史首筆作為起點，正式設定固定 `statistics_start: 1793305202.598`（台灣時間 **2026-10-30 04:20:02.598**）；`start: 10` 是本金，與時間起點無關。資料附 `totals_since`、`totals_updated` 及 `totals_status`，卡片顯示統計起點與累計更新時間。
+- 累計成交與手續費取五類歷史成交，資金費取資金費帳單的 `balChg`，不把入金、出金或轉帳算進資金費。費用保留 OKX 正負號：支出通常為負，返佣或收入為正。兩項金額只在來源均為已知 USDT 時輸出單一 USDT 合計；缺金額、缺幣別或混合幣別時保持 `null` 並標示 `partial`，不換算或相加不同幣別。
+- 成交表仍只保留近期約三天，供今日／近一小時等近期查詢；全局累計使用獨立、持久化的事件帳本，舊成交離開近期視窗後不會從累計扣除。近期分頁狀態 `fills_partial` 與全局的 `fills_total_partial`、`fees_total_partial`、`funding_total_partial` 分別判定。
+- 每個歷史來源只有完整讀完區間才前進覆蓋時間，下次重疊回讀一天並去重。達 `max_fill_pages` 上限、重複游標、API／網路失敗時標示 `partial`，保留已知事件與累計供後續重試；不把尚未取得資料當成 0。已知但不完整的筆數顯示 `≥`，費用合計保留 `partial` 標記，不宣稱為上下界。只有完整查得空區間才能確認為零。OKX 歷史保留期限按保守 **89 天**處理；起點或未覆蓋區間超過可回補期限，缺口保持 `partial`，不因近期掃描成功而宣稱全程完整。（OKX，無日期）
 - 歷史只記錄本採集器成功觀測值，目前每帳戶最多 50,000 點，不回填原作者曲線或推測未觀測時段。
 - A/B 必須不同帳戶，每次檢查與既有身分一致。更換帳戶不能直接接上舊曲線；同帳戶的 API 憑證輪替則可保留綁定。
 
 ## 狀態持久化與恢復
 
 GitHub 託管執行器每次工作使用新的環境，`scripts/gha_snapshot.py` 會驗證儲存庫的 `state-checkpoint.json`，恢復歷史、身分與去重狀態；執行器暫存只放 `RUNNER_TEMP`。（GitHub，無日期-c）新 checkpoint 與 data/history 同 `snapshot_id`，由發布工具放入同一 commit。
+
+累計事件帳本與各來源覆蓋時間一起存進已驗證的 checkpoint，獨立於三天成交快取保存，跨執行器重啟不歸零。事件只保存統計所需的時間、金額、幣別及分用途產生的不可逆識別代碼，用於逐次去重。既有 checkpoint 先以原金鑰驗簽，再於下一次正常 workflow 補上累計欄位並回補歷史；**不需要重新 bootstrap、刪除 checkpoint 或重設歷史**。累計起點一旦寫入狀態便不能直接改值，避免把不同統計範圍接在一起。
+
+本次累計功能修改使用離線模擬測試驗證，未執行正式 OKX 採集或 Pages 部署，也未手改已簽章的 data/history/checkpoint。現有公開快照在下一次採用新版的正常更新前，累計值仍可能是未知；實際歷史可否完整補齊，需由該次更新的各項 `partial` 狀態與覆蓋時間確認。
 
 **Checkpoint 是 HMAC 驗證，不是加密。**公開儲存庫裡的內容可被任何人閱讀，只有已允許公開的觀測值及獨立秘密金鑰產生的不可逆識別代碼。帳戶、成交及驗簽各有不同用途標記；不保存原始 UID、order ID、trade ID、bill ID 或憑證。HMAC 驗證完整性，不隱藏已公開觀測。
 
