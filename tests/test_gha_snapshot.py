@@ -255,6 +255,66 @@ class CheckpointTests(unittest.TestCase):
         self.assertNotEqual(collector.opaque_identifier(KEY, "account", UID_A), collector.opaque_identifier(KEY, "fill:Grok-Trader-A", UID_A))
         self.assertNotEqual(collector.opaque_identifier(KEY, "account", UID_A), collector.opaque_identifier(bytes(reversed(KEY)), "account", UID_A))
 
+    def total_clients(self):
+        class HistoryClient(Client):
+            def get(self, path, params=None):
+                if path.endswith("/fills-history"):
+                    return super().get("/api/v5/trade/fills") if params["instType"] == "SWAP" else []
+                if path.endswith("/bills-archive"):
+                    return [{"billId": "960000000000000001", "ts": str(int((NOW - 30) * 1000)),
+                             "type": "8", "balChg": "-0.02", "ccy": "USDT", "uid": UID_A}]
+                return super().get(path, params)
+        return {"Grok-Trader-A": HistoryClient(UID_A, "10", True), "Grok-Trader-B": HistoryClient(UID_B)}
+
+    def test_legacy_signed_checkpoint_migrates_without_reset_then_survives_new_runner(self):
+        self.run_export(bootstrap=True, clients=self.total_clients())
+        document = self.document()
+        legacy = document["payload"]
+        for stored in legacy["bots"].values():
+            stored.pop("totals")
+            for field in collector.TOTAL_FIELDS:
+                stored["public"].pop(field)
+        self.checkpoint.write_text(json.dumps(gha.seal(legacy, self.config, document["snapshot_id"], KEY)))
+        binding = copy.deepcopy(legacy["uids"])
+        self.config["statistics_start"] = NOW - 3600
+        data = self.run_export(now=NOW + 300, clients=self.total_clients(), private="migration-runner")
+        migrated = self.document()
+        self.assertEqual(migrated["payload"]["uids"], binding)
+        self.assertEqual(len(migrated["payload"]["bots"]["Grok-Trader-A"]["history"]), 2)
+        trader = data["traders"]["Grok-Trader-A"]
+        self.assertEqual(trader["fills_total"], 1)
+        self.assertEqual(trader["fees_total"], -0.01)
+        self.assertEqual(trader["funding_total"], -0.02)
+        self.assertEqual(trader["totals_status"], "complete")
+        for forbidden in (UID_A, UID_B, BILL_ID, "960000000000000001", KEY.hex(), "NEVER_COPY_ME"):
+            self.assertNotIn(forbidden, self.checkpoint.read_text())
+        restored = self.run_export(now=NOW + 600, clients=self.total_clients(), private="third-runner")
+        self.assertEqual(restored["traders"]["Grok-Trader-A"]["fills_total"], 1)
+        self.assertEqual(restored["traders"]["Grok-Trader-A"]["fees_total"], -0.01)
+        self.assertEqual(len(self.document()["payload"]["bots"]["Grok-Trader-A"]["history"]), 3)
+
+    def test_cumulative_schema_rejects_raw_ids_extra_fields_and_tampered_ledger(self):
+        self.config["statistics_start"] = NOW - 3600
+        self.run_export(bootstrap=True, clients=self.total_clients())
+        original = self.document()
+        for mutate in (
+                lambda source: source["events"].update({BILL_ID: {"ts": int(NOW * 1000), "amount": "0", "ccy": "USDT"}}),
+                lambda source: source.update(api_key="forbidden"),
+                lambda source: next(iter(source["events"].values())).update(ordId="forbidden"),
+                lambda source: source.update(partial=False, through=None)):
+            state = copy.deepcopy(original["payload"])
+            mutate(state["bots"]["Grok-Trader-A"]["totals"]["streams"]["SWAP"])
+            with self.assertRaisesRegex(collector.SnapshotError, "checkpoint_not_sanitized"):
+                gha.seal(state, self.config, "next", KEY)
+        original["payload"]["bots"]["Grok-Trader-A"]["totals"]["streams"]["SWAP"]["events"].clear()
+        self.checkpoint.write_text(json.dumps(original))
+        before = self.bytes_before()
+        clients = self.total_clients()
+        with self.assertRaisesRegex(collector.SnapshotError, "checkpoint_authentication_failed"):
+            self.run_export(clients=clients, private="tampered-runner")
+        self.assertEqual(sum(len(c.calls) for c in clients.values()), 0)
+        self.assertEqual(self.bytes_before(), before)
+
 
 if __name__ == "__main__":
     unittest.main()

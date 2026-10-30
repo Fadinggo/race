@@ -42,14 +42,21 @@
   function normalizeTrader(name, raw, previous, defaultUpdated) {
     if (!record(raw)) throw new Error('Invalid trader');
     const state = typeof raw.status === 'string' ? raw.status.toLowerCase() : 'ok';
+    const totalsSince = timestamp(raw.totals_since);
+    const totalsUpdated = timestamp(raw.totals_updated);
+    const hasTotalsMetadata = totalsSince !== null && ['complete', 'partial'].includes(raw.totals_status);
     const normalized = {
       name,
       equity: number(raw.equity), start: number(raw.start), deposited: number(raw.deposited),
       currency: typeof raw.currency === 'string' && raw.currency.trim() ? raw.currency.trim() : null,
       updated: timestamp(Object.hasOwn(raw, 'updated') ? raw.updated : defaultUpdated), status: state,
-      fillsTotal: number(raw.fills_total), feesTotal: number(raw.fees_total),
+      fillsTotal: hasTotalsMetadata ? number(raw.fills_total) : null,
+      feesTotal: number(raw.fees_total), fundingTotal: number(raw.funding_total),
+      totalsSince, totalsUpdated, totalsStatus: hasTotalsMetadata ? raw.totals_status : 'partial',
+      fillsTotalPartial: !hasTotalsMetadata || raw.fills_total_partial !== false,
+      feesTotalPartial: !hasTotalsMetadata || raw.fees_total_partial !== false,
+      fundingTotalPartial: !hasTotalsMetadata || raw.funding_total_partial !== false,
       fillsPartial: raw.fills_partial === true,
-      fundingTotal: number(raw.funding_total),
       positions: Array.isArray(raw.positions) ? raw.positions.filter(record).map(position => ({
         inst: String(position.inst ?? ''), side: String(position.side ?? ''),
         size: number(position.sz), averagePrice: number(position.avgPx), upl: number(position.upl),
@@ -167,8 +174,8 @@
       roiText: roi === null ? (trader.start === null ? '—（本金未確認）'
         : trader.equity === null ? '—（資產未確認）' : '—（本金須大於 0）')
         : `${roi >= 0 ? '+' : ''}${roi.toFixed(2)}%`,
-      total: trader.fillsTotal !== null ? `${lowerBound}${trader.fillsTotal}${trader.fillsPartial ? '（資料不完整）' : ''}`
-        : known ? `${lowerBound}${ownTrades.length}${trader.fillsPartial ? '（近期資料不完整）' : '（僅近期）'}` : '—',
+      total: trader.fillsTotal === null ? '—（partial／待補齊）'
+        : `${trader.fillsTotalPartial ? '≥' : ''}${trader.fillsTotal}${trader.fillsTotalPartial ? '（partial／資料不完整）' : ''}`,
       today: known ? lowerBound + String(ownTrades.filter(trade => trade.timestamp !== null &&
         trade.timestamp <= now && day(trade.timestamp) === day(now)).length) : '—',
       lastHour: known ? lowerBound + String(ownTrades.filter(trade => trade.timestamp !== null &&
@@ -199,7 +206,9 @@
     row(doc, card, '報酬率', view.roiText, signedClass(view.roi));
     const start = trader.start === null ? '待確認' : `${fixed(trader.start)} ${currencyText(trader.currency)}`;
     row(doc, card, '起始資金', start + (trader.deposited ? `（含追加 ${fixed(trader.deposited)}）` : ''));
-    row(doc, card, '總筆數', view.total);
+    row(doc, card, '全局累計總筆數', view.total);
+    row(doc, card, '統計起點', trader.totalsSince === null ? '待確認' : taipeiTime(trader.totalsSince) + ' 台灣');
+    row(doc, card, '累計更新', trader.totalsUpdated === null ? '尚無完整更新' : taipeiTime(trader.totalsUpdated) + ' 台灣');
     if (trader.positions === null) {
       row(doc, card, '持倉', '尚未提供', 'muted');
     } else {
@@ -212,10 +221,11 @@
           pnl, signedClass(position.upl));
       }
     }
-    row(doc, card, '累計手續費', trader.feesTotal === null ? '未統計'
-      : `${fixed(trader.feesTotal, 3)} ${currencyText(trader.currency)}`, signedClass(trader.feesTotal));
-    row(doc, card, '累計資金費', trader.fundingTotal === null ? '未統計'
-      : `${fixed(trader.fundingTotal, 3)} ${currencyText(trader.currency)}`, signedClass(trader.fundingTotal));
+    const amount = (value, partial) => value === null ? '—（partial／待補齊）'
+      : `${fixed(value, 3)} ${currencyText(trader.currency)}${partial ? '（partial／資料不完整）' : ''}`;
+    row(doc, card, '全局累計手續費', amount(trader.feesTotal, trader.feesTotalPartial), signedClass(trader.feesTotal));
+    row(doc, card, '全局累計資金費', amount(trader.fundingTotal, trader.fundingTotalPartial), signedClass(trader.fundingTotal));
+    row(doc, card, '累計資料', trader.totalsStatus === 'complete' ? 'complete／完整' : 'partial／資料不完整');
     row(doc, card, '今日筆數', view.today);
     row(doc, card, '近 1 小時', view.lastHour);
     const status = freshness(trader, now, staleAfterMs);

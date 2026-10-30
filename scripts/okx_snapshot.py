@@ -27,6 +27,7 @@ import tempfile
 import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal, InvalidOperation
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -39,10 +40,17 @@ ALLOWED_GET = {
     "/api/v5/account/balance": frozenset({"ccy"}),
     "/api/v5/account/positions": frozenset(),
     "/api/v5/trade/fills": frozenset({"limit", "after"}),
+    "/api/v5/trade/fills-history": frozenset({"instType", "limit", "after"}),
+    "/api/v5/account/bills-archive": frozenset({"type", "limit", "after", "begin", "end"}),
 }
 STATE_FORMAT = "race-okx-owned-state-v1"
 OPAQUE_STATE_FORMAT = "race-okx-opaque-state-v1"
 WINDOW_SECONDS = 3 * 24 * 60 * 60
+# Both history endpoints retain three calendar months. Use a conservative bound.
+HISTORY_SECONDS = 89 * 24 * 60 * 60
+TOTAL_STREAMS = ("SPOT", "MARGIN", "SWAP", "FUTURES", "OPTION", "funding")
+TOTAL_FIELDS = frozenset({"totals_since", "totals_updated", "totals_status",
+                          "fills_total_partial", "fees_total_partial", "funding_total_partial"})
 TAIPEI = timezone(timedelta(hours=8))
 ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 SAFE_ID = re.compile(r"[A-Za-z0-9._-]{1,96}\Z")
@@ -89,7 +97,7 @@ def safe_text(value, pattern=SAFE_ID, *, optional=False):
 
 
 def parse_config(raw):
-    if not isinstance(raw, dict) or set(raw) - {"bots", "max_fill_pages", "max_history_points"}:
+    if not isinstance(raw, dict) or set(raw) - {"bots", "max_fill_pages", "max_history_points", "statistics_start"}:
         raise SnapshotError("invalid_config")
     bots = raw.get("bots")
     if not isinstance(bots, list) or len(bots) != 2:
@@ -128,7 +136,10 @@ def parse_config(raw):
         if isinstance(value, bool) or not isinstance(value, int) or not minimum <= value <= maximum:
             raise SnapshotError("invalid_config_limit")
         limits[key] = value
-    return {"bots": result, **limits}
+    since = number(raw.get("statistics_start"))
+    if since is not None and since <= 0:
+        raise SnapshotError("invalid_statistics_start")
+    return {"bots": result, "statistics_start": since, **limits}
 
 
 class OKXClient:
@@ -294,11 +305,145 @@ def recent_fills(client, name, now, previous, max_pages, identity_key=None):
     return fills, not complete
 
 
+def decimal_amount(value):
+    if value is None or value == "":
+        return None
+    if isinstance(value, bool) or not isinstance(value, (str, int, float)):
+        raise SnapshotError("invalid_numeric_data")
+    try:
+        amount = Decimal(str(value))
+    except InvalidOperation:
+        raise SnapshotError("invalid_numeric_data") from None
+    if not amount.is_finite():
+        raise SnapshotError("invalid_numeric_data")
+    return str(amount)
+
+
+def total_event(row, stream):
+    identity = safe_text(row.get("billId"))
+    stamp = number(row.get("ts") if stream == "funding" else row.get("fillTime") or row.get("ts"), required=True)
+    if stamp <= 0 or not stamp.is_integer():
+        raise SnapshotError("invalid_total_time")
+    if stream == "funding":
+        if str(row.get("type")) != "8":
+            raise SnapshotError("invalid_funding_bill")
+        amount, currency = row.get("balChg"), row.get("ccy")
+    else:
+        if row.get("instType") != stream:
+            raise SnapshotError("invalid_fill_type")
+        amount, currency = row.get("fee"), row.get("feeCcy")
+    return identity, {"ts": int(stamp), "amount": decimal_amount(amount),
+                      "ccy": safe_text(currency, CCY, optional=True)}
+
+
+def update_totals(client, name, now, previous, since, max_pages, identity_key=None):
+    """Keep an independent lifetime ledger, never the rolling display cache.
+
+    A watermark advances only after a complete scan. Replays overlap one day to
+    pick up delayed records. A retention gap stays partial permanently; a capped
+    or failed scan can heal by retrying the same interval. No raw cursor is saved.
+    """
+    if previous is not None and previous["since"] != since:
+        raise SnapshotError("statistics_start_changed")
+    totals = copy.deepcopy(previous) if previous is not None else {"since": since, "streams": {}}
+    if since is None:
+        return totals
+    if since > now:
+        raise SnapshotError("statistics_start_in_future")
+    for stream in TOTAL_STREAMS:
+        stored = totals["streams"].setdefault(stream, {"through": None, "gap": False,
+                                                    "partial": True, "events": {}})
+        begin = max(since, stored["through"] - 86400 if stored["through"] is not None else since)
+        if begin < now - HISTORY_SECONDS:
+            stored["gap"] = True
+            begin = now - HISTORY_SECONDS
+        params = {"limit": "100"}
+        if stream == "funding":
+            path = "/api/v5/account/bills-archive"
+            params.update(type="8", begin=str(int(begin * 1000)), end=str(int(now * 1000)))
+        else:
+            path = "/api/v5/trade/fills-history"
+            params["instType"] = stream
+        cursors, complete = set(), False
+        try:
+            for _ in range(max_pages):
+                rows = client.get(path, params)
+                # Validate a whole page before committing any of it.
+                events = [total_event(row, stream) for row in rows]
+                for identity, event in events:
+                    if int(since * 1000) <= event["ts"] <= int(now * 1000):
+                        key = opaque_identifier(identity_key, "total:" + stream + ":" + name, identity) if identity_key is not None else identity
+                        if key in stored["events"]:
+                            old = stored["events"][key]
+                            if old["ts"] != event["ts"]:
+                                raise SnapshotError("total_event_changed")
+                            for field in ("amount", "ccy"):
+                                before, after = old[field], event[field]
+                                if before is not None and after is not None and (
+                                        Decimal(before) != Decimal(after) if field == "amount" else before != after):
+                                    raise SnapshotError("total_event_changed")
+                                # Later responses can enrich an unknown amount
+                                # or currency, but cannot erase known values.
+                                if before is not None:
+                                    event[field] = before
+                        stored["events"][key] = event
+                # OKX paginates backwards by billId. A fully older page crosses
+                # the requested overlap interval, even for a busy account.
+                if len(rows) < 100 or all(event["ts"] < begin * 1000 for _, event in events):
+                    complete = True
+                    break
+                cursor = safe_text(rows[-1].get("billId"))
+                if cursor in cursors:
+                    break
+                cursors.add(cursor)
+                params = {**params, "after": cursor}
+        except Exception:
+            # Totals failures must not hide otherwise valid equity/positions.
+            # Partial records are retained for dedup, without advancing coverage.
+            complete = False
+        stored["partial"] = not complete or stored["gap"]
+        if complete:
+            stored["through"] = now
+    return totals
+
+
+def totals_public(totals, now):
+    streams = totals["streams"]
+    fills = [streams[s] for s in TOTAL_STREAMS[:-1] if s in streams]
+    funding = [streams["funding"]] if "funding" in streams else []
+    fills_partial = len(fills) != 5 or any(s["partial"] for s in fills)
+    funding_partial = not funding or funding[0]["partial"]
+    fill_events = [event for source in fills for event in source["events"].values()]
+    funding_events = [event for source in funding for event in source["events"].values()]
+
+    def amount(events, partial):
+        # USDT scalar totals cannot add other currencies or missing amounts.
+        if any(e["amount"] is None or e["ccy"] != "USDT" for e in events):
+            return None, True
+        if partial and not events:
+            return None, True
+        return number(str(sum((Decimal(e["amount"]) for e in events), Decimal(0))), required=True), partial
+
+    fees, fees_partial = amount(fill_events, fills_partial)
+    funding_amount, funding_partial = amount(funding_events, funding_partial)
+    complete = not (fills_partial or fees_partial or funding_partial)
+    through = [s["through"] for s in streams.values()]
+    return {"totals_since": totals["since"],
+            "totals_updated": min(through) if len(through) == 6 and all(t is not None for t in through) else None,
+            "totals_status": "complete" if complete else "partial",
+            "fills_total": len(fill_events) if fill_events or not fills_partial else None,
+            "fees_total": fees, "funding_total": funding_amount,
+            "fills_total_partial": fills_partial, "fees_total_partial": fees_partial,
+            "funding_total_partial": funding_partial}
+
+
 def empty_trader(bot):
     return {"equity": None, "start": bot["start"], "currency": "USDT", "positions": None,
             "fees_total": None, "funding_total": None, "fills_total": None,
             "fills_recent": None, "fills_partial": None, "fills_window_start": None,
-            "status": "error", "updated": None, "error_code": "not_connected"}
+            "status": "error", "updated": None, "error_code": "not_connected",
+            "totals_since": None, "totals_updated": None, "totals_status": "partial",
+            "fills_total_partial": True, "fees_total_partial": True, "funding_total_partial": True}
 
 
 def new_state(config, *, opaque=False):
@@ -367,6 +512,9 @@ def collect(config, state, *, client_factory=None, environment=None, now=None, s
                 public.update(equity=equity, positions=current_positions, fills_recent=len(fills),
                               fills_partial=partial, fills_window_start=int(now - WINDOW_SECONDS),
                               status="ok", updated=now, error_code=None)
+                totals = update_totals(clients[name], name, now, stored.get("totals"),
+                                       config.get("statistics_start"), config["max_fill_pages"], identity_key)
+                public.update(totals_public(totals, now))
                 points = stored["history"]
                 sample = [int(now * 1000), equity]
                 if points and sample[0] == points[-1][0]:
@@ -375,7 +523,8 @@ def collect(config, state, *, client_factory=None, environment=None, now=None, s
                     points.append(sample)
                 else:
                     raise SnapshotError("clock_moved_backwards")
-                stored = {"public": public, "fills": fills, "history": points[-config["max_history_points"]:]}
+                stored = {"public": public, "fills": fills, "history": points[-config["max_history_points"]:],
+                          "totals": totals}
             except SnapshotError as exc:
                 errors[name] = str(exc)
             except Exception:
@@ -383,6 +532,8 @@ def collect(config, state, *, client_factory=None, environment=None, now=None, s
         if name in errors:
             stored = copy.deepcopy(old)
             stored["public"].update(status="error", error_code=errors[name])
+        for field in TOTAL_FIELDS:
+            stored["public"].setdefault(field, empty_trader(bot)[field])
         stored["public"]["start"] = bot["start"]
         next_state["bots"][name] = stored
         traders[name] = copy.deepcopy(stored["public"])
