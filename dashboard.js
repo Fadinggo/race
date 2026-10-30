@@ -351,7 +351,15 @@
         const hadPrevious = current !== null;
         current = next;
         lastError = false;
-        cards.replaceChildren(...current.traders.map(trader => renderCard(doc, trader, current.trades, Date.now(), current.staleAfterMs)));
+        const panels = current.traders.map(trader => {
+          const panel = element(doc, 'section', null, 'trader-panel');
+          panel.append(renderCard(doc, trader, current.trades, Date.now(), current.staleAfterMs));
+          const notesId = { 'Grok-Trader-A': 'notes-a', 'Grok-Trader-B': 'notes-b' }[trader.name];
+          const notes = notesId ? doc.getElementById(notesId) : null;
+          if (notes) panel.append(notes);
+          return panel;
+        });
+        cards.replaceChildren(...panels);
         if (hadPrevious) cards.classList.add('is-ready');
         renderRows(doc, rows, current.trades);
         try { updateChart(current); } catch (_) {
@@ -374,6 +382,176 @@
 
   const api = { number, timestamp, pairSnapshot, freshness, traderView, renderCard, renderRows, fetchPair };
   if (typeof module === 'object' && module.exports) module.exports = api;
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
+    else start(document);
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+// Notes refresh independently of the paired financial snapshots.
+(function (root) {
+  'use strict';
+
+  const TRADERS = ['Grok-Trader-A', 'Grok-Trader-B'];
+  const KINDS = { open: '開倉', close: '平倉', daily: '日報' };
+  const TEXT_FIELDS = ['market_view', 'current_approach', 'plan'];
+  const NOTE_KEYS = ['trader', 'ts', 'kind', ...TEXT_FIELDS];
+  const MAX_BYTES = 1024 * 1024;
+  const STALE_MS = 48 * 60 * 60 * 1000;
+  const REFRESH_MS = 30000;
+
+  function record(value) {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  function exactKeys(value, keys) {
+    return record(value) && Object.keys(value).length === keys.length &&
+      keys.every(key => Object.hasOwn(value, key));
+  }
+
+  function noteShape(note) {
+    return exactKeys(note, NOTE_KEYS) && TRADERS.includes(note.trader) &&
+      typeof note.ts === 'number' && Number.isFinite(note.ts) && note.ts > 0 && note.ts <= 253402300799 &&
+      typeof note.kind === 'string' && Object.hasOwn(KINDS, note.kind) && TEXT_FIELDS.every(field => typeof note[field] === 'string') &&
+      TEXT_FIELDS.reduce((length, field) => length + Array.from(note[field]).length, 0) <= 300;
+  }
+
+  function suspiciousText(text) {
+    if (/[\p{Cc}\p{Cf}\p{Cs}]/u.test(text.replace(/[\t\r\n]/g, ''))) return true;
+    const normalized = text.normalize('NFKC');
+    return /(?:\b(?:api[ _-]?key|secret(?:[ _-]?key)?|(?:access[ _-]?)?token|uid|passphrase)\b|金鑰|私鑰)\s*[:=]\s*\S/iu.test(normalized) ||
+      /\b(?:sk-|ghp_|github_pat_)[A-Za-z0-9_-]+|\bAKIA[A-Z0-9]{16}\b|\bBearer\s+\S+|-----BEGIN/iu.test(normalized) ||
+      /[0-9]{8,}|[A-Za-z0-9_+/=-]{32,}/u.test(normalized);
+  }
+
+  function safeNote(note) {
+    return noteShape(note) && !TEXT_FIELDS.some(field => suspiciousText(note[field])) &&
+      !suspiciousText(TEXT_FIELDS.map(field => note[field]).join(''));
+  }
+
+  function normalizeDocument(document) {
+    if (!exactKeys(document, ['version', 'notes']) || document.version !== 1 ||
+        !Array.isArray(document.notes) || document.notes.length > 1000 || !document.notes.every(noteShape)) return [];
+    return document.notes.filter(safeNote).slice().sort((a, b) => b.ts - a.ts);
+  }
+
+  function element(doc, tag, text, className) {
+    const node = doc.createElement(tag);
+    if (text !== undefined) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  }
+
+  function renderNote(doc, note, now) {
+    const card = element(doc, 'article', undefined, 'note');
+    const header = element(doc, 'div', undefined, 'note-meta');
+    header.append(element(doc, 'span', KINDS[note.kind], 'note-kind'));
+    const time = element(doc, 'time', new Date(note.ts * 1000).toLocaleString('zh-TW', {
+      timeZone: 'Asia/Taipei', hour12: false
+    }) + ' 台北', 'note-time');
+    time.dateTime = new Date(note.ts * 1000).toISOString();
+    header.append(time);
+    if (now - note.ts * 1000 > STALE_MS) header.append(element(doc, 'span', '已過時', 'note-stale'));
+    card.append(header);
+    const labels = ['市場觀點', '目前做法', '接下來計畫'];
+    TEXT_FIELDS.forEach((field, index) => {
+      const section = element(doc, 'div', undefined, 'note-field');
+      section.append(element(doc, 'strong', labels[index]), element(doc, 'p', note[field]));
+      card.append(section);
+    });
+    return card;
+  }
+
+  function renderColumn(doc, container, trader, notes, now = Date.now()) {
+    const expanded = container.querySelector?.('.notes-more')?.open === true;
+    const own = notes.filter(note => safeNote(note) && note.trader === trader).slice().sort((a, b) => b.ts - a.ts);
+    const heading = element(doc, 'h3', trader + ' 交易員便利貼');
+    const disclaimer = element(doc, 'p', 'AI 交易員自述，非投資建議', 'notes-disclaimer');
+    const content = element(doc, 'div', undefined, 'notes-list');
+    if (!own.length) content.append(element(doc, 'p', '目前沒有可顯示的便利貼', 'notes-empty'));
+    own.slice(0, 10).forEach(note => content.append(renderNote(doc, note, now)));
+    if (own.length > 10) {
+      const more = element(doc, 'details', undefined, 'notes-more');
+      more.open = expanded;
+      more.append(element(doc, 'summary', `看更多（${own.length - 10}）`));
+      own.slice(10).forEach(note => more.append(renderNote(doc, note, now)));
+      content.append(more);
+    }
+    container.replaceChildren(heading, disclaimer, content);
+  }
+
+  function parseNotesJSON(body) {
+    const value = JSON.parse(body, (key, item) => {
+      if (typeof item === 'number' && !Number.isFinite(item)) throw new Error('Invalid notes number');
+      return item;
+    });
+    // Native JSON.parse overwrites duplicate keys. Check decoded key names in
+    // each object so even Unicode-escaped duplicates invalidate the document.
+    const tokens = body.match(/"(?:\\[\s\S]|[^"\\])*"|[{}\[\]:]/g) || [];
+    const stack = [];
+    tokens.forEach((token, index) => {
+      if (token === '{') stack.push(new Set());
+      else if (token === '[') stack.push(null);
+      else if (token === '}' || token === ']') stack.pop();
+      else if (token.startsWith('"') && tokens[index + 1] === ':') {
+        const keys = stack.at(-1);
+        const name = JSON.parse(token);
+        if (keys.has(name)) throw new Error('Duplicate notes key');
+        keys.add(name);
+      }
+    });
+    return value;
+  }
+
+  async function fetchNotes(fetcher, signal, nonce) {
+    const response = await fetcher(`notes.json?v=${nonce}`, { cache: 'no-store', signal });
+    if (!response.ok) return [];
+    const length = response.headers?.get('content-length');
+    if (length !== null && length !== undefined && Number(length) > MAX_BYTES) return [];
+    const body = await response.text();
+    if (new TextEncoder().encode(body).length > MAX_BYTES) return [];
+    return normalizeDocument(parseNotesJSON(body));
+  }
+
+  function start(doc, options = {}) {
+    const columns = TRADERS.map((trader, index) => ({ trader, node: doc.getElementById(index === 0 ? 'notes-a' : 'notes-b') }));
+    if (columns.some(column => !column.node)) return null;
+    const fetcher = options.fetcher || root.fetch.bind(root);
+    const clock = options.now || Date.now;
+    const schedule = options.setInterval || root.setInterval.bind(root);
+    const delay = options.setTimeout || root.setTimeout.bind(root);
+    const cancel = options.clearTimeout || root.clearTimeout.bind(root);
+    let notes = [];
+    let loading = false;
+    function render() {
+      columns.forEach(column => renderColumn(doc, column.node, column.trader, notes, clock()));
+    }
+    async function refresh() {
+      if (loading) return;
+      loading = true;
+      const controller = new AbortController();
+      const timeout = delay(() => controller.abort(), 10000);
+      try {
+        notes = await fetchNotes(fetcher, controller.signal, clock());
+      } catch (_) {
+        notes = [];
+      } finally {
+        cancel(timeout);
+        loading = false;
+        render();
+      }
+    }
+    render();
+    const ready = refresh();
+    schedule(refresh, REFRESH_MS);
+    // Age labels continue to update without a successful network request.
+    schedule(render, 60000);
+    doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
+    return { refresh, render, ready };
+  }
+
+  const api = { normalizeDocument, suspiciousText, safeNote, renderColumn, fetchNotes, start };
+  if (typeof module === 'object' && module.exports) module.exports.notes = api;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
     else start(document);

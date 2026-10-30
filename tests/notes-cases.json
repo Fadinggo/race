@@ -1,0 +1,1081 @@
+[
+  {
+    "name": "empty",
+    "document": {
+      "version": 1,
+      "notes": []
+    },
+    "valid": true,
+    "visible_count": 0
+  },
+  {
+    "name": "usual_chinese",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "empty_text_fields",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "",
+          "current_approach": "",
+          "plan": ""
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "html_remains_text",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "<img src=x onerror=alert(1)>",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "safe_discussion_of_secrets",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "不提供金鑰；僅記錄方向。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "unicode_300_codepoints",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+          "current_approach": "中",
+          "plan": "文"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "combined_300",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中",
+          "current_approach": "文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文",
+          "plan": "字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "combined_301",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中",
+          "current_approach": "文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文",
+          "plan": "字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "text_too_long"
+  },
+  {
+    "name": "all_kinds_and_traders",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        },
+        {
+          "trader": "Grok-Trader-B",
+          "ts": 1793305202.598,
+          "kind": "close",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        },
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 3
+  },
+  {
+    "name": "fractional_timestamp",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 0.25,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "maximum_timestamp",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 253402300799,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "timestamp_zero",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 0,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_timestamp"
+  },
+  {
+    "name": "timestamp_negative",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": -1,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_timestamp"
+  },
+  {
+    "name": "timestamp_bool",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": true,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_timestamp"
+  },
+  {
+    "name": "timestamp_string",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": "1793305202",
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_timestamp"
+  },
+  {
+    "name": "timestamp_null",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": null,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_timestamp"
+  },
+  {
+    "name": "timestamp_too_large",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 253402300800,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_timestamp"
+  },
+  {
+    "name": "wrong_trader",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-C",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_trader"
+  },
+  {
+    "name": "wrong_kind",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "OPEN",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_kind"
+  },
+  {
+    "name": "non_text",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": [
+            "text"
+          ]
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_text"
+  },
+  {
+    "name": "extra_note_field",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。",
+          "uid": "example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "missing_note_field",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "extra_document_field",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ],
+      "extra": true
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_document"
+  },
+  {
+    "name": "version_boolean",
+    "document": {
+      "version": true,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_version"
+  },
+  {
+    "name": "version_string",
+    "document": {
+      "version": "1",
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_version"
+  },
+  {
+    "name": "version_wrong",
+    "document": {
+      "version": 2,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_version"
+  },
+  {
+    "name": "version_float",
+    "document": {
+      "version": 1.0,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "api_key_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "api_key: example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "api_key_spaces",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "API KEY = example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "secret_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "secret: example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "secret_key_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "secret-key = example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "token_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "token: example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "access_token_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "access_token=example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "uid_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "UID: example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "passphrase_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "passphrase = example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "chinese_key_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "金鑰：example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "chinese_private_key_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "私鑰=example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "fullwidth_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "ｔｏｋｅｎ：example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "sk_prefix",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "sk-fake"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "ghp_prefix",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "ghp_fake"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "github_pat_prefix",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "github_pat_fake"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "aws_key",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "AKIAABCDEFGHIJKLMNOP"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "bearer",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "Bearer example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "pem",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "-----BEGIN PRIVATE KEY-----"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "numeric_uid",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "帳戶 12345678"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "fullwidth_numeric_uid",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "帳戶 １２３４５６７８"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "long_token",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "AbCdEfGhIjKlMnOpQrStUvWxYz012345"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "zero_width",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "市場​觀察"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "control",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "市場\u0000觀察"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "bidi_override",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "市場‮觀察"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "mixed_safe_and_unsafe",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        },
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "token: example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 1,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "malformed_record_empties_document",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        },
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "trade",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察，控制部位。",
+          "plan": "等待下一個訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_kind"
+  },
+  {
+    "name": "split_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "tok",
+          "current_approach": "en:",
+          "plan": "example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "split_label_value",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "UID:",
+          "current_approach": "example",
+          "plan": ""
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "split_long_token",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "AbCdEfGhIjKlMnOp",
+          "current_approach": "QrStUvWxYz012345",
+          "plan": ""
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "split_fullwidth_label",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "ｔｏ",
+          "current_approach": "ｋｅｎ：",
+          "plan": "example"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  }
+]
