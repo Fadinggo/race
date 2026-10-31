@@ -22,5 +22,6 @@
     }
   ],
   "max_fill_pages": 20,
-  "max_history_points": 50000
+  "max_history_points": 50000,
+  "statistics_start": 1793305202.598
 }
