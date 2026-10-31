@@ -244,50 +244,6 @@
    "invalidation": "觸及止損 0.0111139 即出場，或觸發時間停損。"
   },
   {
-   "trader": "Grok-Trader-B",
-   "ts": 1793427146,
-   "kind": "daily",
-   "market_recap": "大盤偏空，BTC 在支撐附近震盪，反彈軋空風險仍在。",
-   "trade_review": "XAU 空單淨 +0.1063U（+2.27R）、BEAT 空單淨 +0.0399U（+0.41R），今日兩筆平倉皆獲利；目前空手，權益約 10.10U。",
-   "watch_next": "觀察 BTC 支撐是否守住；台北換日後 GPT 額度重置，檢視一般訊號恢復情形。",
-   "strategy_adjustments": "GPT 日上限約 12:14 觸頂，一般訊號略過。v6.4.5/6.4.6 修平倉安全；14:06 上線 v6.4.7，GPT 觸頂時 MOMO 改用規則備援，不加大風險。"
-  },
-  {
-   "trader": "Grok-Trader-A",
-   "ts": 1793427450.461,
-   "kind": "daily_settlement",
-   "date": "2026-10-30",
-   "trades": [],
-   "table": {
-    "realized_pnl": 0.0,
-    "unrealized_pnl": null,
-    "fees": -0.00389094,
-    "funding": 0.0,
-    "api_cost_by_model": {
-     "gpt-6-astra": null,
-     "gpt-6.1-sol": null,
-     "gpt-6.1-terra": null,
-     "gpt-6-luna": null
-    },
-    "api_cost_total": 5.665,
-    "net_after_costs": -5.66889094,
-    "cum": {
-     "realized_pnl": 0.0,
-     "unrealized_pnl": null,
-     "fees": -0.00389094,
-     "funding": 0,
-     "api_cost_by_model": {
-      "gpt-6-astra": null,
-      "gpt-6.1-sol": null,
-      "gpt-6.1-terra": null,
-      "gpt-6-luna": null
-     },
-     "api_cost_total": 5.665,
-     "net_after_costs": -5.66889094
-    }
-   }
-  },
-  {
    "trader": "Grok-Trader-A",
    "ts": 1793427450.461,
    "kind": "daily_settlement",
@@ -334,8 +290,90 @@
    }
   },
   {
+   "trader": "Grok-Trader-A",
+   "ts": 1793427600,
+   "kind": "daily",
+   "market_recap": "主流幣仍偏空，BTC 在 77000 至 78000 一帶；小幣動能訊號多，但急漲急跌後反轉頻繁。",
+   "trade_review": "今日平倉 2 筆皆止損：DOOD 多 -1.106R（-0.066125U）、BEAT 空 -1.413R（-0.0731926U），合計約 -2.52R、-0.1393U。BTC 空單（10/30 開倉）與 AKE 多單持倉中。14:11 權益 9.8922U，今日 GPT 花費約 2.79 USD。",
+   "watch_next": "BTC 是否守住 79400 止損下方；AKE 能否朝止盈 0.0132703 推進；平倉與止損修正後實際運作。",
+   "strategy_adjustments": "已加入 1 分鐘確認、跳過冷卻、Astra 12000 medium 並精簡輸入、BEAT 後修正平倉與止損防護、vol_x 小於 1 預先過濾；GPT 至 24:00 僅限持倉管理。"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793434124.0330672,
+   "kind": "close",
+   "review": {
+    "instrument": "AKE-USDT-SWAP",
+    "direction": "long",
+    "leverage": 2,
+    "entry_price": 0.01173,
+    "stop_loss": 0.0117417,
+    "take_profit": 0.01328,
+    "max_loss_usdt": 0.064,
+    "reasons": {
+     "funding_rate": "未取得資料。",
+     "open_interest": "未取得資料。",
+     "key_levels": "MOMO 規則：止損 0.0117417（約 1R，ATR 換算），止盈 0.01328（約 132.14R）。",
+     "volume": "未取得資料。",
+     "events": "無重大消息紀錄；純動能訊號。"
+    },
+    "confidence": "未記錄信心分數；規則訊號。",
+    "invalidation": "觸及止損 0.0117417 即出場，或持倉 60 分鐘未達 +0.5R 時間停損（達標則止損移至成本），最長持倉 120 分鐘。"
+   },
+   "realized_pnl_usdt": -0.0001735,
+   "variance": {
+    "right": "曾達 +1R，止損已移至保本。出場原因：保本或移動停利。",
+    "wrong": "結果 -0.003R、淨損益 -0.0001735U。無明顯執行錯誤。",
+    "lesson": "進場前確認 1 分鐘延續，避免追在急漲急跌末端。"
+   }
+  },
+  {
    "trader": "Grok-Trader-B",
-   "ts": 1793427450.461,
+   "ts": 1793461837.145525,
+   "kind": "daily",
+   "market_recap": "BTC 永續收在約 77517.6，台北日內漲跌 -0.07%（OKX 行情）。",
+   "trade_review": "今日平倉 2 筆（勝 2），淨損益合計 +0.1462U：XAU short 1h_breakout +2.27R、BEAT short MOMO +0.41R。",
+   "watch_next": "持續掃描 MOMO 動能（2%/5-15 分、5%/1 小時、量能 3 倍）與 1H/15m 突破，注意資金費結算時段停止進場。",
+   "strategy_adjustments": "今日無策略參數變更；GPT 額度觸頂時 MOMO 改用規則備援，風險上限不變。"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793464675.012,
+   "kind": "daily_settlement",
+   "date": "2026-10-30",
+   "trades": [],
+   "table": {
+    "realized_pnl": 0.0,
+    "unrealized_pnl": null,
+    "fees": -0.00389094,
+    "funding": 0.0,
+    "api_cost_by_model": {
+     "gpt-6-astra": null,
+     "gpt-6.1-sol": null,
+     "gpt-6.1-terra": null,
+     "gpt-6-luna": null
+    },
+    "api_cost_total": 5.665,
+    "net_after_costs": -5.66889094,
+    "cum": {
+     "realized_pnl": 0.0,
+     "unrealized_pnl": null,
+     "fees": -0.00389094,
+     "funding": 0,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": 5.665,
+     "net_after_costs": -5.66889094
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793464675.012,
    "kind": "daily_settlement",
    "date": "2026-10-30",
    "trades": [
@@ -381,7 +419,7 @@
   },
   {
    "trader": "Grok-Trader-B",
-   "ts": 1793427450.461,
+   "ts": 1793464675.013,
    "kind": "daily_settlement",
    "date": "2026-10-31",
    "trades": [
@@ -402,12 +440,12 @@
     "fees": -0.00768238,
     "funding": 0.00383909,
     "api_cost_by_model": {
-     "gpt-6.1-sol": 0.53336,
-     "gpt-6.1-terra": 0.40545,
+     "gpt-6.1-sol": 0.78727,
+     "gpt-6.1-terra": 0.59476,
      "gpt-6-luna": null
     },
-    "api_cost_total": 1.0035,
-    "net_after_costs": -0.85335329,
+    "api_cost_total": 1.4871,
+    "net_after_costs": -1.33695329,
     "cum": {
      "realized_pnl": 0.13611,
      "unrealized_pnl": null,
@@ -415,23 +453,14 @@
      "funding": 0.00461878,
      "api_cost_by_model": {
       "gpt-6-astra": 1.3281,
-      "gpt-6.1-sol": 1.4295,
-      "gpt-6.1-terra": 0.9213,
-      "gpt-6-luna": 0.1212
+      "gpt-6.1-sol": 1.6834,
+      "gpt-6.1-terra": 1.1106,
+      "gpt-6-luna": 0.1615
      },
-     "api_cost_total": 3.8001,
-     "net_after_costs": -3.68689623
+     "api_cost_total": 4.2836,
+     "net_after_costs": -4.17039623
     }
    }
-  },
-  {
-   "trader": "Grok-Trader-A",
-   "ts": 1793427600,
-   "kind": "daily",
-   "market_recap": "主流幣仍偏空，BTC 在 77000 至 78000 一帶；小幣動能訊號多，但急漲急跌後反轉頻繁。",
-   "trade_review": "今日平倉 2 筆皆止損：DOOD 多 -1.106R（-0.066125U）、BEAT 空 -1.413R（-0.0731926U），合計約 -2.52R、-0.1393U。BTC 空單（10/30 開倉）與 AKE 多單持倉中。14:11 權益 9.8922U，今日 GPT 花費約 2.79 USD。",
-   "watch_next": "BTC 是否守住 79400 止損下方；AKE 能否朝止盈 0.0132703 推進；平倉與止損修正後實際運作。",
-   "strategy_adjustments": "已加入 1 分鐘確認、跳過冷卻、Astra 12000 medium 並精簡輸入、BEAT 後修正平倉與止損防護、vol_x 小於 1 預先過濾；GPT 至 24:00 僅限持倉管理。"
   }
  ]
 }
