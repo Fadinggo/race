@@ -18,16 +18,33 @@ import unicodedata
 
 MAX_BYTES = 1024 * 1024
 MAX_NOTES = 1000
-MAX_TEXT = 300
+MAX_TEXT = 1500
 MAX_TIMESTAMP = 253402300799
+MAX_TRADES = 100
+MAX_INSTRUMENT = 64
+MAX_CONFIDENCE = 80
 TRADERS = frozenset({"Grok-Trader-A", "Grok-Trader-B"})
 KINDS = frozenset({"open", "close", "daily", "daily_settlement"})
-TEXT_FIELDS = ("market_view", "current_approach", "plan")
-NOTE_FIELDS = frozenset({"trader", "ts", "kind", *TEXT_FIELDS})
-SETTLEMENT_FIELDS = frozenset({"trader", "ts", "kind", "date", "table"})
+DIRECTIONS = frozenset({"long", "short"})
+DAILY_TEXT = ("market_recap", "trade_review", "watch_next", "strategy_adjustments")
+REASON_FIELDS = ("funding_rate", "open_interest", "key_levels", "volume", "events")
+VARIANCE_FIELDS = ("right", "wrong", "lesson")
+POSITION_FIELDS = frozenset({
+    "instrument", "direction", "leverage", "entry_price", "stop_loss", "take_profit",
+    "max_loss_usdt", "reasons", "confidence", "invalidation",
+})
+OPEN_FIELDS = frozenset({"trader", "ts", "kind", *POSITION_FIELDS})
+CLOSE_FIELDS = frozenset({"trader", "ts", "kind", "review", "realized_pnl_usdt", "variance"})
+DAILY_FIELDS = frozenset({"trader", "ts", "kind", *DAILY_TEXT})
+# Narrative notes that use an unknown kind are still compared with the daily
+# shape first, so a bad kind with the public daily keys reports invalid_kind.
+TEXT_FIELDS = DAILY_TEXT
+NOTE_FIELDS = DAILY_FIELDS
+SETTLEMENT_FIELDS = frozenset({"trader", "ts", "kind", "date", "trades", "table"})
 SETTLEMENT_NUMBERS = frozenset({"realized_pnl", "unrealized_pnl", "fees", "funding",
                                 "api_cost_total", "net_after_costs"})
 SETTLEMENT_TABLE_FIELDS = SETTLEMENT_NUMBERS | {"api_cost_by_model"}
+TRADE_FIELDS = frozenset({"instrument", "direction", "pnl"})
 MAX_MODELS = 50
 MAX_MODEL_NAME = 80
 LABEL = re.compile(
@@ -68,15 +85,78 @@ def suspicious_model_name(name):
     return any(pattern.search(normalized) for pattern in (LABEL, PREFIX, LONG_NUMBER))
 
 
-def nullable_number(value):
-    if value is None:
-        return True
+def finite_number(value):
     if type(value) not in (int, float):
         return False
     try:
         return math.isfinite(value)
     except OverflowError:
         return False
+
+
+def nullable_number(value):
+    if value is None:
+        return True
+    return finite_number(value)
+
+
+def require_text(value):
+    if not isinstance(value, str):
+        raise NotesError("invalid_text")
+    if not value.strip():
+        raise NotesError("invalid_text")
+    return value
+
+
+def require_symbol(value):
+    text = require_text(value)
+    if text != value or len(text) > MAX_INSTRUMENT or any(char.isspace() for char in text):
+        raise NotesError("invalid_text")
+    return text
+
+
+def validate_position_content(source):
+    require_symbol(source["instrument"])
+    if source["direction"] not in DIRECTIONS:
+        raise NotesError("invalid_direction")
+    for field in ("leverage", "entry_price", "stop_loss", "take_profit"):
+        if not finite_number(source[field]) or source[field] <= 0:
+            raise NotesError("invalid_number")
+    if not finite_number(source["max_loss_usdt"]) or source["max_loss_usdt"] < 0:
+        raise NotesError("invalid_number")
+    reasons = source["reasons"]
+    if not isinstance(reasons, dict) or set(reasons) != set(REASON_FIELDS):
+        raise NotesError("invalid_reasons")
+    for field in REASON_FIELDS:
+        require_text(reasons[field])
+    confidence = require_text(source["confidence"])
+    if len(confidence) > MAX_CONFIDENCE:
+        raise NotesError("invalid_text")
+    require_text(source["invalidation"])
+
+
+def position_strings(source):
+    return [
+        source["instrument"], source["confidence"], source["invalidation"],
+        *(source["reasons"][field] for field in REASON_FIELDS),
+    ]
+
+
+def note_strings(note):
+    if note["kind"] == "daily":
+        return [note[field] for field in DAILY_TEXT]
+    if note["kind"] == "open":
+        return position_strings(note)
+    if note["kind"] == "close":
+        return position_strings(note["review"]) + [note["variance"][field] for field in VARIANCE_FIELDS]
+    return []
+
+
+def enforce_text_limit(values):
+    if sum(len(value) for value in values) > MAX_TEXT:
+        raise NotesError("text_too_long")
+    if any(suspicious_text(value) for value in values) or suspicious_text("".join(values)):
+        raise NotesError("unsafe_note")
 
 
 def validate_settlement_table(table, *, cumulative=False):
@@ -104,6 +184,28 @@ def validate_settlement_table(table, *, cumulative=False):
     return table
 
 
+def validate_trades(trades):
+    if not isinstance(trades, list) or len(trades) > MAX_TRADES:
+        raise NotesError("invalid_trades")
+    texts = []
+    for trade in trades:
+        if not isinstance(trade, dict) or set(trade) != TRADE_FIELDS:
+            raise NotesError("invalid_trade")
+        try:
+            texts.append(require_symbol(trade["instrument"]))
+        except NotesError as exc:
+            if exc.code != "invalid_text":
+                raise
+            raise NotesError("invalid_trade") from None
+        if trade["direction"] not in DIRECTIONS:
+            raise NotesError("invalid_trade")
+        if not finite_number(trade["pnl"]):
+            raise NotesError("invalid_trade")
+    if any(suspicious_text(text) for text in texts) or suspicious_text("".join(texts)):
+        raise NotesError("unsafe_note")
+    return trades
+
+
 def validate_settlement_date(value):
     if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
         raise NotesError("invalid_settlement_date")
@@ -113,10 +215,33 @@ def validate_settlement_date(value):
         raise NotesError("invalid_settlement_date") from None
 
 
+def validate_close(note):
+    review = note["review"]
+    if not isinstance(review, dict) or set(review) != POSITION_FIELDS:
+        raise NotesError("invalid_review")
+    validate_position_content(review)
+    if not finite_number(note["realized_pnl_usdt"]):
+        raise NotesError("invalid_number")
+    variance = note["variance"]
+    if not isinstance(variance, dict) or set(variance) != set(VARIANCE_FIELDS):
+        raise NotesError("invalid_variance")
+    for field in VARIANCE_FIELDS:
+        require_text(variance[field])
+    enforce_text_limit(note_strings(note))
+
+
 def validate_note(note):
     if not isinstance(note, dict):
         raise NotesError("invalid_note")
-    expected = SETTLEMENT_FIELDS if note.get("kind") == "daily_settlement" else NOTE_FIELDS
+    kind = note.get("kind")
+    if kind == "daily_settlement":
+        expected = SETTLEMENT_FIELDS
+    elif kind == "open":
+        expected = OPEN_FIELDS
+    elif kind == "close":
+        expected = CLOSE_FIELDS
+    else:
+        expected = DAILY_FIELDS
     if set(note) != expected:
         raise NotesError("invalid_note")
     if not isinstance(note["trader"], str) or note["trader"] not in TRADERS:
@@ -129,15 +254,20 @@ def validate_note(note):
     if note["kind"] == "daily_settlement":
         validate_settlement_date(note["date"])
         validate_settlement_table(note["table"])
+        validate_trades(note["trades"])
         return note
-    if any(not isinstance(note[field], str) for field in TEXT_FIELDS):
+    if note["kind"] == "open":
+        validate_position_content(note)
+        enforce_text_limit(note_strings(note))
+        return note
+    if note["kind"] == "close":
+        validate_close(note)
+        return note
+    if any(not isinstance(note[field], str) for field in DAILY_TEXT):
         raise NotesError("invalid_text")
-    if sum(len(note[field]) for field in TEXT_FIELDS) > MAX_TEXT:
-        raise NotesError("text_too_long")
-    # Check fields individually and together so splitting a label or token
-    # between the three public fields cannot bypass the filter.
-    if any(suspicious_text(note[field]) for field in TEXT_FIELDS) or suspicious_text("".join(note[field] for field in TEXT_FIELDS)):
-        raise NotesError("unsafe_note")
+    for field in DAILY_TEXT:
+        require_text(note[field])
+    enforce_text_limit(note_strings(note))
     return note
 
 

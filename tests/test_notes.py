@@ -19,7 +19,14 @@ notes = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(notes)
 CASES = json.loads((ROOT / "tests" / "notes-cases.json").read_text(encoding="utf-8"))
 BASE = {"trader": "Grok-Trader-A", "ts": 1793305202.598, "kind": "daily",
-        "market_view": "波動偏高。", "current_approach": "等待訊號。", "plan": "注意風險。"}
+        "market_recap": "波動偏高。", "trade_review": "等待訊號。",
+        "watch_next": "注意風險。", "strategy_adjustments": "維持風控。"}
+OPEN = {"trader": "Grok-Trader-A", "ts": 1793305202.598, "kind": "open",
+        "instrument": "BTC-USDT-SWAP", "direction": "short", "leverage": 5,
+        "entry_price": 77818.8, "stop_loss": 79000, "take_profit": 75000, "max_loss_usdt": 0.4,
+        "reasons": {"funding_rate": "資金費率 0.01%。", "open_interest": "未平倉量增加 8%。",
+                    "key_levels": "壓力 79000。", "volume": "量能偏低。", "events": "今晚無重大數據。"},
+        "confidence": "中高。", "invalidation": "站回 79000 則失效。"}
 SETTLEMENT = next(case["document"]["notes"][0] for case in CASES if case["name"] == "settlement_valid_signed_values")
 
 
@@ -59,11 +66,11 @@ class NotesValidationTests(unittest.TestCase):
                 notes.validate_note({**BASE, field: "token: EXAMPLE_NOT_A_REAL_CREDENTIAL"})
 
     def test_plain_text_preserves_html_newlines_tabs_and_astral_characters(self):
-        note = {**BASE, "market_view": "<b>觀察</b>\n第二行\t😀"}
+        note = {**BASE, "market_recap": "<b>觀察</b>\n第二行\t😀"}
         self.assertIs(notes.validate_note(note), note)
-        self.assertFalse(notes.suspicious_text(note["market_view"]))
+        self.assertFalse(notes.suspicious_text(note["market_recap"]))
         with self.assertRaisesRegex(notes.NotesError, "unsafe_note"):
-            notes.validate_note({**BASE, "plan": "\ud800"})
+            notes.validate_note({**BASE, "watch_next": "\ud800"})
 
     def test_settlement_numeric_cells_reject_non_finite_numbers_without_overflow(self):
         for table_name in ("daily", "cum"):
@@ -126,6 +133,73 @@ class NotesValidationTests(unittest.TestCase):
                 with self.assertRaisesRegex(notes.NotesError, "unsafe_note"):
                     notes.validate_note(invalid)
 
+    def test_content_limit_is_1500_codepoints(self):
+        self.assertEqual(notes.MAX_TEXT, 1500)
+        note = copy.deepcopy(BASE)
+        room = notes.MAX_TEXT - sum(len(note[field]) for field in notes.TEXT_FIELDS if field != "market_recap")
+        note["market_recap"] = "測" * room
+        self.assertIs(notes.validate_note(note), note)
+        note["market_recap"] += "測"
+        with self.assertRaisesRegex(notes.NotesError, "text_too_long"):
+            notes.validate_note(note)
+
+    def test_open_close_and_daily_notes_reject_missing_required_fields(self):
+        opened = copy.deepcopy(OPEN)
+        self.assertIs(notes.validate_note(opened), opened)
+        for field in ("instrument", "direction", "leverage", "entry_price", "stop_loss", "take_profit",
+                      "max_loss_usdt", "reasons", "confidence", "invalidation"):
+            with self.subTest(kind="open", field=field):
+                item = copy.deepcopy(OPEN)
+                del item[field]
+                with self.assertRaisesRegex(notes.NotesError, "invalid_note"):
+                    notes.validate_note(item)
+        for field in notes.REASON_FIELDS:
+            with self.subTest(kind="open-reason", field=field):
+                item = copy.deepcopy(OPEN)
+                del item["reasons"][field]
+                with self.assertRaisesRegex(notes.NotesError, "invalid_reasons"):
+                    notes.validate_note(item)
+        close = copy.deepcopy(next(case["document"]["notes"][0] for case in CASES if case["name"] == "close_valid"))
+        self.assertIs(notes.validate_note(close), close)
+        for field in ("review", "realized_pnl_usdt", "variance"):
+            with self.subTest(kind="close", field=field):
+                item = copy.deepcopy(close)
+                del item[field]
+                with self.assertRaisesRegex(notes.NotesError, "invalid_note"):
+                    notes.validate_note(item)
+        for field in notes.VARIANCE_FIELDS:
+            with self.subTest(kind="close-variance", field=field):
+                item = copy.deepcopy(close)
+                del item["variance"][field]
+                with self.assertRaisesRegex(notes.NotesError, "invalid_variance"):
+                    notes.validate_note(item)
+        for field in ("entry_price", "invalidation", "reasons"):
+            with self.subTest(kind="close-review", field=field):
+                item = copy.deepcopy(close)
+                del item["review"][field]
+                with self.assertRaisesRegex(notes.NotesError, "invalid_review"):
+                    notes.validate_note(item)
+        for field in notes.TEXT_FIELDS:
+            with self.subTest(kind="daily", field=field):
+                item = copy.deepcopy(BASE)
+                del item[field]
+                with self.assertRaisesRegex(notes.NotesError, "invalid_note"):
+                    notes.validate_note(item)
+
+    def test_settlement_requires_a_trade_list_and_each_trade_needs_pnl(self):
+        item = copy.deepcopy(SETTLEMENT)
+        self.assertIn("trades", item)
+        self.assertIs(notes.validate_note(item), item)
+        del item["trades"]
+        with self.assertRaisesRegex(notes.NotesError, "invalid_note"):
+            notes.validate_note(item)
+        listed = copy.deepcopy(SETTLEMENT)
+        listed["trades"] = [{"instrument": "ETH-USDT-SWAP", "direction": "long", "pnl": 0.2}]
+        self.assertIs(notes.validate_note(listed), listed)
+        listed["trades"][0].pop("pnl")
+        with self.assertRaisesRegex(notes.NotesError, "invalid_trade"):
+            notes.validate_note(listed)
+
 
 class NotesCommandTests(unittest.TestCase):
     def setUp(self):
@@ -148,7 +222,7 @@ class NotesCommandTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0)
             self.assertEqual(json.loads(result.stdout), {"status": "ok", "notes": len(note_list)})
             self.assertEqual(result.stderr, "")
-            self.assertNotIn(BASE["market_view"], result.stdout)
+            self.assertNotIn(BASE["market_recap"], result.stdout)
 
     def test_cli_absent_or_directory_path_is_a_fixed_failure(self):
         for path in (self.path, self.directory):
@@ -174,7 +248,7 @@ class NotesCommandTests(unittest.TestCase):
 
     def test_cli_unsafe_note_and_wrong_schema_never_echo_content(self):
         marker = "EXAMPLE_SHOULD_NEVER_REACH_LOG_OUTPUT"
-        for document, code in (({"version": 1, "notes": [{**BASE, "plan": "token: " + marker}]}, "unsafe_note"),
+        for document, code in (({"version": 1, "notes": [{**BASE, "watch_next": "token: " + marker}]}, "unsafe_note"),
                                ({"version": 1, "notes": [{**BASE, "kind": marker}]}, "invalid_kind")):
             with self.subTest(code=code):
                 self.write(document)
@@ -183,7 +257,7 @@ class NotesCommandTests(unittest.TestCase):
                 self.assertEqual(json.loads(result.stdout), {"status": "error", "error_code": code})
                 self.assertEqual(result.stderr, "")
                 self.assertNotIn(marker, result.stdout + result.stderr)
-                self.assertNotIn(BASE["market_view"], result.stdout + result.stderr)
+                self.assertNotIn(BASE["market_recap"], result.stdout + result.stderr)
 
     def test_file_size_limit_applies_before_parsing(self):
         self.path.write_bytes(b" " * (notes.MAX_BYTES + 1))

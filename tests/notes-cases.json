@@ -17,9 +17,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -35,14 +36,16 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "",
-          "current_approach": "",
-          "plan": ""
+          "market_recap": "",
+          "trade_review": "",
+          "watch_next": "",
+          "strategy_adjustments": ""
         }
       ]
     },
-    "valid": true,
-    "visible_count": 1
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_text"
   },
   {
     "name": "html_remains_text",
@@ -53,9 +56,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "<img src=x onerror=alert(1)>",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "<img src=x onerror=alert(1)>",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -71,9 +75,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "不提供金鑰；僅記錄方向。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "不提供金鑰；僅記錄方向。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -81,7 +86,7 @@
     "visible_count": 1
   },
   {
-    "name": "unicode_300_codepoints",
+    "name": "unicode_1500_codepoints",
     "document": {
       "version": 1,
       "notes": [
@@ -89,9 +94,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
-          "current_approach": "中",
-          "plan": "文"
+          "market_recap": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+          "trade_review": "中",
+          "watch_next": "文",
+          "strategy_adjustments": "字"
         }
       ]
     },
@@ -99,7 +105,7 @@
     "visible_count": 1
   },
   {
-    "name": "combined_300",
+    "name": "combined_1500",
     "document": {
       "version": 1,
       "notes": [
@@ -107,9 +113,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中",
-          "current_approach": "文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文",
-          "plan": "字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字"
+          "market_recap": "中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中",
+          "trade_review": "文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文",
+          "watch_next": "句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句",
+          "strategy_adjustments": "字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字"
         }
       ]
     },
@@ -117,7 +124,7 @@
     "visible_count": 1
   },
   {
-    "name": "combined_301",
+    "name": "combined_1501",
     "document": {
       "version": 1,
       "notes": [
@@ -125,9 +132,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中",
-          "current_approach": "文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文",
-          "plan": "字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字"
+          "market_recap": "中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中",
+          "trade_review": "文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文文",
+          "watch_next": "句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句句",
+          "strategy_adjustments": "字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字"
         }
       ]
     },
@@ -144,25 +152,60 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "open",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資金費率 0.01%，空方支付。",
+            "open_interest": "未平倉量較昨日增加 8%。",
+            "key_levels": "壓力 79000，支撐 76000。",
+            "volume": "近一小時量低於均量。",
+            "events": "今晚無重大數據。"
+          },
+          "confidence": "中高，約七成。",
+          "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
         },
         {
           "trader": "Grok-Trader-B",
           "ts": 1793305202.598,
           "kind": "close",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "review": {
+            "instrument": "BTC-USDT-SWAP",
+            "direction": "short",
+            "leverage": 5,
+            "entry_price": 77818.8,
+            "stop_loss": 79000,
+            "take_profit": 75000,
+            "max_loss_usdt": 0.4,
+            "reasons": {
+              "funding_rate": "資金費率 0.01%，空方支付。",
+              "open_interest": "未平倉量較昨日增加 8%。",
+              "key_levels": "壓力 79000，支撐 76000。",
+              "volume": "近一小時量低於均量。",
+              "events": "今晚無重大數據。"
+            },
+            "confidence": "中高，約七成。",
+            "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+          },
+          "realized_pnl_usdt": -0.06,
+          "variance": {
+            "right": "停損放在壓力外側，虧損沒有擴大。",
+            "wrong": "進場太早，忽略短線買盤。",
+            "lesson": "下一筆等未平倉量回落再進。"
+          }
         },
         {
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "當日沒有完整回合。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "維持既有風控。"
         }
       ]
     },
@@ -178,9 +221,10 @@
           "trader": "Grok-Trader-A",
           "ts": 0.25,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -196,9 +240,10 @@
           "trader": "Grok-Trader-A",
           "ts": 253402300799,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -214,9 +259,10 @@
           "trader": "Grok-Trader-A",
           "ts": 0,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -233,9 +279,10 @@
           "trader": "Grok-Trader-A",
           "ts": -1,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -252,9 +299,10 @@
           "trader": "Grok-Trader-A",
           "ts": true,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -271,9 +319,10 @@
           "trader": "Grok-Trader-A",
           "ts": "1793305202",
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -290,9 +339,10 @@
           "trader": "Grok-Trader-A",
           "ts": null,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -309,9 +359,10 @@
           "trader": "Grok-Trader-A",
           "ts": 253402300800,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -328,9 +379,10 @@
           "trader": "Grok-Trader-C",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -347,9 +399,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "OPEN",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -366,11 +419,12 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": [
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": [
             "text"
-          ]
+          ],
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -387,9 +441,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。",
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。",
           "uid": "example"
         }
       ]
@@ -407,8 +462,8 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。"
         }
       ]
     },
@@ -425,9 +480,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ],
       "extra": true
@@ -445,9 +501,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -464,9 +521,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -483,9 +541,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -502,9 +561,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -520,9 +580,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "api_key: example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "api_key: example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -539,9 +600,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "API KEY = example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "API KEY = example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -558,9 +620,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "secret: example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "secret: example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -577,9 +640,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "secret-key = example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "secret-key = example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -596,9 +660,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "token: example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "token: example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -615,9 +680,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "access_token=example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "access_token=example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -634,9 +700,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "UID: example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "UID: example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -653,9 +720,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "passphrase = example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "passphrase = example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -672,9 +740,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "金鑰：example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "金鑰：example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -691,9 +760,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "私鑰=example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "私鑰=example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -710,9 +780,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "ｔｏｋｅｎ：example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "ｔｏｋｅｎ：example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -729,9 +800,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "sk-fake"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "sk-fake",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -748,9 +820,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "ghp_fake"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "ghp_fake",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -767,9 +840,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "github_pat_fake"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "github_pat_fake",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -786,9 +860,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "AKIAABCDEFGHIJKLMNOP"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "AKIAABCDEFGHIJKLMNOP",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -805,9 +880,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "Bearer example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "Bearer example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -824,9 +900,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "-----BEGIN PRIVATE KEY-----"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "-----BEGIN PRIVATE KEY-----",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -843,9 +920,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "帳戶 12345678"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "帳戶 12345678",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -862,9 +940,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "帳戶 １２３４５６７８"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "帳戶 １２３４５６７８",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -881,9 +960,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "AbCdEfGhIjKlMnOpQrStUvWxYz012345"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "AbCdEfGhIjKlMnOpQrStUvWxYz012345",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -900,9 +980,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "市場​觀察"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "市場​觀察",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -919,9 +1000,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "市場\u0000觀察"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "市場\u0000觀察",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -938,9 +1020,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "市場‮觀察"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "市場‮觀察",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -957,17 +1040,19 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         },
         {
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "token: example"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "token: example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -984,17 +1069,19 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         },
         {
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "trade",
-          "market_view": "市場波動偏高。",
-          "current_approach": "保持觀察，控制部位。",
-          "plan": "等待下一個訊號。"
+          "market_recap": "市場波動偏高。",
+          "trade_review": "保持觀察，控制部位。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -1011,9 +1098,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "tok",
-          "current_approach": "en:",
-          "plan": "example"
+          "market_recap": "tok",
+          "trade_review": "en:",
+          "watch_next": "example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -1030,9 +1118,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "UID:",
-          "current_approach": "example",
-          "plan": ""
+          "market_recap": "UID:",
+          "trade_review": "example",
+          "watch_next": "。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -1049,9 +1138,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "AbCdEfGhIjKlMnOp",
-          "current_approach": "QrStUvWxYz012345",
-          "plan": ""
+          "market_recap": "AbCdEfGhIjKlMnOp",
+          "trade_review": "QrStUvWxYz012345",
+          "watch_next": "。",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -1068,9 +1158,10 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily",
-          "market_view": "ｔｏ",
-          "current_approach": "ｋｅｎ：",
-          "plan": "example"
+          "market_recap": "ｔｏ",
+          "trade_review": "ｋｅｎ：",
+          "watch_next": "example",
+          "strategy_adjustments": "。"
         }
       ]
     },
@@ -1111,7 +1202,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1149,7 +1241,8 @@
               "api_cost_total": null,
               "net_after_costs": null
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1183,7 +1276,8 @@
               "api_cost_total": 0,
               "net_after_costs": 0
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1220,7 +1314,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1260,7 +1355,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1300,7 +1396,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1340,7 +1437,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1380,7 +1478,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1420,7 +1519,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1460,7 +1560,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1501,7 +1602,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1542,7 +1644,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1583,7 +1686,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1624,7 +1728,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1665,7 +1770,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1706,7 +1812,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1747,7 +1854,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1787,7 +1895,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1804,7 +1913,8 @@
           "trader": "Grok-Trader-A",
           "ts": 1793305202.598,
           "kind": "daily_settlement",
-          "date": "2026-10-30"
+          "date": "2026-10-30",
+          "trades": []
         }
       ]
     },
@@ -1846,7 +1956,8 @@
               "net_after_costs": 2.255
             }
           },
-          "plan": "extra"
+          "plan": "extra",
+          "trades": []
         }
       ]
     },
@@ -1864,7 +1975,8 @@
           "ts": 1793305202.598,
           "kind": "daily_settlement",
           "date": "2026-10-30",
-          "table": null
+          "table": null,
+          "trades": []
         }
       ]
     },
@@ -1882,7 +1994,8 @@
           "ts": 1793305202.598,
           "kind": "daily_settlement",
           "date": "2026-10-30",
-          "table": []
+          "table": [],
+          "trades": []
         }
       ]
     },
@@ -1922,7 +2035,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1964,7 +2078,8 @@
               "net_after_costs": 2.255
             },
             "extra": null
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -1994,7 +2109,8 @@
             "api_cost_total": 0.015,
             "net_after_costs": 2.255,
             "cum": null
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2024,7 +2140,8 @@
             "api_cost_total": 0.015,
             "net_after_costs": 2.255,
             "cum": []
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2064,7 +2181,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2106,7 +2224,8 @@
               "net_after_costs": 2.255,
               "extra": null
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2159,7 +2278,8 @@
                 "net_after_costs": 2.255
               }
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2200,7 +2320,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2241,7 +2362,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2282,7 +2404,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2323,7 +2446,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": "0"
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2363,7 +2487,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2403,7 +2528,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2444,7 +2570,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2484,7 +2611,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2525,7 +2653,8 @@
               "api_cost_total": -0.1,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2563,7 +2692,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2601,7 +2731,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2691,7 +2822,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2731,7 +2863,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2771,7 +2904,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2811,7 +2945,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2851,7 +2986,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2891,7 +3027,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2931,7 +3068,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -2972,7 +3110,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3014,7 +3153,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3053,7 +3193,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3093,7 +3234,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         },
         {
           "trader": "Grok-Trader-A",
@@ -3123,7 +3265,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3164,7 +3307,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         },
         {
           "trader": "Grok-Trader-B",
@@ -3194,7 +3338,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3234,7 +3379,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         },
         {
           "trader": "Grok-Trader-A",
@@ -3264,7 +3410,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3303,7 +3450,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3342,7 +3490,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3381,7 +3530,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3420,7 +3570,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3460,7 +3611,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3500,7 +3652,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3540,7 +3693,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3580,7 +3734,8 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
-          }
+          },
+          "trades": []
         }
       ]
     },
@@ -3618,7 +3773,791 @@
               "api_cost_total": 0.015,
               "net_after_costs": 2.255
             }
+          },
+          "trades": []
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "unsafe_note"
+  },
+  {
+    "name": "legacy_shallow_fields",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_view": "市場波動偏高。",
+          "current_approach": "保持觀察。",
+          "plan": "等待訊號。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "daily_missing_trade_review",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_recap": "市場波動偏高。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "維持既有風控。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "daily_whitespace_recap",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily",
+          "market_recap": " \n\t ",
+          "trade_review": "當日沒有完整回合。",
+          "watch_next": "等待下一個訊號。",
+          "strategy_adjustments": "維持既有風控。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_text"
+  },
+  {
+    "name": "open_valid",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資金費率 0.01%，空方支付。",
+            "open_interest": "未平倉量較昨日增加 8%。",
+            "key_levels": "壓力 79000，支撐 76000。",
+            "volume": "近一小時量低於均量。",
+            "events": "今晚無重大數據。"
+          },
+          "confidence": "中高，約七成。",
+          "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "open_missing_stop_loss",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資金費率 0.01%，空方支付。",
+            "open_interest": "未平倉量較昨日增加 8%。",
+            "key_levels": "壓力 79000，支撐 76000。",
+            "volume": "近一小時量低於均量。",
+            "events": "今晚無重大數據。"
+          },
+          "confidence": "中高，約七成。",
+          "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "open_missing_reason_volume",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資金費率 0.01%，空方支付。",
+            "open_interest": "未平倉量較昨日增加 8%。",
+            "key_levels": "壓力 79000，支撐 76000。",
+            "events": "今晚無重大數據。"
+          },
+          "confidence": "中高，約七成。",
+          "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_reasons"
+  },
+  {
+    "name": "open_empty_invalidation",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資金費率 0.01%，空方支付。",
+            "open_interest": "未平倉量較昨日增加 8%。",
+            "key_levels": "壓力 79000，支撐 76000。",
+            "volume": "近一小時量低於均量。",
+            "events": "今晚無重大數據。"
+          },
+          "confidence": "中高，約七成。",
+          "invalidation": "  "
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_text"
+  },
+  {
+    "name": "open_direction_must_be_long_or_short",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "空",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資金費率 0.01%，空方支付。",
+            "open_interest": "未平倉量較昨日增加 8%。",
+            "key_levels": "壓力 79000，支撐 76000。",
+            "volume": "近一小時量低於均量。",
+            "events": "今晚無重大數據。"
+          },
+          "confidence": "中高，約七成。",
+          "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_direction"
+  },
+  {
+    "name": "open_leverage_boolean",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": true,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資金費率 0.01%，空方支付。",
+            "open_interest": "未平倉量較昨日增加 8%。",
+            "key_levels": "壓力 79000，支撐 76000。",
+            "volume": "近一小時量低於均量。",
+            "events": "今晚無重大數據。"
+          },
+          "confidence": "中高，約七成。",
+          "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_number"
+  },
+  {
+    "name": "open_text_1500",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資",
+            "open_interest": "資",
+            "key_levels": "資",
+            "volume": "資",
+            "events": "資"
+          },
+          "confidence": "中",
+          "invalidation": "失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失"
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "open_text_1501",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "open",
+          "instrument": "BTC-USDT-SWAP",
+          "direction": "short",
+          "leverage": 5,
+          "entry_price": 77818.8,
+          "stop_loss": 79000,
+          "take_profit": 75000,
+          "max_loss_usdt": 0.4,
+          "reasons": {
+            "funding_rate": "資",
+            "open_interest": "資",
+            "key_levels": "資",
+            "volume": "資",
+            "events": "資"
+          },
+          "confidence": "中",
+          "invalidation": "失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失失"
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "text_too_long"
+  },
+  {
+    "name": "close_valid",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-B",
+          "ts": 1793305202.598,
+          "kind": "close",
+          "review": {
+            "instrument": "BTC-USDT-SWAP",
+            "direction": "short",
+            "leverage": 5,
+            "entry_price": 77818.8,
+            "stop_loss": 79000,
+            "take_profit": 75000,
+            "max_loss_usdt": 0.4,
+            "reasons": {
+              "funding_rate": "資金費率 0.01%，空方支付。",
+              "open_interest": "未平倉量較昨日增加 8%。",
+              "key_levels": "壓力 79000，支撐 76000。",
+              "volume": "近一小時量低於均量。",
+              "events": "今晚無重大數據。"
+            },
+            "confidence": "中高，約七成。",
+            "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+          },
+          "realized_pnl_usdt": -0.06,
+          "variance": {
+            "right": "停損放在壓力外側，虧損沒有擴大。",
+            "wrong": "進場太早，忽略短線買盤。",
+            "lesson": "下一筆等未平倉量回落再進。"
           }
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "close_missing_realized_pnl",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-B",
+          "ts": 1793305202.598,
+          "kind": "close",
+          "review": {
+            "instrument": "BTC-USDT-SWAP",
+            "direction": "short",
+            "leverage": 5,
+            "entry_price": 77818.8,
+            "stop_loss": 79000,
+            "take_profit": 75000,
+            "max_loss_usdt": 0.4,
+            "reasons": {
+              "funding_rate": "資金費率 0.01%，空方支付。",
+              "open_interest": "未平倉量較昨日增加 8%。",
+              "key_levels": "壓力 79000，支撐 76000。",
+              "volume": "近一小時量低於均量。",
+              "events": "今晚無重大數據。"
+            },
+            "confidence": "中高，約七成。",
+            "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+          },
+          "variance": {
+            "right": "停損放在壓力外側，虧損沒有擴大。",
+            "wrong": "進場太早，忽略短線買盤。",
+            "lesson": "下一筆等未平倉量回落再進。"
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "close_missing_review_entry",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-B",
+          "ts": 1793305202.598,
+          "kind": "close",
+          "review": {
+            "instrument": "BTC-USDT-SWAP",
+            "direction": "short",
+            "leverage": 5,
+            "stop_loss": 79000,
+            "take_profit": 75000,
+            "max_loss_usdt": 0.4,
+            "reasons": {
+              "funding_rate": "資金費率 0.01%，空方支付。",
+              "open_interest": "未平倉量較昨日增加 8%。",
+              "key_levels": "壓力 79000，支撐 76000。",
+              "volume": "近一小時量低於均量。",
+              "events": "今晚無重大數據。"
+            },
+            "confidence": "中高，約七成。",
+            "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+          },
+          "realized_pnl_usdt": -0.06,
+          "variance": {
+            "right": "停損放在壓力外側，虧損沒有擴大。",
+            "wrong": "進場太早，忽略短線買盤。",
+            "lesson": "下一筆等未平倉量回落再進。"
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_review"
+  },
+  {
+    "name": "close_variance_missing_lesson",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-B",
+          "ts": 1793305202.598,
+          "kind": "close",
+          "review": {
+            "instrument": "BTC-USDT-SWAP",
+            "direction": "short",
+            "leverage": 5,
+            "entry_price": 77818.8,
+            "stop_loss": 79000,
+            "take_profit": 75000,
+            "max_loss_usdt": 0.4,
+            "reasons": {
+              "funding_rate": "資金費率 0.01%，空方支付。",
+              "open_interest": "未平倉量較昨日增加 8%。",
+              "key_levels": "壓力 79000，支撐 76000。",
+              "volume": "近一小時量低於均量。",
+              "events": "今晚無重大數據。"
+            },
+            "confidence": "中高，約七成。",
+            "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+          },
+          "realized_pnl_usdt": -0.06,
+          "variance": {
+            "right": "停損放在壓力外側，虧損沒有擴大。",
+            "wrong": "進場太早，忽略短線買盤。"
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_variance"
+  },
+  {
+    "name": "close_blank_lesson",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-B",
+          "ts": 1793305202.598,
+          "kind": "close",
+          "review": {
+            "instrument": "BTC-USDT-SWAP",
+            "direction": "short",
+            "leverage": 5,
+            "entry_price": 77818.8,
+            "stop_loss": 79000,
+            "take_profit": 75000,
+            "max_loss_usdt": 0.4,
+            "reasons": {
+              "funding_rate": "資金費率 0.01%，空方支付。",
+              "open_interest": "未平倉量較昨日增加 8%。",
+              "key_levels": "壓力 79000，支撐 76000。",
+              "volume": "近一小時量低於均量。",
+              "events": "今晚無重大數據。"
+            },
+            "confidence": "中高，約七成。",
+            "invalidation": "收盤站回 79000 或資金費率改由多方支付，則觀點失效。"
+          },
+          "realized_pnl_usdt": -0.06,
+          "variance": {
+            "right": "停損放在壓力外側，虧損沒有擴大。",
+            "wrong": "進場太早，忽略短線買盤。",
+            "lesson": ""
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_text"
+  },
+  {
+    "name": "settlement_missing_trades",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_note"
+  },
+  {
+    "name": "settlement_trades_not_list",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          },
+          "trades": {}
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_trades"
+  },
+  {
+    "name": "settlement_trade_missing_pnl",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          },
+          "trades": [
+            {
+              "instrument": "ETH-USDT-SWAP",
+              "direction": "long"
+            }
+          ]
+        }
+      ]
+    },
+    "valid": false,
+    "visible_count": 0,
+    "error_code": "invalid_trade"
+  },
+  {
+    "name": "settlement_trades_listed",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          },
+          "trades": [
+            {
+              "instrument": "ETH-USDT-SWAP",
+              "direction": "long",
+              "pnl": 0.2
+            },
+            {
+              "instrument": "BTC-USDT-SWAP",
+              "direction": "short",
+              "pnl": -0.05
+            }
+          ]
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_trade_html_is_text",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          },
+          "trades": [
+            {
+              "instrument": "<b>BTC</b>",
+              "direction": "short",
+              "pnl": 1
+            }
+          ]
+        }
+      ]
+    },
+    "valid": true,
+    "visible_count": 1
+  },
+  {
+    "name": "settlement_trade_secret",
+    "document": {
+      "version": 1,
+      "notes": [
+        {
+          "trader": "Grok-Trader-A",
+          "ts": 1793305202.598,
+          "kind": "daily_settlement",
+          "date": "2026-10-30",
+          "table": {
+            "realized_pnl": 2.5,
+            "unrealized_pnl": -0.25,
+            "fees": -0.01,
+            "funding": 0.03,
+            "api_cost_by_model": {
+              "gpt-4.1-mini": 0.012,
+              "gpt-4o-mini": 0.003
+            },
+            "api_cost_total": 0.015,
+            "net_after_costs": 2.255,
+            "cum": {
+              "realized_pnl": 2.5,
+              "unrealized_pnl": -0.25,
+              "fees": -0.01,
+              "funding": 0.03,
+              "api_cost_by_model": {
+                "gpt-4.1-mini": 0.012,
+                "gpt-4o-mini": 0.003
+              },
+              "api_cost_total": 0.015,
+              "net_after_costs": 2.255
+            }
+          },
+          "trades": [
+            {
+              "instrument": "token:example",
+              "direction": "long",
+              "pnl": 1
+            }
+          ]
         }
       ]
     },
