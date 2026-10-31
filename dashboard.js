@@ -226,6 +226,9 @@
     row(doc, card, '全局累計手續費', amount(trader.feesTotal, trader.feesTotalPartial), signedClass(trader.feesTotal));
     row(doc, card, '全局累計資金費', amount(trader.fundingTotal, trader.fundingTotalPartial), signedClass(trader.fundingTotal));
     row(doc, card, '累計資料', trader.totalsStatus === 'complete' ? 'complete／完整' : 'partial／資料不完整');
+    const settlementSummary = element(doc, 'div', null, 'settlement-summary');
+    settlementSummary.dataset.trader = trader.name;
+    card.append(settlementSummary);
     row(doc, card, '今日筆數', view.today);
     row(doc, card, '近 1 小時', view.lastHour);
     const status = freshness(trader, now, staleAfterMs);
@@ -361,7 +364,16 @@
         const hadPrevious = current !== null;
         current = next;
         lastError = false;
-        cards.replaceChildren(...current.traders.map(trader => renderCard(doc, trader, current.trades, Date.now(), current.staleAfterMs)));
+        const panels = current.traders.map(trader => {
+          const panel = element(doc, 'section', null, 'trader-panel');
+          panel.append(renderCard(doc, trader, current.trades, Date.now(), current.staleAfterMs));
+          const notesId = { 'Grok-Trader-A': 'notes-a', 'Grok-Trader-B': 'notes-b' }[trader.name];
+          const notes = notesId ? doc.getElementById(notesId) : null;
+          if (notes) panel.append(notes);
+          return panel;
+        });
+        cards.replaceChildren(...panels);
+        doc.dispatchEvent(new Event('race:cards-updated'));
         if (hadPrevious) cards.classList.add('is-ready');
         renderRows(doc, rows, current.trades);
         try { updateChart(current); } catch (_) {
@@ -384,6 +396,277 @@
 
   const api = { number, timestamp, pairSnapshot, freshness, traderView, renderCard, renderRows, fetchPair };
   if (typeof module === 'object' && module.exports) module.exports = api;
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
+    else start(document);
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+// Notes refresh independently of the paired financial snapshots.
+(function (root) {
+  'use strict';
+
+  const TRADERS = ['Grok-Trader-A', 'Grok-Trader-B'];
+  const KINDS = { open: '開倉', close: '平倉', daily: '日報', daily_settlement: '每日結算' };
+  const TEXT_FIELDS = ['market_view', 'current_approach', 'plan'];
+  const NOTE_KEYS = ['trader', 'ts', 'kind', ...TEXT_FIELDS];
+  const SETTLEMENT_KEYS = ['trader', 'ts', 'kind', 'date', 'table'];
+  const NUMBER_FIELDS = ['realized_pnl', 'unrealized_pnl', 'fees', 'funding', 'api_cost_total', 'net_after_costs'];
+  const TABLE_KEYS = [...NUMBER_FIELDS, 'api_cost_by_model'];
+  const OPENAI_MODEL = /^(?:gpt|chatgpt|o[1-9]|text-embedding|whisper|tts|dall-e)(?:[-.][A-Za-z0-9]{1,16})+$/;
+  const MAX_BYTES = 1024 * 1024;
+  const STALE_MS = 48 * 60 * 60 * 1000;
+  const REFRESH_MS = 30000;
+
+  function record(value) {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  function exactKeys(value, keys) {
+    return record(value) && Object.keys(value).length === keys.length &&
+      keys.every(key => Object.hasOwn(value, key));
+  }
+
+  function noteShape(note) {
+    if (!record(note) || !TRADERS.includes(note.trader) ||
+        typeof note.ts !== 'number' || !Number.isFinite(note.ts) || note.ts <= 0 || note.ts > 253402300799) return false;
+    if (note.kind === 'daily_settlement') {
+      return exactKeys(note, SETTLEMENT_KEYS) && validDate(note.date) && tableShape(note.table, true);
+    }
+    return exactKeys(note, NOTE_KEYS) && TRADERS.includes(note.trader) &&
+      typeof note.ts === 'number' && Number.isFinite(note.ts) && note.ts > 0 && note.ts <= 253402300799 &&
+      typeof note.kind === 'string' && Object.hasOwn(KINDS, note.kind) && TEXT_FIELDS.every(field => typeof note[field] === 'string') &&
+      TEXT_FIELDS.reduce((length, field) => length + Array.from(note[field]).length, 0) <= 300;
+  }
+
+  function validDate(value) {
+    if (typeof value !== 'string' || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value) || value.startsWith('0000')) return false;
+    const parsed = new Date(value + 'T00:00:00Z');
+    return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+  }
+
+  function nullableNumber(value) {
+    return value === null || (typeof value === 'number' && Number.isFinite(value));
+  }
+
+  function tableShape(table, withCumulative = false) {
+    if (!exactKeys(table, withCumulative ? [...TABLE_KEYS, 'cum'] : TABLE_KEYS) ||
+        !NUMBER_FIELDS.every(field => nullableNumber(table[field])) ||
+        (table.api_cost_total !== null && table.api_cost_total < 0) || !record(table.api_cost_by_model)) return false;
+    const models = Object.entries(table.api_cost_by_model);
+    if (models.length > 50 || !models.every(([model, cost]) => model.trim() === model && Array.from(model).length > 0 &&
+        Array.from(model).length <= 80 && nullableNumber(cost) && (cost === null || cost >= 0))) return false;
+    return !withCumulative || tableShape(table.cum);
+  }
+
+  function suspiciousText(text, modelName = false) {
+    if (/[\p{Cc}\p{Cf}\p{Cs}]/u.test(text.replace(/[\t\r\n]/g, ''))) return true;
+    const normalized = text.normalize('NFKC');
+    return /(?:\b(?:api[ _-]?key|secret(?:[ _-]?key)?|(?:access[ _-]?)?token|uid|passphrase)\b|金鑰|私鑰)\s*[:=]\s*\S/iu.test(normalized) ||
+      /\b(?:sk-|ghp_|github_pat_)[A-Za-z0-9_-]+|\bAKIA[A-Z0-9]{16}\b|\bBearer\s+\S+|-----BEGIN/iu.test(normalized) ||
+      /[0-9]{8,}/u.test(normalized) ||
+      (!(modelName && Array.from(normalized).length <= 80 && OPENAI_MODEL.test(normalized)) && /[A-Za-z0-9_+/=-]{32,}/u.test(normalized));
+  }
+
+  function safeNote(note) {
+    if (note?.kind === 'daily_settlement') {
+      return noteShape(note) && [note.table, note.table.cum].every(table =>
+        Object.keys(table.api_cost_by_model).every(model => !suspiciousText(model, true)));
+    }
+    return noteShape(note) && !TEXT_FIELDS.some(field => suspiciousText(note[field])) &&
+      !suspiciousText(TEXT_FIELDS.map(field => note[field]).join(''));
+  }
+
+  function normalizeDocument(document) {
+    if (!exactKeys(document, ['version', 'notes']) || document.version !== 1 ||
+        !Array.isArray(document.notes) || document.notes.length > 1000 || !document.notes.every(noteShape)) return [];
+    const dates = new Set();
+    for (const note of document.notes) {
+      if (note.kind !== 'daily_settlement') continue;
+      const key = note.trader + ':' + note.date;
+      if (dates.has(key)) return [];
+      dates.add(key);
+    }
+    return document.notes.filter(safeNote).slice().sort((a, b) => b.ts - a.ts);
+  }
+
+  function latestSettlement(notes, trader) {
+    return notes.filter(note => note.kind === 'daily_settlement' && note.trader === trader && safeNote(note))
+      .sort((a, b) => b.date.localeCompare(a.date) || b.ts - a.ts)[0] || null;
+  }
+
+  function amount(value) {
+    if (value === null || value === undefined) return '未知';
+    return value !== 0 && (Math.abs(value) < 1e-8 || Math.abs(value) >= 1e12) ? value.toExponential(3)
+      : value.toLocaleString('zh-TW', { maximumFractionDigits: 10 });
+  }
+
+  function renderSettlementTable(doc, note) {
+    const table = element(doc, 'table', undefined, 'settlement-table');
+    const head = element(doc, 'thead');
+    const header = element(doc, 'tr');
+    ['項目', '當日', '比賽累計'].forEach(label => header.append(element(doc, 'th', label)));
+    head.append(header);
+    const body = element(doc, 'tbody');
+    function line(label, daily, cumulative) {
+      const row = element(doc, 'tr');
+      row.append(element(doc, 'th', label), element(doc, 'td', amount(daily)), element(doc, 'td', amount(cumulative)));
+      body.append(row);
+    }
+    const labels = { realized_pnl: '已實現損益', unrealized_pnl: '未實現損益', fees: '手續費', funding: '資金費' };
+    Object.entries(labels).forEach(([field, label]) => line(label + '（USDT）', note.table[field], note.table.cum[field]));
+    const models = new Set([...Object.keys(note.table.api_cost_by_model), ...Object.keys(note.table.cum.api_cost_by_model)]);
+    [...models].sort().forEach(model => line('API ' + model + '（USD）',
+      Object.hasOwn(note.table.api_cost_by_model, model) ? note.table.api_cost_by_model[model] : null,
+      Object.hasOwn(note.table.cum.api_cost_by_model, model) ? note.table.cum.api_cost_by_model[model] : null));
+    line('API 花費合計（USD）', note.table.api_cost_total, note.table.cum.api_cost_total);
+    line('扣除所有成本後淨損益（USDT）', note.table.net_after_costs, note.table.cum.net_after_costs);
+    table.append(head, body);
+    return table;
+  }
+
+  function renderSummaries(doc, notes, now = Date.now()) {
+    for (const node of doc.querySelectorAll?.('.settlement-summary') || []) {
+      const latest = latestSettlement(notes, node.dataset.trader);
+      const cumulative = latest?.table.cum;
+      function line(label, value, unit) {
+        const row = element(doc, 'div', undefined, 'row');
+        row.append(element(doc, 'span', label), element(doc, 'span', amount(value) + (value === null || value === undefined ? '' : ' ' + unit)));
+        return row;
+      }
+      node.replaceChildren(line('累計 API 花費', cumulative?.api_cost_total, 'USD'),
+        line('扣除 API 後淨損益', cumulative?.net_after_costs, 'USDT'),
+        element(doc, 'div', latest ? `交易員填報／${latest.date}${now - latest.ts * 1000 > STALE_MS ? '／已過時' : ''}` : '尚無每日結算資料', 'settlement-source'));
+    }
+  }
+
+  function element(doc, tag, text, className) {
+    const node = doc.createElement(tag);
+    if (text !== undefined) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  }
+
+  function renderNote(doc, note, now) {
+    const settlement = note.kind === 'daily_settlement';
+    const card = element(doc, 'article', undefined, settlement ? 'note note-settlement' : 'note');
+    const header = element(doc, 'div', undefined, 'note-meta');
+    header.append(element(doc, 'span', KINDS[note.kind], 'note-kind'));
+    const time = element(doc, 'time', new Date(note.ts * 1000).toLocaleString('zh-TW', {
+      timeZone: 'Asia/Taipei', hour12: false
+    }) + ' 台北', 'note-time');
+    time.dateTime = new Date(note.ts * 1000).toISOString();
+    header.append(time);
+    if (now - note.ts * 1000 > STALE_MS) header.append(element(doc, 'span', '已過時', 'note-stale'));
+    card.append(header);
+    if (settlement) {
+      card.append(element(doc, 'h4', note.date + ' 今日戰果明細表'), renderSettlementTable(doc, note),
+        element(doc, 'p', 'API 花費為交易員依 token 用量自記估算（USD）。淨損益採交易員填報值，不自行換匯或重算。', 'settlement-estimate'));
+      return card;
+    }
+    const labels = ['市場觀點', '目前做法', '接下來計畫'];
+    TEXT_FIELDS.forEach((field, index) => {
+      const section = element(doc, 'div', undefined, 'note-field');
+      section.append(element(doc, 'strong', labels[index]), element(doc, 'p', note[field]));
+      card.append(section);
+    });
+    return card;
+  }
+
+  function renderColumn(doc, container, trader, notes, now = Date.now()) {
+    const expanded = container.querySelector?.('.notes-more')?.open === true;
+    const own = notes.filter(note => safeNote(note) && note.trader === trader).slice().sort((a, b) => b.ts - a.ts);
+    const pinned = latestSettlement(own, trader);
+    if (pinned) own.unshift(own.splice(own.indexOf(pinned), 1)[0]);
+    const heading = element(doc, 'h3', trader + ' 交易員便利貼');
+    const disclaimer = element(doc, 'p', 'AI 交易員自述，非投資建議', 'notes-disclaimer');
+    const content = element(doc, 'div', undefined, 'notes-list');
+    if (!own.length) content.append(element(doc, 'p', '目前沒有可顯示的便利貼', 'notes-empty'));
+    own.slice(0, 10).forEach(note => content.append(renderNote(doc, note, now)));
+    if (own.length > 10) {
+      const more = element(doc, 'details', undefined, 'notes-more');
+      more.open = expanded;
+      more.append(element(doc, 'summary', `看更多（${own.length - 10}）`));
+      own.slice(10).forEach(note => more.append(renderNote(doc, note, now)));
+      content.append(more);
+    }
+    container.replaceChildren(heading, disclaimer, content);
+  }
+
+  function parseNotesJSON(body) {
+    const value = JSON.parse(body, (key, item) => {
+      if (typeof item === 'number' && !Number.isFinite(item)) throw new Error('Invalid notes number');
+      return item;
+    });
+    // Native JSON.parse overwrites duplicate keys. Check decoded key names in
+    // each object so even Unicode-escaped duplicates invalidate the document.
+    const tokens = body.match(/"(?:\\[\s\S]|[^"\\])*"|[{}\[\]:]/g) || [];
+    const stack = [];
+    tokens.forEach((token, index) => {
+      if (token === '{') stack.push(new Set());
+      else if (token === '[') stack.push(null);
+      else if (token === '}' || token === ']') stack.pop();
+      else if (token.startsWith('"') && tokens[index + 1] === ':') {
+        const keys = stack.at(-1);
+        const name = JSON.parse(token);
+        if (keys.has(name)) throw new Error('Duplicate notes key');
+        keys.add(name);
+      }
+    });
+    return value;
+  }
+
+  async function fetchNotes(fetcher, signal, nonce) {
+    const response = await fetcher(`notes.json?v=${nonce}`, { cache: 'no-store', signal });
+    if (!response.ok) return [];
+    const length = response.headers?.get('content-length');
+    if (length !== null && length !== undefined && Number(length) > MAX_BYTES) return [];
+    const body = await response.text();
+    if (new TextEncoder().encode(body).length > MAX_BYTES) return [];
+    return normalizeDocument(parseNotesJSON(body));
+  }
+
+  function start(doc, options = {}) {
+    const columns = TRADERS.map((trader, index) => ({ trader, node: doc.getElementById(index === 0 ? 'notes-a' : 'notes-b') }));
+    if (columns.some(column => !column.node)) return null;
+    const fetcher = options.fetcher || root.fetch.bind(root);
+    const clock = options.now || Date.now;
+    const schedule = options.setInterval || root.setInterval.bind(root);
+    const delay = options.setTimeout || root.setTimeout.bind(root);
+    const cancel = options.clearTimeout || root.clearTimeout.bind(root);
+    let notes = [];
+    let loading = false;
+    function render() {
+      columns.forEach(column => renderColumn(doc, column.node, column.trader, notes, clock()));
+      renderSummaries(doc, notes, clock());
+    }
+    async function refresh() {
+      if (loading) return;
+      loading = true;
+      const controller = new AbortController();
+      const timeout = delay(() => controller.abort(), 10000);
+      try {
+        notes = await fetchNotes(fetcher, controller.signal, clock());
+      } catch (_) {
+        notes = [];
+      } finally {
+        cancel(timeout);
+        loading = false;
+        render();
+      }
+    }
+    render();
+    const ready = refresh();
+    schedule(refresh, REFRESH_MS);
+    // Age labels continue to update without a successful network request.
+    schedule(render, 60000);
+    doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
+    doc.addEventListener('race:cards-updated', () => renderSummaries(doc, notes, clock()));
+    return { refresh, render, ready };
+  }
+
+  const api = { normalizeDocument, suspiciousText, safeNote, renderColumn, latestSettlement, renderSummaries, fetchNotes, start };
+  if (typeof module === 'object' && module.exports) module.exports.notes = api;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
     else start(document);

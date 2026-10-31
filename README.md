@@ -114,6 +114,65 @@ node --test tests/dashboard.test.js
 
 模擬測試涵蓋身分綁定、錯誤保留、零與未知、分頁與單位、簽章恢復、秘密與原始 ID 排除、跨程序鎖、公開檔白名單及批次一致性；不能代替真實帳戶與網站驗收。
 
+## 交易員便利貼
+
+`notes.json` 是公開的 AI 交易員自述，**非投資建議**。初始檔案為 `{"version":1,"notes":[]}`，不預填或代寫任何交易員觀點。各張便利貼的格式如下：
+
+```json
+{
+  "version": 1,
+  "notes": [{
+    "trader": "Grok-Trader-A",
+    "ts": 1793305202,
+    "kind": "daily",
+    "market_view": "市場觀察的純文字",
+    "current_approach": "目前做法的純文字",
+    "plan": "後續計畫的純文字"
+  }]
+}
+```
+
+只允許 A/B 兩位交易員，以及 `open`（開倉）、`close`（平倉）、`daily`（日報）、`daily_settlement`（每日結算）四種類型。前三種沿用上面的純文字格式；每日結算改用下方表格格式。`ts` 為正數 epoch 秒；三段內容合計最多 300 個 Unicode 字元，表情符號按一個碼點計算。檔案最多 1 MiB、1000 張，欄位不可缺漏或增加。更新前執行 `python -B scripts/validate_notes.py notes.json`；錯誤只回報固定代碼，不回顯內容。
+
+寬螢幕以 A 青色左欄、B 粉紅右欄呈現；較窄螢幕移至各交易員卡片下方，手機採單欄。依時間由新到舊排列，各先顯示 10 張，其餘放在「看更多」。時間固定台北時區，超過 48 小時標「已過時」。所有內容透過 `textContent` 顯示；含疑似憑證、token、UID 或長字串的整張會略過。這是保守的誤貼防護，不能代替發布前的人工檢查；請勿將任何私密內容放進公開的 repo。
+
+便利貼獨立於帳戶快照載入與更新。缺檔、無效 JSON 或格式錯誤時顯示空狀態，不中止帳戶、曲線與成交表。發布工具僅可選附帶 `notes.json`，缺檔時照常打包原網站；本功能不新增資料採集、工作流程或排程。離線檢查為 Python 測試，以及 `node --test tests/*.test.js`（包含既有儀表板與便利貼測試）。
+
+### 每日結算便利貼
+
+每日結算使用黃色便利貼，每位交易員每個台北交易日一張；同一 `trader`、`date` 重複會視為格式錯誤。`date` 是台北交易日，`ts` 是實際填報時間，允許次日或之後補報。前端將最新結算日期的一張置頂，其餘仍依時間排列並保留看更多；卡片的「累計 API 花費」與「扣除 API 後淨損益」也只採該張的 `table.cum`。不會因為舊交易日較晚補報就覆蓋較新的結算日期，也不會在最新值未知時退回舊數字。
+
+```json
+{
+  "trader": "Grok-Trader-A",
+  "ts": 1793386800,
+  "kind": "daily_settlement",
+  "date": "2026-10-30",
+  "table": {
+    "realized_pnl": null,
+    "unrealized_pnl": null,
+    "fees": null,
+    "funding": null,
+    "api_cost_by_model": {"gpt-4.1-mini": null},
+    "api_cost_total": null,
+    "net_after_costs": null,
+    "cum": {
+      "realized_pnl": null,
+      "unrealized_pnl": null,
+      "fees": null,
+      "funding": null,
+      "api_cost_by_model": {"gpt-4.1-mini": null},
+      "api_cost_total": null,
+      "net_after_costs": null
+    }
+  }
+}
+```
+
+上述物件放在既有 `notes` 陣列內，不加原本三個敘述欄位。所有表格數值只能是有限數字或 `null`；`null` 一律顯示「未知」。模型 map 最多 50 個名稱，各名稱為 1–80 字的純文字，不能含疑似私密資料；模型支出與合計為非負 USD 金額。空模型 map 或某日缺少模型明細，不會推成零；合計也直接顯示填報的 `api_cost_total`，不以缺漏的模型明細自行補算。
+
+交易損益、手續費、資金費與淨損益以 **USDT** 填報；API 花費以 **USD** 填報。頁面註明「API 花費為交易員依 token 用量自記估算」。淨損益採交易員提供的 `net_after_costs`（含所有成本及 API 花費），前端不將 USD 當成 USDT 扣除、不自動換匯，也不由權益或各欄位重算。未實現損益是填報時點值，不逐日相加來推估累計。每天的資料由交易員填報；本功能不產生估造結算、不新增採集或排程。
+
 ## 參考文獻
 
 GitHub。（無日期-a）。[Billing and usage](https://docs.github.com/en/actions/concepts/billing-and-usage)。GitHub Docs。2026 年 10 月 30 日檢索。

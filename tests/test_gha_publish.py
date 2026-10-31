@@ -85,7 +85,7 @@ class GitHubPublishTests(unittest.TestCase):
     def invoke(self, **kwargs):
         return publish.publish(self.repo, self.site, execute=self.git, environment=kwargs.get("environment", self.environment))
 
-    def test_stages_only_three_snapshot_files_and_packages_only_five_public_files(self):
+    def test_stages_only_three_snapshot_files_and_packages_only_core_public_files(self):
         (self.repo / ".env").write_text("TEST_SECRET", encoding="utf-8")
         self.assertEqual(self.invoke(), "snapshot_pushed_pages_ready")
         self.assertEqual(self.git.operations("add"), [["add", "--", *publish.GIT_FILES]])
@@ -98,6 +98,30 @@ class GitHubPublishTests(unittest.TestCase):
             self.assertFalse(options["shell"])
             self.assertEqual(options["timeout"], 60)
             self.assertNotIn("--force", args)
+
+    def test_optional_notes_are_packaged_without_entering_snapshot_commit(self):
+        notes = '{"version":1,"notes":[]}\n'
+        (self.repo / "notes.json").write_text(notes, encoding="utf-8")
+        self.assertEqual(self.invoke(), "snapshot_pushed_pages_ready")
+        self.assertEqual((self.site / "notes.json").read_text(), notes)
+        self.assertEqual(set(path.name for path in self.site.iterdir()), set(publish.PAGE_FILES) | {"notes.json"})
+        self.assertNotIn("notes.json", self.git.operations("add")[0])
+
+    def test_missing_or_non_regular_notes_do_not_break_core_packaging(self):
+        for kind in ("missing", "directory", "symlink"):
+            with self.subTest(kind=kind):
+                notes = self.repo / "notes.json"
+                if notes.is_symlink():
+                    notes.unlink()
+                elif notes.is_dir():
+                    notes.rmdir()
+                if kind == "directory":
+                    notes.mkdir()
+                if kind == "symlink":
+                    notes.symlink_to(self.repo / "state-checkpoint.json")
+                site = self.runner_temp / ("site-" + kind)
+                publish.package_site(self.repo, site)
+                self.assertEqual(set(path.name for path in site.iterdir()), set(publish.PAGE_FILES))
 
     def test_refuses_local_fork_and_non_main_execution(self):
         for changes in ({"GITHUB_ACTIONS": "false"}, {"GITHUB_REPOSITORY": "someone/race"}, {"GITHUB_REF": "refs/heads/feature"}):
