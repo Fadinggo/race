@@ -13,13 +13,13 @@ const totals = (overrides = {}) => ({
   api_cost_total: null, net_after_costs: null, ...overrides
 });
 const settlement = (overrides = {}) => ({
-  trader: traderA, ts: now / 1000, kind: 'daily_settlement', date: '2026-10-31',
+  trader: traderA, ts: now / 1000, kind: 'daily_settlement', date: '2026-10-31', trades: [],
   table: { ...totals(), cum: totals({ realized_pnl: 50, api_cost_total: 0.9, net_after_costs: 48.12 }) },
   ...overrides
 });
 const narrative = (overrides = {}) => ({
-  trader: traderA, ts: now / 1000, kind: 'daily', market_view: '等待市場資訊。',
-  current_approach: '保持觀察。', plan: '稍後再評估。', ...overrides
+  trader: traderA, ts: now / 1000, kind: 'daily', market_recap: '等待市場資訊。',
+  trade_review: '當日沒有完整回合。', watch_next: '稍後再評估。', strategy_adjustments: '維持風控。', ...overrides
 });
 const documentOf = items => ({ version: 1, notes: items });
 const response = value => ({ ok: true, headers: { get: () => null }, text: async () => JSON.stringify(value) });
@@ -40,6 +40,9 @@ class TextNode {
   replaceChildren(...children) { this.children = children; this.text = ''; }
   querySelector(selector) {
     return descendants(this).find(node => node.className.split(' ').includes(selector.slice(1))) || null;
+  }
+  querySelectorAll(selector) {
+    return descendants(this).filter(node => node.className.split(' ').includes(selector.slice(1)));
   }
 }
 function descendants(node) { return node.children.flatMap(child => [child, ...descendants(child)]); }
@@ -75,7 +78,7 @@ function summaryCells(node) {
 test('latest settlement uses reporting date rather than submission time and is pinned above newer prose', () => {
   const current = settlement({ ts: now / 1000 - 3600 });
   const lateOld = settlement({ date: '2026-10-30', ts: now / 1000 + 5 });
-  const prose = Array.from({ length: 11 }, (_, i) => narrative({ ts: now / 1000 - i, plan: `筆記 ${i}` }));
+  const prose = Array.from({ length: 11 }, (_, i) => narrative({ ts: now / 1000 - i, watch_next: `筆記 ${i}` }));
   const items = [lateOld, ...prose, current];
   assert.equal(notes.latestSettlement(items, traderA), current);
   const doc = makeDocument();
@@ -233,6 +236,34 @@ test('OpenAI-like names cannot conceal a secret prefix or a long random model su
     notes.renderSummaries(doc, [source], now);
     assert.deepEqual(summaryCells(doc.summaries[0]), { '累計 API 花費': '未知', '扣除 API 後淨損益': '未知' });
   }
+});
+
+test('the yellow statement lists each trade before costs and sums PnL in the page', () => {
+  const source = settlement({ trades: [
+    { instrument: 'BTC-USDT-SWAP', direction: 'short', pnl: 1.5 },
+    { instrument: 'ETH-USDT-SWAP', direction: 'long', pnl: -0.25 }
+  ] });
+  assert.deepEqual(notes.normalizeDocument(documentOf([source])), [source]);
+  const doc = makeDocument();
+  notes.renderColumn(doc, doc.nodes['notes-a'], traderA, [source], now);
+  const text = doc.nodes['notes-a'].textContent;
+  const tradeAt = text.indexOf('BTC-USDT-SWAP');
+  const feesAt = text.indexOf('手續費（USDT）');
+  const fundingAt = text.indexOf('資金費（USDT）');
+  const apiAt = text.indexOf('API gpt-4.1-mini（USD）');
+  const netAt = text.indexOf('扣除所有成本後淨損益（USDT）');
+  assert.ok(tradeAt >= 0 && tradeAt < feesAt && feesAt < fundingAt && fundingAt < apiAt && apiAt < netAt);
+  assert.ok(text.includes('空'));
+  assert.ok(text.includes('ETH-USDT-SWAP'));
+  assert.ok(text.includes('多'));
+  assert.ok(text.includes('列示交易損益合計（USDT）'));
+  assert.ok(text.includes('1.25'));
+  assert.match(text, /不呼叫模型、不新增 API 費用/);
+  assert.equal(doc.nodes['notes-a'].querySelector('.note-details').open, false);
+  assert.match(doc.nodes['notes-a'].querySelector('.note-summary').textContent, /2026-10-31 2 筆 淨損益/);
+  const incomplete = settlement();
+  delete incomplete.trades;
+  assert.deepEqual(notes.normalizeDocument(documentOf([incomplete])), []);
 });
 
 test('finite extreme money stays concise and signed in settlement tables and card summaries', () => {

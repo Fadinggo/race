@@ -9,20 +9,39 @@ const notes = require('../dashboard.js').notes;
 const now = Date.parse('2026-10-31T04:20:02.598+08:00');
 const makeNote = (overrides = {}) => ({
   trader: 'Grok-Trader-A', ts: now / 1000, kind: 'daily',
-  market_view: '市場波動偏高。', current_approach: '保持觀察。', plan: '等待訊號。', ...overrides
+  market_recap: '市場波動偏高。', trade_review: '保持觀察。',
+  watch_next: '等待訊號。', strategy_adjustments: '維持風控。', ...overrides
 });
+const reasons = () => ({
+  funding_rate: '資金費率 0.01%，空方支付。', open_interest: '未平倉量增加 8%。',
+  key_levels: '壓力 79000，支撐 76000。', volume: '近一小時量低於均量。', events: '今晚無重大數據。'
+});
+const makeOpen = (overrides = {}) => ({
+  trader: 'Grok-Trader-A', ts: now / 1000, kind: 'open', instrument: 'BTC-USDT-SWAP', direction: 'short',
+  leverage: 5, entry_price: 77818.8, stop_loss: 79000, take_profit: 75000, max_loss_usdt: 0.4,
+  reasons: reasons(), confidence: '中高，約七成。', invalidation: '站回 79000 則觀點失效。', ...overrides
+});
+const makeClose = (overrides = {}) => {
+  const { trader, ts, kind, ...review } = makeOpen();
+  return {
+    trader, ts, kind: 'close', review, realized_pnl_usdt: -0.06,
+    variance: { right: '停損沒有被放大。', wrong: '進場太早。', lesson: '等未平倉量回落再進。' },
+    ...overrides
+  };
+};
 const documentOf = items => ({ version: 1, notes: items });
 const response = value => ({ ok: true, headers: { get: () => null }, text: async () => JSON.stringify(value) });
 
 // Any use of HTML parsing for note content fails these tests.
 class TextNode {
-  constructor(tag) { this.tagName = tag; this.children = []; this.className = ''; this.text = ''; this.open = false; }
+  constructor(tag) { this.tagName = tag; this.children = []; this.className = ''; this.dataset = {}; this.text = ''; this.open = false; }
   set textContent(value) { this.text = String(value); this.children = []; }
   get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
   set innerHTML(_) { throw new Error('HTML parsing is forbidden'); }
   append(...children) { this.children.push(...children); }
   replaceChildren(...children) { this.children = children; this.text = ''; }
   querySelector(selector) { return descendants(this).find(node => node.className.split(' ').includes(selector.slice(1))) || null; }
+  querySelectorAll(selector) { return descendants(this).filter(node => node.className.split(' ').includes(selector.slice(1))); }
 }
 function descendants(node) { return node.children.flatMap(child => [child, ...descendants(child)]); }
 function makeDocument() {
@@ -56,9 +75,9 @@ for (const fixture of cases) {
 }
 
 test('notes are sorted newest first, isolated by trader, and keep equal-time source order', () => {
-  const source = [makeNote({ ts: now / 1000 - 5, plan: '最早' }),
-    makeNote({ trader: 'Grok-Trader-B', plan: '乙' }),
-    makeNote({ plan: '同時一' }), makeNote({ plan: '同時二' })];
+  const source = [makeNote({ ts: now / 1000 - 5, watch_next: '最早' }),
+    makeNote({ trader: 'Grok-Trader-B', watch_next: '乙' }),
+    makeNote({ watch_next: '同時一' }), makeNote({ watch_next: '同時二' })];
   const before = JSON.stringify(source);
   const normalized = notes.normalizeDocument(documentOf(source));
   assert.equal(JSON.stringify(source), before);
@@ -75,15 +94,15 @@ test('notes are sorted newest first, isolated by trader, and keep equal-time sou
 test('plain markup is displayed literally through textContent and cannot become elements', () => {
   const doc = makeDocument();
   const content = '<img src=x onerror=alert(1)><script>alert(2)</script>';
-  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', [makeNote({ market_view: content })], now);
+  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', [makeNote({ market_recap: content })], now);
   assert.ok(column(doc).textContent.includes(content));
   assert.equal(descendants(column(doc)).some(node => ['img', 'script'].includes(node.tagName)), false);
   assert.ok(column(doc).textContent.includes('AI 交易員自述，非投資建議'));
 });
 
 test('unsafe content in any one field hides the entire note without hiding safe neighbours', () => {
-  const bad = ['market_view', 'current_approach', 'plan'].map(field => makeNote({ [field]: 'token: FAKE_ONLY' }));
-  const safe = makeNote({ plan: '可顯示' });
+  const bad = ['market_recap', 'trade_review', 'watch_next', 'strategy_adjustments'].map(field => makeNote({ [field]: 'token: FAKE_ONLY' }));
+  const safe = makeNote({ watch_next: '可顯示' });
   const normalized = notes.normalizeDocument(documentOf([...bad, safe]));
   assert.deepEqual(normalized, [safe]);
   const doc = makeDocument();
@@ -95,8 +114,8 @@ test('unsafe content in any one field hides the entire note without hiding safe 
 
 test('each trader shows ten recent cards and a separate accessible more disclosure', () => {
   const doc = makeDocument();
-  const source = Array.from({ length: 13 }, (_, index) => makeNote({ ts: (now - index * 1000) / 1000, plan: `筆記 ${index}` }));
-  source.push(makeNote({ trader: 'Grok-Trader-B', plan: '乙便利貼' }));
+  const source = Array.from({ length: 13 }, (_, index) => makeNote({ ts: (now - index * 1000) / 1000, watch_next: `筆記 ${index}` }));
+  source.push(makeNote({ trader: 'Grok-Trader-B', watch_next: '乙便利貼' }));
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
   const list = column(doc).querySelector('.notes-list');
   assert.equal(list.children.filter(node => node.tagName === 'article').length, 10);
@@ -116,7 +135,7 @@ test('each trader shows ten recent cards and a separate accessible more disclosu
 test('timestamps use Taipei and all note kinds have labels; stale starts strictly after 48 hours', () => {
   const doc = makeDocument();
   const timestamp = Date.parse('2026-10-30T04:20:02.598+08:00');
-  const source = ['open', 'close', 'daily'].map(kind => makeNote({ kind, ts: timestamp / 1000 }));
+  const source = [makeOpen({ ts: timestamp / 1000 }), makeClose({ ts: timestamp / 1000 }), makeNote({ ts: timestamp / 1000 })];
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, timestamp + 48 * 3600000);
   let nodes = descendants(column(doc));
   assert.deepEqual(nodes.filter(node => node.className === 'note-kind').map(node => node.textContent), ['開倉', '平倉', '日報']);
@@ -201,8 +220,8 @@ test('duplicate document or note keys, including escaped names, empty the notes 
   const duplicateBodies = [
     original.replace('"version":1', '"version":1,"version":1'),
     original.replace('"version":1', '"vers\\u0069on":1,"version":1'),
-    original.replace('"market_view":', '"market_view":"token: FAKE_ONLY","market_view":'),
-    original.replace('"plan":', '"pl\\u0061n":"first","plan":')
+    original.replace('"market_recap":', '"market_recap":"token: FAKE_ONLY","market_recap":'),
+    original.replace('"watch_next":', '"watch_n\\u0065xt":"first","watch_next":')
   ];
   for (const body of duplicateBodies) {
     const fetcher = async () => ({ ok: true, text: async () => body });
@@ -216,11 +235,63 @@ test('duplicate document or note keys, including escaped names, empty the notes 
 
 test('JSON key scanning does not confuse quoted prose, braces, escaped slashes, or repeated keys in distinct notes', async () => {
   const source = documentOf([
-    makeNote({ market_view: '文字包含 "plan": 與 { 括號 }、反斜線 \\ 仍是純文字。' }),
-    makeNote({ trader: 'Grok-Trader-B', plan: '另一張便利貼。' })
+    makeNote({ market_recap: '文字包含 "plan": 與 { 括號 }、反斜線 \\ 仍是純文字。' }),
+    makeNote({ trader: 'Grok-Trader-B', watch_next: '另一張便利貼。' })
   ]);
   const normalized = await notes.fetchNotes(async () => response(source), undefined, 1);
   assert.deepEqual(normalized, source.notes);
+});
+
+test('a note stays collapsed on a short highlight and expands to the full text without parsing HTML', () => {
+  const doc = makeDocument();
+  const recap = '市場'.repeat(100);
+  const note = makeNote({ market_recap: recap, trade_review: '逐筆：BTC 空單先虧後平。', watch_next: '守 76000。', strategy_adjustments: '降低槓桿。' });
+  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', [note], now);
+  const details = column(doc).querySelector('.note-details');
+  assert.equal(details.tagName, 'details');
+  assert.equal(details.open, false);
+  assert.equal(details.children[0].tagName, 'summary');
+  assert.ok(details.children[0].textContent.endsWith('（展開全文）'));
+  assert.ok(details.children[0].textContent.length < recap.length);
+  assert.ok(details.textContent.includes(recap));
+  assert.ok(details.textContent.includes('降低槓桿。'));
+  assert.equal(descendants(column(doc)).some(node => node.tagName === 'script'), false);
+  details.open = true;
+  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', [note], now);
+  assert.equal(column(doc).querySelector('.note-details').open, true);
+});
+
+test('open and close notes render every required review field from text nodes', () => {
+  const doc = makeDocument();
+  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', [makeOpen(), makeClose({ ts: now / 1000 - 10 })], now);
+  const text = column(doc).textContent;
+  for (const label of ['標的', '方向', '槓桿', '進場價', '停損', '停利', '最大虧損（USDT）', '資金費率', '未平倉量', '關鍵價位', '成交量', '事件', '信心', '失效條件']) {
+    assert.ok(text.includes(label), label);
+  }
+  assert.ok(text.includes('BTC-USDT-SWAP'));
+  assert.ok(text.includes('空'));
+  assert.ok(text.includes('5x'));
+  assert.ok(text.includes('開倉覆盤'));
+  assert.ok(text.includes('已實現損益（USDT）'));
+  assert.ok(text.includes('做對的部分'));
+  assert.ok(text.includes('做錯的部分'));
+  assert.ok(text.includes('教訓'));
+  assert.ok(text.includes('-0.06'));
+});
+
+test('shallow legacy notes and incomplete position notes are withheld', () => {
+  const legacy = { trader: 'Grok-Trader-A', ts: now / 1000, kind: 'daily', market_view: '淺', current_approach: '淺', plan: '淺' };
+  const opened = makeOpen();
+  delete opened.stop_loss;
+  const closed = makeClose();
+  delete closed.variance.lesson;
+  const daily = makeNote();
+  delete daily.trade_review;
+  for (const bad of [legacy, opened, closed, daily]) {
+    assert.deepEqual(notes.normalizeDocument(documentOf([bad])), []);
+  }
+  const kept = makeNote({ watch_next: '留下' });
+  assert.deepEqual(notes.normalizeDocument(documentOf([kept])), [kept]);
 });
 
 test('unrepresentable numeric values are rejected before schema normalization', async () => {
