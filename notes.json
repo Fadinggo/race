@@ -1,1 +1,437 @@
-{"version":1,"notes":[]}
+{
+ "version": 1,
+ "notes": [
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793319292,
+   "kind": "open",
+   "instrument": "BTC-USDT-SWAP",
+   "direction": "short",
+   "leverage": 2,
+   "entry_price": 77818.8,
+   "stop_loss": 79400,
+   "take_profit": 75350,
+   "max_loss_usdt": 0.1737,
+   "reasons": {
+    "funding_rate": "未取得資料。",
+    "open_interest": "未取得資料。",
+    "key_levels": "1H 收盤跌破 78233；止損設在近期下降高點 79247 上方；75350 為波幅延伸目標。",
+    "volume": "1D、4H 放量破位，最新 1H 成交額較前根增加約 31%。",
+    "events": "GPT 策略層判定日線與 4H 下行結構延續；帳本無重大消息紀錄。"
+   },
+   "confidence": "約七成六（帳本信心 76）。",
+   "invalidation": "觸及止損 79400 即出場；1H 收回 79765.5 視為策略失效。"
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793365649,
+   "kind": "open",
+   "instrument": "XAU-USDT-SWAP",
+   "direction": "short",
+   "leverage": 2,
+   "entry_price": 3952.2,
+   "stop_loss": 3981.0,
+   "take_profit": 3887.3,
+   "max_loss_usdt": 0.0468,
+   "reasons": {
+    "funding_rate": "開倉時未記錄資金費率；持倉期間帳本記到資金費收入 +0.0038U。",
+    "open_interest": "未記錄未平倉量資料。",
+    "key_levels": "停損放在近期反彈高點 3980 之上（3981.0）；停利 3887.3。進場價約比訊號K收盤低 0.35R。",
+    "volume": "1H 收盤K持續賣壓（模型判讀）；未記錄量能倍數。",
+    "events": "未記錄重大事件；訊號為 1h_breakout，astra/sol/terra 三層皆支持。"
+   },
+   "confidence": "中，Sol 確認信心 0.71。",
+   "invalidation": "1H 收盤站回 3981 停損，或 1H/4H 空頭排列失效。"
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793387720,
+   "kind": "close",
+   "review": {
+    "instrument": "XAU-USDT-SWAP",
+    "direction": "short",
+    "leverage": 2,
+    "entry_price": 3952.2,
+    "stop_loss": 3981.0,
+    "take_profit": 3887.3,
+    "max_loss_usdt": 0.0468,
+    "reasons": {
+     "funding_rate": "開倉時未記錄資金費率；持倉期間帳本記到資金費收入 +0.0038U。",
+     "open_interest": "未記錄未平倉量資料。",
+     "key_levels": "停損放在近期反彈高點 3980 之上（3981.0）；停利 3887.3。進場價約比訊號K收盤低 0.35R。",
+     "volume": "1H 收盤K持續賣壓（模型判讀）；未記錄量能倍數。",
+     "events": "未記錄重大事件；訊號為 1h_breakout，astra/sol/terra 三層皆支持。"
+    },
+    "confidence": "中，Sol 確認信心 0.71。",
+    "invalidation": "1H 收盤站回 3981 停損，或 1H/4H 空頭排列失效。"
+   },
+   "realized_pnl_usdt": 0.1063,
+   "variance": {
+    "right": "順勢放空判斷正確；00:15 於 3907.6 平一半並移停損至保本，鎖住利潤。",
+    "wrong": "餘倉追蹤到 3897.05 出場，未達停利 3887.3；帳本毛利與成交價推算略有出入，待查。",
+    "lesson": "分批出場加保本停損有效，保留此流程；帳本計算需再核對手續費歸屬。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793405998.05,
+   "kind": "open",
+   "instrument": "DOOD-USDT-SWAP",
+   "direction": "long",
+   "leverage": 2,
+   "entry_price": 0.002157,
+   "stop_loss": 0.0020935,
+   "take_profit": 0.0022878,
+   "max_loss_usdt": 0.0598,
+   "reasons": {
+    "funding_rate": "未取得資料。",
+    "open_interest": "未取得資料。",
+    "key_levels": "MOMO 規則：止損約 1R（ATR 換算）低於進場價，止盈約 2R。",
+    "volume": "15 分鐘量能為均量 3.32 倍；15 分鐘漲約 7.2%、1 小時漲約 6.9%。",
+    "events": "無重大消息紀錄；純動能訊號。"
+   },
+   "confidence": "未記錄信心分數；規則訊號。",
+   "invalidation": "觸及止損 0.0020935 即出場，或觸發時間停損。"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793406073,
+   "kind": "close",
+   "review": {
+    "instrument": "DOOD-USDT-SWAP",
+    "direction": "long",
+    "leverage": 2,
+    "entry_price": 0.002157,
+    "stop_loss": 0.0020935,
+    "take_profit": 0.0022878,
+    "max_loss_usdt": 0.0598,
+    "reasons": {
+     "funding_rate": "未取得資料。",
+     "open_interest": "未取得資料。",
+     "key_levels": "MOMO 規則：止損約 1R（ATR 換算）低於進場價，止盈約 2R。",
+     "volume": "15 分鐘量能為均量 3.32 倍；15 分鐘漲約 7.2%、1 小時漲約 6.9%。",
+     "events": "無重大消息紀錄；純動能訊號。"
+    },
+    "confidence": "未記錄信心分數；規則訊號。",
+    "invalidation": "觸及止損 0.0020935 即出場，或觸發時間停損。"
+   },
+   "realized_pnl_usdt": -0.066125,
+   "variance": {
+    "right": "依規則觸及止損即出場，未攤平。",
+    "wrong": "進場後動能立即反轉，追在急漲末端；約 -1.106R，滑價使損失略超 1R。",
+    "lesson": "急漲後加入 1 分鐘確認與跳過冷卻再進場。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793410347,
+   "kind": "open",
+   "instrument": "BEAT-USDT-SWAP",
+   "direction": "short",
+   "leverage": 2,
+   "entry_price": 0.09762,
+   "stop_loss": 0.1003,
+   "take_profit": 0.09022,
+   "max_loss_usdt": 0.0983,
+   "reasons": {
+    "funding_rate": "未記錄資金費率；持倉期間資金費 0。",
+    "open_interest": "未記錄未平倉量資料。",
+    "key_levels": "跌破下緣後創新低；布林中軌約 0.10025，停損 0.1003 設在其上，停利 0.09022。",
+    "volume": "1 小時急跌 -5.64%，量能為基準約 6.85 倍；最新收盤K偏空。",
+    "events": "無新聞催化（news_catalyst=false）；MOMO 動能訊號。"
+   },
+   "confidence": "中，Terra 確認信心 0.73。",
+   "invalidation": "價格觸及 0.1003 停損，或 60 分鐘內未達 +1R 即時間停損平倉。"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793410757.62,
+   "kind": "open",
+   "instrument": "BEAT-USDT-SWAP",
+   "direction": "short",
+   "leverage": 2,
+   "entry_price": 0.09667,
+   "stop_loss": 0.09881,
+   "take_profit": 0.09125,
+   "max_loss_usdt": 0.0518,
+   "reasons": {
+    "funding_rate": "未取得資料。",
+    "open_interest": "未取得資料。",
+    "key_levels": "MOMO 規則：止損 0.09881（約 1R），止盈 0.09125。",
+    "volume": "15 分鐘量能為均量 3.02 倍；15 分鐘跌約 2.6%、1 小時跌約 7.5%。",
+    "events": "無重大消息紀錄；純動能訊號。"
+   },
+   "confidence": "未記錄信心分數；規則訊號。",
+   "invalidation": "觸及止損 0.09881 即出場，或觸發時間停損。"
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793414057,
+   "kind": "close",
+   "review": {
+    "instrument": "BEAT-USDT-SWAP",
+    "direction": "short",
+    "leverage": 2,
+    "entry_price": 0.09762,
+    "stop_loss": 0.1003,
+    "take_profit": 0.09022,
+    "max_loss_usdt": 0.0983,
+    "reasons": {
+     "funding_rate": "未記錄資金費率；持倉期間資金費 0。",
+     "open_interest": "未記錄未平倉量資料。",
+     "key_levels": "跌破下緣後創新低；布林中軌約 0.10025，停損 0.1003 設在其上，停利 0.09022。",
+     "volume": "1 小時急跌 -5.64%，量能為基準約 6.85 倍；最新收盤K偏空。",
+     "events": "無新聞催化（news_catalyst=false）；MOMO 動能訊號。"
+    },
+    "confidence": "中，Terra 確認信心 0.73。",
+    "invalidation": "價格觸及 0.1003 停損，或 60 分鐘內未達 +1R 即時間停損平倉。"
+   },
+   "realized_pnl_usdt": 0.0399,
+   "variance": {
+    "right": "方向正確，最低到 0.09663，出場仍獲利 +0.41R。",
+    "wrong": "動能未延續，60 分鐘內沒達到 +1R，獲利有限。",
+    "lesson": "時間停損如期執行有效；MOMO 單若無快速延續就出場，不戀棧。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793419765,
+   "kind": "close",
+   "review": {
+    "instrument": "BEAT-USDT-SWAP",
+    "direction": "short",
+    "leverage": 2,
+    "entry_price": 0.09667,
+    "stop_loss": 0.09881,
+    "take_profit": 0.09125,
+    "max_loss_usdt": 0.0518,
+    "reasons": {
+     "funding_rate": "未取得資料。",
+     "open_interest": "未取得資料。",
+     "key_levels": "MOMO 規則：止損 0.09881（約 1R），止盈 0.09125。",
+     "volume": "15 分鐘量能為均量 3.02 倍；15 分鐘跌約 2.6%、1 小時跌約 7.5%。",
+     "events": "無重大消息紀錄；純動能訊號。"
+    },
+    "confidence": "未記錄信心分數；規則訊號。",
+    "invalidation": "觸及止損 0.09881 即出場，或觸發時間停損。"
+   },
+   "realized_pnl_usdt": -0.0731926,
+   "variance": {
+    "right": "訊號符合量能與跌幅條件，倉位風險控制在約 0.05U。",
+    "wrong": "10:50 時間停損平倉被交易所拒絕（51115），約 80 分鐘無止損，12:09 才手動平倉於約 0.09990，約 -1.413R。",
+    "lesson": "平倉前先撤除掛單並確認結果，失敗即告警並保留止損。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793426162.76,
+   "kind": "open",
+   "instrument": "AKE-USDT-SWAP",
+   "direction": "long",
+   "leverage": 2,
+   "entry_price": 0.01173,
+   "stop_loss": 0.0111139,
+   "take_profit": 0.0132703,
+   "max_loss_usdt": 0.064,
+   "reasons": {
+    "funding_rate": "未取得資料。",
+    "open_interest": "未取得資料。",
+    "key_levels": "MOMO 規則：止損約 1R（ATR 換算）低於進場價，止盈約 2.5R。",
+    "volume": "15 分鐘量能為均量 3.8 倍；15 分鐘漲約 3.2%、1 小時漲約 5.2%。",
+    "events": "無重大消息紀錄；純動能訊號。進場時 GPT 僅限持倉管理。"
+   },
+   "confidence": "未記錄信心分數；規則訊號。",
+   "invalidation": "觸及止損 0.0111139 即出場，或觸發時間停損。"
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793427146,
+   "kind": "daily",
+   "market_recap": "大盤偏空，BTC 在支撐附近震盪，反彈軋空風險仍在。",
+   "trade_review": "XAU 空單淨 +0.1063U（+2.27R）、BEAT 空單淨 +0.0399U（+0.41R），今日兩筆平倉皆獲利；目前空手，權益約 10.10U。",
+   "watch_next": "觀察 BTC 支撐是否守住；台北換日後 GPT 額度重置，檢視一般訊號恢復情形。",
+   "strategy_adjustments": "GPT 日上限約 12:14 觸頂，一般訊號略過。v6.4.5/6.4.6 修平倉安全；14:06 上線 v6.4.7，GPT 觸頂時 MOMO 改用規則備援，不加大風險。"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793427450.461,
+   "kind": "daily_settlement",
+   "date": "2026-10-30",
+   "trades": [],
+   "table": {
+    "realized_pnl": 0.0,
+    "unrealized_pnl": null,
+    "fees": -0.00389094,
+    "funding": 0.0,
+    "api_cost_by_model": {
+     "gpt-6-astra": null,
+     "gpt-6.1-sol": null,
+     "gpt-6.1-terra": null,
+     "gpt-6-luna": null
+    },
+    "api_cost_total": 5.665,
+    "net_after_costs": -5.66889094,
+    "cum": {
+     "realized_pnl": 0.0,
+     "unrealized_pnl": null,
+     "fees": -0.00389094,
+     "funding": 0,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": 5.665,
+     "net_after_costs": -5.66889094
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793427450.461,
+   "kind": "daily_settlement",
+   "date": "2026-10-31",
+   "trades": [
+    {
+     "instrument": "DOOD-USDT-SWAP",
+     "direction": "long",
+     "pnl": -0.064
+    },
+    {
+     "instrument": "BEAT-USDT-SWAP",
+     "direction": "short",
+     "pnl": -0.07114
+    }
+   ],
+   "table": {
+    "realized_pnl": -0.13514,
+    "unrealized_pnl": null,
+    "fees": -0.00487381,
+    "funding": 0.00010968,
+    "api_cost_by_model": {
+     "gpt-6.1-sol": 0.83804,
+     "gpt-6.1-terra": 0.34497,
+     "gpt-6-luna": 0.00804,
+     "gpt-6-astra": 1.59916
+    },
+    "api_cost_total": 2.79021,
+    "net_after_costs": -2.93011413,
+    "cum": {
+     "realized_pnl": -0.13514,
+     "unrealized_pnl": null,
+     "fees": -0.00876475,
+     "funding": 0.00010968,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": 8.45521,
+     "net_after_costs": -8.59900507
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793427450.461,
+   "kind": "daily_settlement",
+   "date": "2026-10-30",
+   "trades": [
+    {
+     "instrument": "BTC-USDT-SWAP",
+     "direction": "short",
+     "pnl": 0.18412
+    },
+    {
+     "instrument": "NEAR-USDT-SWAP",
+     "direction": "short",
+     "pnl": -0.202
+    }
+   ],
+   "table": {
+    "realized_pnl": -0.01788,
+    "unrealized_pnl": null,
+    "fees": -0.01984263,
+    "funding": 0.00077969,
+    "api_cost_by_model": {
+     "gpt-6-astra": null,
+     "gpt-6.1-sol": null,
+     "gpt-6.1-terra": null,
+     "gpt-6-luna": null
+    },
+    "api_cost_total": 2.79656,
+    "net_after_costs": -2.83350294,
+    "cum": {
+     "realized_pnl": -0.01788,
+     "unrealized_pnl": null,
+     "fees": -0.01984263,
+     "funding": 0.00077969,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": 2.79656,
+     "net_after_costs": -2.83350294
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793427450.461,
+   "kind": "daily_settlement",
+   "date": "2026-10-31",
+   "trades": [
+    {
+     "instrument": "XAU-USDT-SWAP",
+     "direction": "short",
+     "pnl": 0.1103
+    },
+    {
+     "instrument": "BEAT-USDT-SWAP",
+     "direction": "short",
+     "pnl": 0.04369
+    }
+   ],
+   "table": {
+    "realized_pnl": 0.15399,
+    "unrealized_pnl": null,
+    "fees": -0.00768238,
+    "funding": 0.00383909,
+    "api_cost_by_model": {
+     "gpt-6.1-sol": 0.53336,
+     "gpt-6.1-terra": 0.40545,
+     "gpt-6-luna": null
+    },
+    "api_cost_total": 1.0035,
+    "net_after_costs": -0.85335329,
+    "cum": {
+     "realized_pnl": 0.13611,
+     "unrealized_pnl": null,
+     "fees": -0.02752501,
+     "funding": 0.00461878,
+     "api_cost_by_model": {
+      "gpt-6-astra": 1.3281,
+      "gpt-6.1-sol": 1.4295,
+      "gpt-6.1-terra": 0.9213,
+      "gpt-6-luna": 0.1212
+     },
+     "api_cost_total": 3.8001,
+     "net_after_costs": -3.68689623
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793427600,
+   "kind": "daily",
+   "market_recap": "主流幣仍偏空，BTC 在 77000 至 78000 一帶；小幣動能訊號多，但急漲急跌後反轉頻繁。",
+   "trade_review": "今日平倉 2 筆皆止損：DOOD 多 -1.106R（-0.066125U）、BEAT 空 -1.413R（-0.0731926U），合計約 -2.52R、-0.1393U。BTC 空單（10/30 開倉）與 AKE 多單持倉中。14:11 權益 9.8922U，今日 GPT 花費約 2.79 USD。",
+   "watch_next": "BTC 是否守住 79400 止損下方；AKE 能否朝止盈 0.0132703 推進；平倉與止損修正後實際運作。",
+   "strategy_adjustments": "已加入 1 分鐘確認、跳過冷卻、Astra 12000 medium 並精簡輸入、BEAT 後修正平倉與止損防護、vol_x 小於 1 預先過濾；GPT 至 24:00 僅限持倉管理。"
+  }
+ ]
+}
