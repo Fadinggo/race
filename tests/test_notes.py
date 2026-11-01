@@ -200,6 +200,15 @@ class NotesValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(notes.NotesError, "invalid_trade"):
             notes.validate_note(listed)
 
+    def test_settlement_instruments_are_checked_individually_without_concatenation(self):
+        item = copy.deepcopy(SETTLEMENT)
+        item["trades"] = [{"instrument": symbol, "direction": "long", "pnl": 0}
+                          for symbol in ("DOOD-USDT-SWAP", "BEAT-USDT-SWAP", "AKE-USDT-SWAP")]
+        self.assertIs(notes.validate_note(item), item)
+        item["trades"][1]["instrument"] = "A" * 32
+        with self.assertRaisesRegex(notes.NotesError, "unsafe_note"):
+            notes.validate_note(item)
+
 
 class NotesCommandTests(unittest.TestCase):
     def setUp(self):

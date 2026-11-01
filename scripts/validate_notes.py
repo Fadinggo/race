@@ -201,7 +201,9 @@ def validate_trades(trades):
             raise NotesError("invalid_trade")
         if not finite_number(trade["pnl"]):
             raise NotesError("invalid_trade")
-    if any(suspicious_text(text) for text in texts) or suspicious_text("".join(texts)):
+    # Symbols are independent values. Joining them can turn several legitimate
+    # instruments into one long token and reject an otherwise safe settlement.
+    if any(suspicious_text(text) for text in texts):
         raise NotesError("unsafe_note")
     return trades
 

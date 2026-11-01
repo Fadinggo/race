@@ -13,8 +13,8 @@ import subprocess
 
 REPOSITORY = "Fadinggo/race"
 GIT_FILES = ("data.json", "history.json", "state-checkpoint.json")
-PAGE_FILES = ("index.html", "dashboard.js", "data.json", "history.json", ".nojekyll")
-OPTIONAL_PAGE_FILES = ("notes.json",)
+PAGE_FILES = ("index.html", "dashboard.js", "layout-v4.js", "data.json", "history.json", ".nojekyll")
+OPTIONAL_PAGE_FILES = ("notes.json", "watchlist.json")
 REMOTE_URLS = {"https://github.com/Fadinggo/race", "https://github.com/Fadinggo/race.git"}
 
 
@@ -68,7 +68,7 @@ def package_site(repo: Path, site_dir: Path):
         if not source.is_file() or source.is_symlink() or source.resolve().parent != repo:
             raise PublishError("non_regular_publish_file")
         shutil.copyfile(source, site_dir / filename)
-    # Notes are independent of the authenticated account snapshot.
+    # Notes and observations are independent of the authenticated account snapshot.
     for filename in OPTIONAL_PAGE_FILES:
         source = repo / filename
         if source.is_file() and not source.is_symlink() and source.resolve().parent == repo:
