@@ -1,4 +1,77 @@
 {
-  "version": 1,
-  "items": []
+ "version": 1,
+ "items": [
+  {
+   "id": "A-20261102-0149-BTC",
+   "trader": "Grok-Trader-A",
+   "instrument": "BTC-USDT-SWAP",
+   "direction": "short",
+   "summary": "BTC 4H 反抽貼 MA20 78000，觀察 78200–78450 受阻做空",
+   "detail": {
+    "reason": "4H 收 77984 貼 MA20≈78001，仍在 MA50≈79462 下方，下降趨勢未改；ATR(14,4H)≈545；24h 高 78207/低 77387；20 根低點 76260。資金費率 +0.009% 中性偏多付；OI 約 3.45 萬 BTC（約 26.9 億美元）。最近一根 4H 量僅 20 根均量 0.39 倍，縮量反彈。事件：Binance 被駭後 11/01 18:35 起分階段開放提領（先 BTC），目前未見放量賣壓；另有那斯達克上市公司傳將賣出約 4.5 億美元 BTC。",
+    "plan": "1H/4H 在 78200–78450 出現上影或收回 MA20 下方時做空，停損 79500 上方，目標 77050 再看 76260；縮量不追空。",
+    "invalidation": "4H 收盤站上 79500（MA50 附近）即視為看錯。"
+   },
+   "confidence": 55,
+   "created_ts": 1793555353,
+   "expires_ts": 1793641753,
+   "ref_price": 77984.3,
+   "outcome": null,
+   "status": "active"
+  },
+  {
+   "id": "A-20261102-0149-HYPE",
+   "trader": "Grok-Trader-A",
+   "instrument": "HYPE-USDT-SWAP",
+   "direction": "long",
+   "summary": "HYPE 4H 上升中回測失守 MA20 89.6，待收復再看多",
+   "detail": {
+    "reason": "4H MA20≈89.6 > MA50≈83.0 仍屬上升結構，但價格 88.02 已跌回 MA20 下方，回測未站穩；ATR(14,4H)≈1.7；24h 區間 87.10–88.68；前高突破位 97.09。資金費率 +0.01% 中性；OI 約 125 萬枚（約 1.1 億美元）。最近 4H 量為 20 根均量 0.32 倍，量能不足。",
+    "plan": "僅觀察：4H 收盤重新站上 89.6 且放量才考慮做多，目標 95.2 再看 97.09，停損 86.9 下方；未收復前不進場。",
+    "invalidation": "4H 收盤跌破 86.9（24h 低點下方約 0.1 ATR）或跌向 MA50 83 即視為看錯。"
+   },
+   "confidence": 40,
+   "created_ts": 1793555353,
+   "expires_ts": 1793641753,
+   "ref_price": 88.023,
+   "outcome": null,
+   "status": "active"
+  },
+  {
+   "id": "B-20261102-0148-BTC",
+   "trader": "Grok-Trader-B",
+   "instrument": "BTC-USDT-SWAP",
+   "direction": "short",
+   "summary": "BTC 4H 仍空頭排列，觀察跌破 76260 的順勢做空",
+   "detail": {
+    "reason": "4H 收盤約 78000，EMA20 78200、EMA50 79300，仍是空頭排列；24 小時緩漲 1% 測試 EMA20 但量能只有均量的 0.4 倍；20 根 4H 低點 76260；資金費率 +0.009% 偏多；OI 24 小時 +1.1%，多單仍在場；交易所遭駭、分批恢復提幣與上市公司可能賣 BTC 是下行風險。",
+    "plan": "不逆勢做多。若 4H 收盤跌破 76260 且放量，順勢做空，目標前一段跌幅延伸約 75000，停損放回 77300 上方；若先站回 EMA50，則取消此觀察。",
+    "invalidation": "4H 收盤站上 79300（EMA50），趨勢轉多即視為看錯。"
+   },
+   "confidence": 35,
+   "created_ts": 1793555322,
+   "expires_ts": 1793641722,
+   "ref_price": 78016.6,
+   "outcome": null,
+   "status": "active"
+  },
+  {
+   "id": "B-20261102-0148-HYPE",
+   "trader": "Grok-Trader-B",
+   "instrument": "HYPE-USDT-SWAP",
+   "direction": "long",
+   "summary": "HYPE 4H 多頭排列，觀察放量站上 88.7 的突破做多",
+   "detail": {
+    "reason": "4H 收盤 88.1 在 EMA20 87.5、EMA50 84.6 之上，是大盤偏弱下少數 4H 上升趨勢；過去 24 小時窄幅整理 87.1–88.7；最近一根 4H 量只有 20 根均量的 0.3 倍；資金費率 0.01% 中性；OI 24 小時 -1.3%，空單還沒明顯回補；BTC/ETH 仍在 4H 均線下方，交易所遭駭與上市公司可能賣 BTC 的消息仍壓抑情緒。",
+    "plan": "等 4H 收盤站上 88.7 且量能大於均量 1.5 倍、OI 同步回升（空單回補訊號）才做多；第一目標 90.9（10/31 高點），停損放在 87.1 下方。沒放量就不追。",
+    "invalidation": "4H 收盤跌破 87.0，或跌回 EMA50（約 84.6）下方，即視為看錯。"
+   },
+   "confidence": 45,
+   "created_ts": 1793555322,
+   "expires_ts": 1793641722,
+   "ref_price": 88.17,
+   "outcome": null,
+   "status": "active"
+  }
+ ]
 }
