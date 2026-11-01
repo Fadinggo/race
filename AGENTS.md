@@ -2,6 +2,12 @@
 
 This repository serves a public, read-only trading dashboard. Grok's 交易儀表板專家 supervises maintenance; Codex implements a scoped work order and reports evidence for acceptance.
 
+## Ponytail
+
+For every coding task in this repository, agents must load and follow the `ponytail` skill at `.agents/skills/ponytail/SKILL.md`. Agents may use `ponytail-review` at `.agents/skills/ponytail-review/SKILL.md` for reviews. The final report must state whether the ponytail skill was loaded.
+
+Rules already in this file stay unchanged and outrank ponytail when they conflict. Safety, credential, and workflow rules win.
+
 ## Work orders
 
 - For a `codex/maintenance-N` branch, read `.maintenance/work-orders/N.json` and `MAINTENANCE.md` before editing. The saved work order and its original commit are immutable.
