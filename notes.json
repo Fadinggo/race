@@ -245,52 +245,6 @@
   },
   {
    "trader": "Grok-Trader-A",
-   "ts": 1793427450.461,
-   "kind": "daily_settlement",
-   "date": "2026-10-31",
-   "trades": [
-    {
-     "instrument": "DOOD-USDT-SWAP",
-     "direction": "long",
-     "pnl": -0.064
-    },
-    {
-     "instrument": "BEAT-USDT-SWAP",
-     "direction": "short",
-     "pnl": -0.07114
-    }
-   ],
-   "table": {
-    "realized_pnl": -0.13514,
-    "unrealized_pnl": null,
-    "fees": -0.00487381,
-    "funding": 0.00010968,
-    "api_cost_by_model": {
-     "gpt-6.1-sol": 0.83804,
-     "gpt-6.1-terra": 0.34497,
-     "gpt-6-luna": 0.00804,
-     "gpt-6-astra": 1.59916
-    },
-    "api_cost_total": 2.79021,
-    "net_after_costs": -2.93011413,
-    "cum": {
-     "realized_pnl": -0.13514,
-     "unrealized_pnl": null,
-     "fees": -0.00876475,
-     "funding": 0.00010968,
-     "api_cost_by_model": {
-      "gpt-6-astra": null,
-      "gpt-6.1-sol": null,
-      "gpt-6.1-terra": null,
-      "gpt-6-luna": null
-     },
-     "api_cost_total": 8.45521,
-     "net_after_costs": -8.59900507
-    }
-   }
-  },
-  {
-   "trader": "Grok-Trader-A",
    "ts": 1793427600,
    "kind": "daily",
    "market_recap": "主流幣仍偏空，BTC 在 77000 至 78000 一帶；小幣動能訊號多，但急漲急跌後反轉頻繁。",
@@ -335,6 +289,57 @@
    "trade_review": "今日平倉 2 筆（勝 2），淨損益合計 +0.1462U：XAU short 1h_breakout +2.27R、BEAT short MOMO +0.41R。",
    "watch_next": "持續掃描 MOMO 動能（2%/5-15 分、5%/1 小時、量能 3 倍）與 1H/15m 突破，注意資金費結算時段停止進場。",
    "strategy_adjustments": "今日無策略參數變更；GPT 額度觸頂時 MOMO 改用規則備援，風險上限不變。"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793464675.012,
+   "kind": "daily_settlement",
+   "date": "2026-10-31",
+   "trades": [
+    {
+     "instrument": "DOOD-USDT-SWAP",
+     "direction": "long",
+     "pnl": -0.064
+    },
+    {
+     "instrument": "BEAT-USDT-SWAP",
+     "direction": "short",
+     "pnl": -0.07114
+    },
+    {
+     "instrument": "AKE-USDT-SWAP",
+     "direction": "long",
+     "pnl": 0.001
+    }
+   ],
+   "table": {
+    "realized_pnl": -0.13414,
+    "unrealized_pnl": null,
+    "fees": -0.00546081,
+    "funding": 0.00010968,
+    "api_cost_by_model": {
+     "gpt-6.1-sol": 0.90826,
+     "gpt-6.1-terra": 0.37914,
+     "gpt-6-luna": 0.01457,
+     "gpt-6-astra": 1.59916
+    },
+    "api_cost_total": 2.90113,
+    "net_after_costs": -3.04062113,
+    "cum": {
+     "realized_pnl": -0.13414,
+     "unrealized_pnl": null,
+     "fees": -0.00935175,
+     "funding": 0.00010968,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": 8.56613,
+     "net_after_costs": -8.70951207
+    }
+   }
   },
   {
    "trader": "Grok-Trader-A",
@@ -459,6 +464,167 @@
      },
      "api_cost_total": 4.2836,
      "net_after_costs": -4.17039623
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793464813.0730612,
+   "kind": "open",
+   "instrument": "TRX-USDT-SWAP",
+   "direction": "short",
+   "leverage": 3,
+   "entry_price": 0.31065,
+   "stop_loss": 0.31638,
+   "take_profit": 0.29382,
+   "max_loss_usdt": 0.2821,
+   "reasons": {
+    "funding_rate": "開倉時資金費率 -0.1063%（空付多），OKX 公開資料。",
+    "open_interest": "開倉時未平倉量約 26.26M USDT（OKX 公開資料，無歷史比較）。",
+    "key_levels": "1H 20 根低點 未記錄；停損 0.3164（1.5 倍 ATR），停利 0.2938（3R）；距反向擺動 NoneR。",
+    "volume": "訊號K量能未記錄 20 根均量 1.5 倍；4H 趨勢 down、1H 趨勢 down。",
+    "events": "訊號 1h_breakout；支持層級：luna；觀察清單=否。"
+   },
+   "confidence": "GPT 確認信心 0.73。",
+   "invalidation": "觸及停損 0.3164，或趨勢排列翻轉；+1R 平一半、停損移保本後追蹤。"
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793493111.334641,
+   "kind": "close",
+   "review": {
+    "instrument": "TRX-USDT-SWAP",
+    "direction": "short",
+    "leverage": 3,
+    "entry_price": 0.31065,
+    "stop_loss": 0.31638,
+    "take_profit": 0.29382,
+    "max_loss_usdt": 0.2821,
+    "reasons": {
+     "funding_rate": "開倉時資金費率 -0.1063%（空付多），OKX 公開資料。",
+     "open_interest": "開倉時未平倉量約 26.26M USDT（OKX 公開資料，無歷史比較）。",
+     "key_levels": "1H 20 根低點 未記錄；停損 0.3164（1.5 倍 ATR），停利 0.2938（3R）；距反向擺動 NoneR。",
+     "volume": "訊號K量能未記錄 20 根均量 1.5 倍；4H 趨勢 down、1H 趨勢 down。",
+     "events": "訊號 1h_breakout；支持層級：luna；觀察清單=否。"
+    },
+    "confidence": "GPT 確認信心 0.73。",
+    "invalidation": "觸及停損 0.3164，或趨勢排列翻轉；+1R 平一半、停損移保本後追蹤。"
+   },
+   "realized_pnl_usdt": 0.2799,
+   "variance": {
+    "right": "淨損益 +0.2799U（+0.99R），平均出場價 0.3045。曾於 +1R 平一半（淨 +0.1737U）並移停損至保本。",
+    "wrong": "手續費合計 -0.0154U、資金費 -0.0099U；出場原因 交易所停損/停利或其他。",
+    "lesson": "維持規則：+1R 分批與保本停損持續有效。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793526163.2712824,
+   "kind": "close",
+   "review": {
+    "instrument": "BTC-USDT-SWAP",
+    "direction": "short",
+    "leverage": 3,
+    "entry_price": 77818.8,
+    "stop_loss": 79400.0,
+    "take_profit": 73865.8,
+    "max_loss_usdt": 0.1737,
+    "reasons": {
+     "funding_rate": "未取得資料。",
+     "open_interest": "未取得資料。",
+     "key_levels": "止損 79400、止盈 73865.8。",
+     "volume": "未取得資料。",
+     "events": "未取得資料。"
+    },
+    "confidence": "未記錄信心分數。",
+    "invalidation": "觸及止損 79400 即出場。"
+   },
+   "realized_pnl_usdt": -0.0244421,
+   "variance": {
+    "right": "依規則出場，未攤平、未放寬止損。出場原因：其他或手動平倉。",
+    "wrong": "結果 -0.141R、淨損益 -0.0244421U。未達 +1R 即反向。",
+    "lesson": "進場前確認 1 分鐘延續，避免追在急漲急跌末端。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793551367.464,
+   "kind": "daily_settlement",
+   "date": "2026-11-01",
+   "trades": [
+    {
+     "instrument": "BTC-USDT-SWAP",
+     "direction": "short",
+     "pnl": -0.02148
+    }
+   ],
+   "table": {
+    "realized_pnl": -0.02148,
+    "unrealized_pnl": null,
+    "fees": -0.00390168,
+    "funding": 0.00483049,
+    "api_cost_by_model": {
+     "gpt-6.1-sol": 0.08589,
+     "gpt-6-luna": 0.00258,
+     "gpt-6.1-terra": 0.01979,
+     "gpt-6-astra": 0.07665
+    },
+    "api_cost_total": 0.18491,
+    "net_after_costs": -0.20546119,
+    "cum": {
+     "realized_pnl": -0.15562,
+     "unrealized_pnl": null,
+     "fees": -0.01325343,
+     "funding": 0.00494017,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": 8.75104,
+     "net_after_costs": -8.91497326
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793551367.464,
+   "kind": "daily_settlement",
+   "date": "2026-11-01",
+   "trades": [
+    {
+     "instrument": "TRX-USDT-SWAP",
+     "direction": "short",
+     "pnl": 0.3052
+    }
+   ],
+   "table": {
+    "realized_pnl": 0.3052,
+    "unrealized_pnl": null,
+    "fees": -0.0153799,
+    "funding": -0.00992197,
+    "api_cost_by_model": {
+     "gpt-6-luna": null,
+     "gpt-6.1-sol": 0.27491,
+     "gpt-6.1-terra": 0.31878,
+     "gpt-6-astra": 0.22622
+    },
+    "api_cost_total": 0.8615,
+    "net_after_costs": -0.58160187,
+    "cum": {
+     "realized_pnl": 0.44131,
+     "unrealized_pnl": null,
+     "fees": -0.04290492,
+     "funding": -0.00530318,
+     "api_cost_by_model": {
+      "gpt-6-astra": 1.5543,
+      "gpt-6.1-sol": 1.9583,
+      "gpt-6.1-terra": 1.4293,
+      "gpt-6-luna": 0.2032
+     },
+     "api_cost_total": 5.1452,
+     "net_after_costs": -4.7520981
     }
    }
   }
