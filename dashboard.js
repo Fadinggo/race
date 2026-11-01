@@ -378,7 +378,7 @@
     const ledgerOpenGroups = new Set();
     let ledgerMode = 'all';
     const noteColumns = ['notes-a', 'notes-b'].map(id => doc.getElementById(id));
-    const wideNotes = root.matchMedia('(min-width:2208px)');
+    const wideNotes = root.matchMedia('(min-width:1900px)');
     function placeNotes() {
       const shelf = doc.getElementById('notes-shelf');
       noteColumns.forEach((node, index) => {
