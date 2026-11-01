@@ -99,29 +99,42 @@ class GitHubPublishTests(unittest.TestCase):
             self.assertEqual(options["timeout"], 60)
             self.assertNotIn("--force", args)
 
-    def test_optional_notes_are_packaged_without_entering_snapshot_commit(self):
-        notes = '{"version":1,"notes":[]}\n'
-        (self.repo / "notes.json").write_text(notes, encoding="utf-8")
-        self.assertEqual(self.invoke(), "snapshot_pushed_pages_ready")
-        self.assertEqual((self.site / "notes.json").read_text(), notes)
-        self.assertEqual(set(path.name for path in self.site.iterdir()), set(publish.PAGE_FILES) | {"notes.json"})
-        self.assertNotIn("notes.json", self.git.operations("add")[0])
+    def test_layout_script_is_required_and_packaged(self):
+        publish.package_site(self.repo, self.site)
+        self.assertEqual((self.site / "layout-v4.js").read_text(), "public page")
+        (self.repo / "layout-v4.js").unlink()
+        with self.assertRaisesRegex(publish.PublishError, "non_regular_publish_file"):
+            publish.validate_context(self.repo, self.site, self.environment)
 
-    def test_missing_or_non_regular_notes_do_not_break_core_packaging(self):
-        for kind in ("missing", "directory", "symlink"):
-            with self.subTest(kind=kind):
-                notes = self.repo / "notes.json"
-                if notes.is_symlink():
-                    notes.unlink()
-                elif notes.is_dir():
-                    notes.rmdir()
-                if kind == "directory":
-                    notes.mkdir()
-                if kind == "symlink":
-                    notes.symlink_to(self.repo / "state-checkpoint.json")
-                site = self.runner_temp / ("site-" + kind)
-                publish.package_site(self.repo, site)
-                self.assertEqual(set(path.name for path in site.iterdir()), set(publish.PAGE_FILES))
+    def test_optional_public_data_are_packaged_without_entering_snapshot_commit(self):
+        documents = {"notes.json": '{"version":1,"notes":[]}\n',
+                     "watchlist.json": '{"version":1,"items":[]}\n'}
+        for filename, body in documents.items():
+            (self.repo / filename).write_text(body, encoding="utf-8")
+        self.assertEqual(self.invoke(), "snapshot_pushed_pages_ready")
+        self.assertEqual(set(path.name for path in self.site.iterdir()), set(publish.PAGE_FILES) | set(documents))
+        for filename, body in documents.items():
+            self.assertEqual((self.site / filename).read_text(), body)
+            self.assertNotIn(filename, self.git.operations("add")[0])
+
+    def test_missing_or_non_regular_optional_data_do_not_break_core_packaging(self):
+        for filename in ("notes.json", "watchlist.json"):
+            for kind in ("missing", "directory", "symlink"):
+                with self.subTest(filename=filename, kind=kind):
+                    optional = self.repo / filename
+                    if optional.is_symlink():
+                        optional.unlink()
+                    elif optional.is_dir():
+                        optional.rmdir()
+                    if kind == "directory":
+                        optional.mkdir()
+                    if kind == "symlink":
+                        optional.symlink_to(self.repo / "state-checkpoint.json")
+                    site = self.runner_temp / ("site-" + filename + "-" + kind)
+                    publish.package_site(self.repo, site)
+                    self.assertEqual(set(path.name for path in site.iterdir()), set(publish.PAGE_FILES))
+            if optional.is_symlink():
+                optional.unlink()
 
     def test_refuses_local_fork_and_non_main_execution(self):
         for changes in ({"GITHUB_ACTIONS": "false"}, {"GITHUB_REPOSITORY": "someone/race"}, {"GITHUB_REF": "refs/heads/feature"}):

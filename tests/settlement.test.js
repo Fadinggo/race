@@ -288,3 +288,13 @@ test('finite extreme money stays concise and signed in settlement tables and car
     '累計 API 花費': '1.000e+308 USD', '扣除 API 後淨損益': '-1.000e+308 USDT'
   });
 });
+
+
+test('multiple valid settlement instruments do not form a synthetic sensitive token', () => {
+  const note = settlement({ trades: ['DOOD-USDT-SWAP', 'BEAT-USDT-SWAP', 'AKE-USDT-SWAP']
+    .map(instrument => ({ instrument, direction: 'long', pnl: 0 })) });
+  assert.equal(notes.safeNote(note), true);
+  assert.equal(notes.normalizeDocument(documentOf([note])).length, 1);
+  note.trades[1].instrument = 'x'.repeat(32);
+  assert.equal(notes.safeNote(note), false);
+});

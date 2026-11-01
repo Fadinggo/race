@@ -1,0 +1,779 @@
+[
+  {
+    "name": "empty",
+    "document": {
+      "version": 1,
+      "items": []
+    },
+    "valid": true
+  },
+  {
+    "name": "example_dated_public_id",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "expired_reviewed",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": {
+            "price_at_expiry": 3600,
+            "change_pct": 2.857,
+            "verdict": "hit",
+            "review": "方向正確。"
+          },
+          "status": "expired"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "zero_confidence",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 0,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "hundred_confidence",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 100,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "fractional_confidence",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70.5,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "empty_detail_and_review",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "",
+            "plan": "",
+            "invalidation": ""
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": {
+            "price_at_expiry": 3600,
+            "change_pct": 2.857,
+            "verdict": "unclear",
+            "review": ""
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "text_codepoint_boundaries",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": {
+            "price_at_expiry": 3600,
+            "change_pct": 2.857,
+            "verdict": "hit",
+            "review": "界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界"
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "leap_day_public_id",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "B-20280229-2359-ETH",
+          "trader": "Grok-Trader-B",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "html_remains_plain_text",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "<img src=x onerror=alert(1)>",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "independent_symbols",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "public-observation-id",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "duplicate_id",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        },
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "duplicate_id"
+  },
+  {
+    "name": "unknown_status",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null,
+          "status": "done"
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_status"
+  },
+  {
+    "name": "missing_detail_key",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "理由",
+            "plan": "計畫"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_detail"
+  },
+  {
+    "name": "summary_61_codepoints",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "text_too_long"
+  },
+  {
+    "name": "review_301_codepoints",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": {
+            "price_at_expiry": 3600,
+            "change_pct": 2.857,
+            "verdict": "hit",
+            "review": "界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界"
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "text_too_long"
+  },
+  {
+    "name": "expiry_not_after_creation",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793538000,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_timestamp"
+  },
+  {
+    "name": "boolean_confidence",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": true,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_confidence"
+  },
+  {
+    "name": "boolean_price",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": true,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_number"
+  },
+  {
+    "name": "extra_item_key",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null,
+          "extra": "資料"
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_item"
+  },
+  {
+    "name": "unsafe_normalized_label",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "ｔｏｋｅｎ：EXAMPLE",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "unsafe_watchlist"
+  },
+  {
+    "name": "unsafe_control",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "隱藏​字元",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "unsafe_watchlist"
+  },
+  {
+    "name": "unsafe_instrument",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "unsafe_watchlist"
+  },
+  {
+    "name": "invalid_calendar_id",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20260230-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "unsafe_watchlist"
+  },
+  {
+    "name": "extra_outcome_key",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": {
+            "price_at_expiry": 3600,
+            "change_pct": 2.857,
+            "verdict": "hit",
+            "review": "方向正確。",
+            "extra": 0
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_outcome"
+  },
+  {
+    "name": "invalid_verdict",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": {
+            "price_at_expiry": 3600,
+            "change_pct": 2.857,
+            "verdict": "unknown",
+            "review": "方向正確。"
+          }
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "invalid_verdict"
+  },
+  {
+    "name": "dated_id_retains_sensitive_prefix_check",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-sk-fake",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "等待突破壓力。",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "跌回區間則取消。"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "unsafe_watchlist"
+  },
+  {
+    "name": "unsafe_cross_field_assignment",
+    "document": {
+      "version": 1,
+      "items": [
+        {
+          "id": "A-20261101-1400-ETH",
+          "trader": "Grok-Trader-A",
+          "instrument": "ETH-USDT-SWAP",
+          "direction": "long",
+          "summary": "api_key:",
+          "detail": {
+            "reason": "量能回升。",
+            "plan": "突破後分批進場。",
+            "invalidation": "demo-value"
+          },
+          "confidence": 70,
+          "created_ts": 1793538000,
+          "expires_ts": 1793624400,
+          "ref_price": 3500,
+          "outcome": null
+        }
+      ]
+    },
+    "valid": false,
+    "error_code": "unsafe_watchlist"
+  }
+]

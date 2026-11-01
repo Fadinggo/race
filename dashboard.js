@@ -80,6 +80,8 @@
       qty: raw.qty === null || raw.qty === undefined ? '—' : String(raw.qty),
       pnl: number(raw.pnl),
       pnlCurrency: typeof raw.pnl_ccy === 'string' && raw.pnl_ccy.trim() ? raw.pnl_ccy.trim() : null,
+      fee: number(raw.fee),
+      feeCurrency: typeof raw.feeCcy === 'string' && raw.feeCcy.trim() ? raw.feeCcy.trim() : null,
       note: String(raw.note ?? '')
     };
   }
@@ -238,22 +240,26 @@
     return card;
   }
 
+  function renderTradeRow(doc, trade, index) {
+    const line = element(doc, 'tr');
+    line.style.animationDelay = `${0.3 + Math.min(index, 12) * 0.08}s`;
+    const time = trade.timestamp === null ? trade.time || '—' : new Date(trade.timestamp).toLocaleTimeString(
+      'zh-TW', { timeZone: TIME_ZONE, hour12: false });
+    const timeCell = element(doc, 'td', time);
+    timeCell.title = taipeiTime(trade.timestamp);
+    line.append(timeCell);
+    for (const text of [trade.trader, trade.market, trade.side, trade.price, trade.qty]) {
+      line.append(element(doc, 'td', text));
+    }
+    const pnl = trade.pnl === null ? '—' : `${trade.pnl} ${currencyText(trade.pnlCurrency)}`;
+    line.append(element(doc, 'td', pnl, signedClass(trade.pnl)), element(doc, 'td', trade.note));
+    return line;
+  }
+
   function renderRows(doc, container, trades) {
     const fragment = doc.createDocumentFragment();
     for (const [index, trade] of trades.slice().reverse().entries()) {
-      const line = element(doc, 'tr');
-      line.style.animationDelay = `${0.3 + Math.min(index, 12) * 0.08}s`;
-      const time = trade.timestamp === null ? trade.time || '—' : new Date(trade.timestamp).toLocaleTimeString(
-        'zh-TW', { timeZone: TIME_ZONE, hour12: false });
-      const timeCell = element(doc, 'td', time);
-      timeCell.title = taipeiTime(trade.timestamp);
-      line.append(timeCell);
-      for (const text of [trade.trader, trade.market, trade.side, trade.price, trade.qty]) {
-        line.append(element(doc, 'td', text));
-      }
-      const pnl = trade.pnl === null ? '—' : `${trade.pnl} ${currencyText(trade.pnlCurrency)}`;
-      line.append(element(doc, 'td', pnl, signedClass(trade.pnl)), element(doc, 'td', trade.note));
-      fragment.append(line);
+      fragment.append(renderTradeRow(doc, trade, index));
     }
     if (!trades.length) {
       const line = element(doc, 'tr');
@@ -261,6 +267,92 @@
       cell.colSpan = 8;
       line.append(cell);
       fragment.append(line);
+    }
+    container.replaceChildren(fragment);
+  }
+
+  function tradeGroupLabel(trade, mode) {
+    if (mode === 'trader') return trade.trader || '交易員未提供';
+    if (mode === 'market') return trade.market?.split('-')[0] || '幣種未提供';
+    if (mode === 'action') {
+      if (['開多', '開空'].includes(trade.side)) return '開倉';
+      if (['平多', '平空', '部分強平多', '部分強平空', '強平多', '強平空', '減倉平多', '減倉平空'].includes(trade.side)) return '平倉';
+      return '其他';
+    }
+    if (mode === 'result') {
+      return trade.pnl === null || !Number.isFinite(trade.pnl) ? '損益未提供'
+        : trade.pnl > 0 ? '賺' : trade.pnl < 0 ? '賠' : '持平';
+    }
+    return '全部';
+  }
+
+  function groupedAmount(trades, field, currencyField) {
+    const totals = new Map();
+    let incomplete = false;
+    for (const trade of trades) {
+      const value = trade[field];
+      const currency = trade[currencyField];
+      if (!Number.isFinite(value) || !currency) {
+        incomplete = true;
+        continue;
+      }
+      totals.set(currency, (totals.get(currency) || 0) + value);
+    }
+    const text = [...totals].map(([currency, value]) => {
+      if (!Number.isFinite(value)) {
+        incomplete = true;
+        return `— ${currency}`;
+      }
+      const rounded = Number(value.toPrecision(12));
+      return `${rounded > 0 ? '+' : ''}${rounded} ${currency}`;
+    }).join('、') || '—';
+    return text + (incomplete ? '（資料不完整）' : '');
+  }
+
+  function groupTrades(trades, mode) {
+    const groups = new Map();
+    // The first group and its fills follow the same newest-first order as 全部.
+    for (const trade of trades.slice().reverse()) {
+      const label = tradeGroupLabel(trade, mode);
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push(trade);
+    }
+    return [...groups].map(([label, items]) => ({
+      label, key: `${mode}:${label}`, trades: items,
+      pnl: groupedAmount(items, 'pnl', 'pnlCurrency'),
+      fees: groupedAmount(items, 'fee', 'feeCurrency')
+    }));
+  }
+
+  function renderGroupedRows(doc, container, trades, mode = 'all', openGroups = new Set()) {
+    if (!['trader', 'market', 'action', 'result'].includes(mode) || !trades.length) {
+      renderRows(doc, container, trades);
+      return;
+    }
+    const fragment = doc.createDocumentFragment();
+    for (const group of groupTrades(trades, mode)) {
+      const header = element(doc, 'tr', null, 'ledger-group');
+      const cell = element(doc, 'td');
+      cell.colSpan = 8;
+      const button = element(doc, 'button', null, 'ledger-group-toggle');
+      button.type = 'button';
+      // Reuse the original fill renderer so the eight ledger columns stay identical.
+      const groupRows = group.trades.map((trade, index) => renderTradeRow(doc, trade, index));
+      function update() {
+        const open = openGroups.has(group.key);
+        button.textContent = `${open ? '▾' : '▸'} ${group.label}｜${group.trades.length} 筆・合計損益 ${group.pnl}・合計手續費 ${group.fees}`;
+        button.setAttribute('aria-expanded', String(open));
+        for (const line of groupRows) line.hidden = !open;
+      }
+      button.addEventListener('click', () => {
+        if (openGroups.has(group.key)) openGroups.delete(group.key);
+        else openGroups.add(group.key);
+        update();
+      });
+      update();
+      cell.append(button);
+      header.append(cell);
+      fragment.append(header, ...groupRows);
     }
     container.replaceChildren(fragment);
   }
@@ -281,6 +373,32 @@
     const rows = doc.getElementById('rows');
     const chartStatus = doc.getElementById('chart-status');
     const canvas = doc.getElementById('eqc');
+    const layout = root.RaceLayout?.mount(doc);
+    const ledgerFilters = doc.getElementById('ledger-filters');
+    const ledgerOpenGroups = new Set();
+    let ledgerMode = 'all';
+    const noteColumns = ['notes-a', 'notes-b'].map(id => doc.getElementById(id));
+    const wideNotes = root.matchMedia('(min-width:2208px)');
+    function placeNotes() {
+      const shelf = doc.getElementById('notes-shelf');
+      noteColumns.forEach((node, index) => {
+        const trader = index === 0 ? 'Grok-Trader-A' : 'Grok-Trader-B';
+        const panel = Array.from(cards.children).find(item => item.dataset.trader === trader);
+        const target = wideNotes.matches && panel ? panel : shelf;
+        if (node && target) target.append(node);
+      });
+    }
+    wideNotes.addEventListener('change', placeNotes);
+    doc.addEventListener('race:notes-updated', event => layout?.updateNotes(event.detail));
+    ledgerFilters?.addEventListener('click', event => {
+      const button = event.target.closest('button[data-ledger-mode]');
+      if (!button || !ledgerFilters.contains(button)) return;
+      ledgerMode = button.dataset.ledgerMode;
+      for (const item of ledgerFilters.querySelectorAll('button')) {
+        item.setAttribute('aria-pressed', String(item === button));
+      }
+      if (current) renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups);
+    });
     let current = null;
     let lastError = false;
     let loading = false;
@@ -366,6 +484,7 @@
         lastError = false;
         const panels = current.traders.map(trader => {
           const panel = element(doc, 'section', null, 'trader-panel');
+          panel.dataset.trader = trader.name;
           panel.append(renderCard(doc, trader, current.trades, Date.now(), current.staleAfterMs));
           const notesId = { 'Grok-Trader-A': 'notes-a', 'Grok-Trader-B': 'notes-b' }[trader.name];
           const notes = notesId ? doc.getElementById(notesId) : null;
@@ -373,9 +492,11 @@
           return panel;
         });
         cards.replaceChildren(...panels);
+        placeNotes();
+        layout?.updateSnapshot(current);
         doc.dispatchEvent(new Event('race:cards-updated'));
         if (hadPrevious) cards.classList.add('is-ready');
-        renderRows(doc, rows, current.trades);
+        renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups);
         try { updateChart(current); } catch (_) {
           chartStatus.textContent = '圖表更新失敗；帳戶與交易資料仍可更新。';
         }
@@ -394,7 +515,7 @@
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
   }
 
-  const api = { number, timestamp, pairSnapshot, freshness, traderView, renderCard, renderRows, fetchPair };
+  const api = { number, timestamp, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair };
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
@@ -537,7 +658,7 @@
       const instruments = note.trades.map(trade => trade.instrument);
       return [note.table, note.table.cum].every(table =>
         Object.keys(table.api_cost_by_model).every(model => !suspiciousText(model, true))) &&
-        instruments.every(text => !suspiciousText(text)) && !suspiciousText(instruments.join(''));
+        instruments.every(text => !suspiciousText(text));
     }
     const values = noteStrings(note);
     return values.every(value => !suspiciousText(value)) && !suspiciousText(values.join(''));
@@ -824,6 +945,9 @@
     function render() {
       columns.forEach(column => renderColumn(doc, column.node, column.trader, notes, clock()));
       renderSummaries(doc, notes, clock());
+      if (typeof root.CustomEvent === 'function' && typeof doc.dispatchEvent === 'function') {
+        doc.dispatchEvent(new root.CustomEvent('race:notes-updated', { detail: notes }));
+      }
     }
     async function refresh() {
       if (loading) return;
