@@ -378,17 +378,17 @@
     const ledgerOpenGroups = new Set();
     let ledgerMode = 'all';
     const noteColumns = ['notes-a', 'notes-b'].map(id => doc.getElementById(id));
-    const wideNotes = root.matchMedia('(min-width:1900px)');
     function placeNotes() {
       const shelf = doc.getElementById('notes-shelf');
+      const wideNotes = root.getComputedStyle(cards).getPropertyValue('--notes-sides').trim() === '1';
       noteColumns.forEach((node, index) => {
         const trader = index === 0 ? 'Grok-Trader-A' : 'Grok-Trader-B';
         const panel = Array.from(cards.children).find(item => item.dataset.trader === trader);
-        const target = wideNotes.matches && panel ? panel : shelf;
+        const target = wideNotes && panel ? panel : shelf;
         if (node && target) target.append(node);
       });
     }
-    wideNotes.addEventListener('change', placeNotes);
+    root.addEventListener('resize', placeNotes);
     doc.addEventListener('race:notes-updated', event => layout?.updateNotes(event.detail));
     ledgerFilters?.addEventListener('click', event => {
       const button = event.target.closest('button[data-ledger-mode]');
