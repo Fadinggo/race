@@ -627,6 +627,205 @@
      "net_after_costs": -4.7520981
     }
    }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793556104.810918,
+   "kind": "open",
+   "instrument": "WLD-USDT-SWAP",
+   "direction": "short",
+   "leverage": 3,
+   "entry_price": 0.3929,
+   "stop_loss": 0.3956,
+   "take_profit": 0.3852,
+   "max_loss_usdt": 0.164,
+   "reasons": {
+    "funding_rate": "開倉時資金費率 0.0100%（多付空），OKX 公開資料。",
+    "open_interest": "開倉時未平倉量約 30.21M USDT（OKX 公開資料，無歷史比較）。",
+    "key_levels": "15m 20 根低點 未記錄；停損 0.3956（1.5 倍 ATR），停利 0.3852（3R）；距反向擺動 NoneR。",
+    "volume": "訊號K量能未記錄 20 根均量 1.5 倍；4H 趨勢 down、1H 趨勢 down。",
+    "events": "訊號 15m_breakout；支持層級：terra；觀察清單=否。"
+   },
+   "confidence": "GPT 確認信心 0.68。",
+   "invalidation": "觸及停損 0.3956，或趨勢排列翻轉；+1R 平一半、停損移保本後追蹤。"
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793560577.6570203,
+   "kind": "open",
+   "instrument": "XRP-USDT-SWAP",
+   "direction": "short",
+   "leverage": 3,
+   "entry_price": 1.2436,
+   "stop_loss": 1.2476,
+   "take_profit": 1.2325,
+   "max_loss_usdt": 0.0376,
+   "reasons": {
+    "funding_rate": "開倉時資金費率 0.0045%（多付空），OKX 公開資料。",
+    "open_interest": "開倉時未平倉量約 102.75M USDT（OKX 公開資料，無歷史比較）。",
+    "key_levels": "15m 20 根低點 未記錄；停損 1.2476（1.5 倍 ATR），停利 1.2325（3R）；距反向擺動 NoneR。",
+    "volume": "訊號K量能未記錄 20 根均量 1.5 倍；4H 趨勢 down、1H 趨勢 down。",
+    "events": "訊號 15m_breakout；支持層級：terra；觀察清單=否。"
+   },
+   "confidence": "GPT 確認信心 0.69。",
+   "invalidation": "觸及停損 1.2476，或趨勢排列翻轉；+1R 平一半、停損移保本後追蹤。"
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793562320.752721,
+   "kind": "close",
+   "review": {
+    "instrument": "XRP-USDT-SWAP",
+    "direction": "short",
+    "leverage": 3,
+    "entry_price": 1.2436,
+    "stop_loss": 1.2476,
+    "take_profit": 1.2325,
+    "max_loss_usdt": 0.0376,
+    "reasons": {
+     "funding_rate": "開倉時資金費率 0.0045%（多付空），OKX 公開資料。",
+     "open_interest": "開倉時未平倉量約 102.75M USDT（OKX 公開資料，無歷史比較）。",
+     "key_levels": "15m 20 根低點 未記錄；停損 1.2476（1.5 倍 ATR），停利 1.2325（3R）；距反向擺動 NoneR。",
+     "volume": "訊號K量能未記錄 20 根均量 1.5 倍；4H 趨勢 down、1H 趨勢 down。",
+     "events": "訊號 15m_breakout；支持層級：terra；觀察清單=否。"
+    },
+    "confidence": "GPT 確認信心 0.69。",
+    "invalidation": "觸及停損 1.2476，或趨勢排列翻轉；+1R 平一半、停損移保本後追蹤。"
+   },
+   "realized_pnl_usdt": -0.0525,
+   "variance": {
+    "right": "淨損益 -0.0525U（-1.39R），平均出場價 1.2476。未觸發 +1R 分批平倉。",
+    "wrong": "手續費合計 -0.0125U、資金費 +0.0000U；出場原因 交易所停損/停利或其他。此筆虧損，進場條件未延續。",
+    "lesson": "虧損控制在預設 1R 內則屬正常；累積樣本後檢討此訊號類型。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793563220.4770586,
+   "kind": "close",
+   "review": {
+    "instrument": "WLD-USDT-SWAP",
+    "direction": "short",
+    "leverage": 3,
+    "entry_price": 0.3929,
+    "stop_loss": 0.3956,
+    "take_profit": 0.3852,
+    "max_loss_usdt": 0.164,
+    "reasons": {
+     "funding_rate": "開倉時資金費率 0.0100%（多付空），OKX 公開資料。",
+     "open_interest": "開倉時未平倉量約 30.21M USDT（OKX 公開資料，無歷史比較）。",
+     "key_levels": "15m 20 根低點 未記錄；停損 0.3956（1.5 倍 ATR），停利 0.3852（3R）；距反向擺動 NoneR。",
+     "volume": "訊號K量能未記錄 20 根均量 1.5 倍；4H 趨勢 down、1H 趨勢 down。",
+     "events": "訊號 15m_breakout；支持層級：terra；觀察清單=否。"
+    },
+    "confidence": "GPT 確認信心 0.68。",
+    "invalidation": "觸及停損 0.3956，或趨勢排列翻轉；+1R 平一半、停損移保本後追蹤。"
+   },
+   "realized_pnl_usdt": 0.1075,
+   "variance": {
+    "right": "淨損益 +0.1075U（+0.66R），平均出場價 0.3909。曾於 +1R 平一半（淨 +0.0721U）並移停損至保本。",
+    "wrong": "手續費合計 -0.0211U、資金費 +0.0000U；出場原因 交易所停損/停利或其他。",
+    "lesson": "維持規則：+1R 分批與保本停損持續有效。"
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793634612.0364437,
+   "kind": "daily",
+   "market_recap": "BTC 永續收在約 77838.6，台北日內漲跌 -0.13%（OKX 行情）。",
+   "trade_review": "今日平倉 2 筆（勝 1），淨損益合計 +0.0551U：XRP short 15m_breakout -1.39R、WLD short 15m_breakout +0.66R。",
+   "watch_next": "持續掃描 MOMO 動能（2%/5-15 分、5%/1 小時、量能 3 倍）與 1H/15m 突破，注意資金費結算時段停止進場。",
+   "strategy_adjustments": "今日無策略參數變更；GPT 額度觸頂時 MOMO 改用規則備援，風險上限不變。"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793634646.1900704,
+   "kind": "daily",
+   "market_recap": "今日 MOMO 掃描觸發 98 次、略過 0 次；開倉 0 筆。最新權益 9.8224U。",
+   "trade_review": "今日無平倉。今日 GPT 花費約 0.2661 USD。",
+   "watch_next": "目前無持倉，等待新訊號。",
+   "strategy_adjustments": "breakout lookback 20->10, manager decision；15m_breakout signal + analysis routing API->Codex fallback (implemented via Codex CLI)；GPT_BUDGET 19.34->19.20 (11/2 billing page recalc), calib 1.31 kept；prefilter = Trader B live.py rules (top35 USDT-SWAP by turnover, 1H/15m 20-bar bre"
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793637702.496,
+   "kind": "daily_settlement",
+   "date": "2026-11-02",
+   "trades": [],
+   "table": {
+    "realized_pnl": 0,
+    "unrealized_pnl": null,
+    "fees": 0,
+    "funding": 0.0,
+    "api_cost_by_model": {
+     "gpt-6-luna": 0.0045,
+     "gpt-6.1-sol": 0.11513,
+     "gpt-6-astra": 0.13138,
+     "gpt-6.1-terra": 0.01508
+    },
+    "api_cost_total": 0.26609,
+    "net_after_costs": -0.26609,
+    "cum": {
+     "realized_pnl": -0.15562,
+     "unrealized_pnl": null,
+     "fees": -0.00936249,
+     "funding": 0.00494017,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": null,
+     "net_after_costs": null
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793637702.496,
+   "kind": "daily_settlement",
+   "date": "2026-11-02",
+   "trades": [
+    {
+     "instrument": "WLD-USDT-SWAP",
+     "direction": "short",
+     "pnl": 0.1286
+    },
+    {
+     "instrument": "XRP-USDT-SWAP",
+     "direction": "short",
+     "pnl": -0.04
+    }
+   ],
+   "table": {
+    "realized_pnl": 0.0886,
+    "unrealized_pnl": null,
+    "fees": -0.03351461,
+    "funding": 0.0,
+    "api_cost_by_model": {
+     "gpt-6.1-sol": null,
+     "gpt-6.1-terra": null,
+     "gpt-6-luna": null,
+     "gpt-6-astra": null
+    },
+    "api_cost_total": null,
+    "net_after_costs": null,
+    "cum": {
+     "realized_pnl": 0.50319,
+     "unrealized_pnl": null,
+     "fees": -0.05462309,
+     "funding": -0.00530318,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": null,
+     "net_after_costs": null
+    }
+   }
   }
  ]
 }
