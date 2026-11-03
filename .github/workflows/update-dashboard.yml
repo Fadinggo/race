@@ -1,72 +1,52 @@
 name: Update trading dashboard
 
+# Pages-only deploy. The desktop (TraderDashPush) pushes data.json/history.json
+# to main; this workflow publishes them. It never reads OKX and uses no secrets.
 on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '*/30 * * * *'
   workflow_dispatch:
-    inputs:
-      bootstrap:
-        description: 'First connection only: create an authenticated checkpoint from the pending-connection snapshot'
-        required: true
-        default: false
-        type: boolean
 
 permissions: {}
 
 concurrency:
   group: race-dashboard-publish
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  collect:
+  build:
     if: github.repository == 'Fadinggo/race' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Check out the current main branch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: main
-          fetch-depth: 2
-          persist-credentials: true
+          fetch-depth: 1
+          persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.12'
-
-      - name: Verify the data and publication helpers
-        run: python -m unittest discover -s tests -p 'test_*.py'
-
-      - name: Read the two OKX accounts and preserve authenticated state
-        timeout-minutes: 4
-        env:
-          OKX_A_API_KEY: ${{ secrets.OKX_A_API_KEY }}
-          OKX_A_SECRET_KEY: ${{ secrets.OKX_A_SECRET_KEY }}
-          OKX_A_PASSPHRASE: ${{ secrets.OKX_A_PASSPHRASE }}
-          OKX_API_KEY: ${{ secrets.OKX_B_API_KEY }}
-          OKX_SECRET_KEY: ${{ secrets.OKX_B_SECRET_KEY }}
-          OKX_PASSPHRASE: ${{ secrets.OKX_B_PASSPHRASE }}
-          DASHBOARD_STATE_KEY: ${{ secrets.DASHBOARD_STATE_KEY }}
-          BOOTSTRAP: ${{ github.event_name == 'workflow_dispatch' && inputs.bootstrap && 'true' || 'false' }}
+      - name: Validate data.json and package the public site
         shell: bash
         run: |
-          arguments=()
-          if [[ "$BOOTSTRAP" == "true" ]]; then
-            arguments+=(--bootstrap)
-          fi
-          python scripts/gha_snapshot.py \
-            --config config.example.json \
-            --output "$GITHUB_WORKSPACE" \
-            --checkpoint "$GITHUB_WORKSPACE/state-checkpoint.json" \
-            --state-dir "$RUNNER_TEMP/race-private-state" \
-            "${arguments[@]}"
-
-      - name: Commit the three snapshot files and prepare the public site
-        run: >-
-          python scripts/gha_publish.py
-          --repo "$GITHUB_WORKSPACE"
-          --site-dir "$RUNNER_TEMP/race-pages"
+          python3 - <<'PY'
+          import json
+          d = json.load(open('data.json', encoding='utf-8-sig'))
+          assert isinstance(d.get('traders'), dict) and isinstance(d.get('trades'), list), 'bad data.json'
+          print('data.json updated:', d.get('generated_at'))
+          PY
+          site="$RUNNER_TEMP/race-pages"
+          mkdir -p "$site"
+          for f in index.html dashboard.js layout-v4.js data.json history.json .nojekyll; do
+            cp -- "$f" "$site/"
+          done
+          for f in notes.json watchlist.json; do
+            if [[ -f "$f" && ! -L "$f" ]]; then cp -- "$f" "$site/"; fi
+          done
 
       - name: Upload only the public website files
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
@@ -75,7 +55,7 @@ jobs:
           retention-days: 1
 
   deploy:
-    needs: collect
+    needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
