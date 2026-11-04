@@ -23,11 +23,12 @@ const assert=require('node:assert/strict');
   await page.setViewportSize({width,height:1080});
   await page.waitForTimeout(100);
   const result=await page.evaluate(()=>{
-   const box=id=>{const el=document.getElementById(id),r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,width:r.width,parent:el.parentElement.id,trader:el.parentElement.dataset.trader}};
+   const box=id=>{const el=document.getElementById(id),r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,parent:el.parentElement.id,trader:el.parentElement.dataset.trader}};
    const contentWidth=document.body.clientWidth;
    if(document.documentElement.scrollHeight<=innerHeight)throw new Error('Vertical scrollbar fixture is missing');
    const notes=Array.from(document.querySelectorAll('.notes-column .note'),el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right}});
-   return {a:box('notes-a'),b:box('notes-b'),cards:box('cards'),contentWidth,notes,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth};
+   const prev=document.getElementById('notes-shelf').previousElementSibling;
+   return {a:box('notes-a'),b:box('notes-b'),cards:box('cards'),contentWidth,notes,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,shelfAfter:prev.id||prev.className,ledgerTop:document.querySelector('.ledger-section').getBoundingClientRect().top};
   });
   assert.equal(result.overflow,false);
   if(width>=1900){
@@ -38,8 +39,14 @@ const assert=require('node:assert/strict');
    assert(result.a.width>=400 && result.a.width<=480);assert.equal(result.a.width,result.b.width);
    assert(result.cards.width>=880);if(width===2560)assert.equal(result.a.width,480);
    for(const note of result.notes){assert(note.left>=12);assert(note.right<=result.contentWidth-12);}
+   assert.equal(result.shelfAfter,'ledger-section');
   }
-  else {assert.equal(result.a.parent,'notes-shelf');assert.equal(result.b.parent,'notes-shelf');}
+  else {
+   assert.equal(result.a.parent,'notes-shelf');assert.equal(result.b.parent,'notes-shelf');
+   // Single column: trader cards, then notes, then the ledger, in DOM and on screen. Multi-column keeps notes below the ledger.
+   if(width<=760){assert.equal(result.shelfAfter,'cards');assert(result.cards.bottom<=result.a.top);assert(result.a.bottom<=result.b.top);assert(result.b.bottom<=result.ledgerTop);}
+   else assert.equal(result.shelfAfter,'ledger-section');
+  }
   console.log(width,JSON.stringify(result));
  }
  // A wide window with insufficient container space must still stack.
@@ -49,6 +56,7 @@ const assert=require('node:assert/strict');
  });
  assert.equal(await page.locator('#notes-a').evaluate(el=>el.parentElement.id),'notes-shelf');
  assert.equal(await page.locator('#notes-b').evaluate(el=>el.parentElement.id),'notes-shelf');
+ assert.equal(await page.locator('#notes-shelf').evaluate(el=>el.previousElementSibling.className),'ledger-section');
  console.log('1750px content container: stacked fallback passed');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

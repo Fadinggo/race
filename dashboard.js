@@ -384,6 +384,13 @@
     return pairSnapshot(data, history, previous);
   }
 
+  // Single-column layout lists the notes right after the trader cards; wider layouts keep them below the ledger.
+  function placeNotesShelf(shelf, cards, ledger, afterCards) {
+    const anchor = afterCards ? cards : ledger;
+    // Mobile scrolling fires resize; re-inserting an unmoved shelf would drop focus inside the notes.
+    if (shelf && anchor && anchor.nextElementSibling !== shelf) anchor.after(shelf);
+  }
+
   function start(doc) {
     const clock = doc.getElementById('clk');
     const status = doc.getElementById('data-status');
@@ -397,9 +404,12 @@
     const ledgerOpenGroups = new Set();
     let ledgerMode = 'all';
     const noteColumns = ['notes-a', 'notes-b'].map(id => doc.getElementById(id));
+    const ledger = doc.querySelector('.ledger-section');
     function placeNotes() {
       const shelf = doc.getElementById('notes-shelf');
-      const wideNotes = root.getComputedStyle(cards).getPropertyValue('--notes-sides').trim() === '1';
+      const style = root.getComputedStyle(cards);
+      const wideNotes = style.getPropertyValue('--notes-sides').trim() === '1';
+      placeNotesShelf(shelf, cards, ledger, style.getPropertyValue('--notes-after-cards').trim() === '1');
       noteColumns.forEach((node, index) => {
         const trader = index === 0 ? 'Grok-Trader-A' : 'Grok-Trader-B';
         const panel = Array.from(cards.children).find(item => item.dataset.trader === trader);
@@ -408,6 +418,8 @@
       });
     }
     root.addEventListener('resize', placeNotes);
+    // Notes load independently of the snapshot, so place them before the first refresh too.
+    placeNotes();
     doc.addEventListener('race:notes-updated', event => layout?.updateNotes(event.detail));
     ledgerFilters?.addEventListener('click', event => {
       const button = event.target.closest('button[data-ledger-mode]');
@@ -536,7 +548,7 @@
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
   }
 
-  const api = { number, timestamp, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair };
+  const api = { number, timestamp, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair, placeNotesShelf };
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
