@@ -6,15 +6,11 @@
 
 ## 固定架構與邊界
 
-- 正式觸發為 Work 原生雲端任務 `6ae3d47305848190bd4bbde68ad3b268`（Asia/Taipei 每小時 25 分）→ 固定 Issue #3 → GitHub relay 每輪最多 12 次、約五分鐘一次 → `update-dashboard.yml` 固定 main／bootstrap false 採集及直接部署 Pages。舊 `schedule` 區塊已移除，GitHub cron 並未取得恢復證據；詳見 `CLOUD-REFRESH.md`。
-- Work 與 GitHub 執行器不依賴本機程序；已驗證原生自動觸發及兩次連續更新，但尚未實際關閉使用者電腦測試，也未驗收整輪 12 次及後續每小時持續運行。沒有新增付費 API 服務；每小時 Work 執行會使用現有 Work／Codex 方案額度。
-- 採集器只讀資料，不負責機器人持續交易。交易服務另外管理。
-- A/B 為 `Grok-Trader-A`、`Grok-Trader-B`，使用者於 2026-10-30 明確確認兩者起始本金各 10 USDT；正式設定 `start: 10`，正常更新生效，不重新 bootstrap。
-- 七個 secrets 僅記名稱：`OKX_A_API_KEY`、`OKX_A_SECRET_KEY`、`OKX_A_PASSPHRASE`、`OKX_B_API_KEY`、`OKX_B_SECRET_KEY`、`OKX_B_PASSPHRASE`、`DASHBOARD_STATE_KEY`。B 在 workflow 已映射到既有 `OKX_API_KEY`、`OKX_SECRET_KEY`、`OKX_PASSPHRASE`。
-- Checkpoint 以獨立金鑰 HMAC 驗證，**不是加密**。公開儲存庫只有已允許公開觀測及不可逆識別代碼，不加入原始 UID、訂單／成交 ID 或秘密。
-- data/history/checkpoint 必須同 snapshot_id、同 commit。Pages 打包白名單是 index.html、dashboard.js、data.json、history.json、.nojekyll；首次實際 artifact 省略空白 .nojekyll，只有四個網站檔案，不含 checkpoint。
-- 日常 Run workflow 保持 bootstrap false。只有完整待連線配對可首次 bootstrap。驗簽失敗或缺檔不能刪除重設，需原金鑰與可信 commit 的同批次三檔恢復；換金鑰或帳戶須另定遷移方案。
-- Codex 不保留本機持續監控或排程；使用者已指定專家監督、Codex 實作維護，雲端派工的實際啟用狀態見 `MAINTENANCE.md`。run_sync.py 只是手動備援，不得未協調就與 Actions 同時推送。
+- 正式更新為桌機推送 `data.json`、`history.json` 到 `main`，`update-dashboard.yml` 驗證後部署 Pages，不讀 OKX、不使用 Secrets。原 Work／Issue #3 relay、雲端 OKX 採集、Secrets、checkpoint、bootstrap 與手動備援同步的架構說明：已於 2026-11-04 移除，舊版見 git 歷史。
+- 儀表板只讀資料，不負責機器人持續交易。交易服務另外管理。
+- A/B 為 `Grok-Trader-A`、`Grok-Trader-B`，使用者於 2026-10-30 明確確認兩者起始本金各 10 USDT。
+- Codex 不保留本機持續監控或排程；使用者已指定專家監督、Codex 實作維護，雲端派工的實際啟用狀態見 `MAINTENANCE.md`。
+- 以下初始驗收、排程修復與 Work 自動更新各段是雲端收集器時代的歷史觀測紀錄，保留作證據，不是現行操作說明。
 
 ## 初始驗收紀錄
 
@@ -40,9 +36,9 @@
 
 ## 日常處理順序
 
-1. 看 A/B 各自最後成功時間與錯誤，再依序核對 Work 任務、Issue #3 時間、relay 的 issues 事件，以及子 workflow_dispatch 結果。
-2. 區分 Work 喚醒、Issue 觸發、relay 派送、OKX 讀取、checkpoint、Git 推送與 Pages 部署，依 README 排查。工作綠色仍須確認派送數不為零、帳戶不是 error，且網站時間有前進。
-3. 必要時手動補更新，bootstrap false；修復後驗證線上新批次、成功時間前進及歷史延續。
+1. 看 A/B 各自最後成功時間與錯誤，再核對桌機是否有新的推送 commit，以及 `Update trading dashboard` 的 build/deploy 結果。
+2. 區分桌機推送與 Pages 部署，依 README 排查。工作綠色仍須確認帳戶不是 error，且網站時間有前進。
+3. 必要時手動 Run workflow 重新部署；修復後驗證線上資料時間前進及歷史延續。
 4. 涉及帳戶變更、狀態金鑰輪替、歷史重設或交易本身，另行確認授權與恢復方案。
 5. 維護紀錄只留時間、run URL、commit、固定錯誤碼、處理動作與驗收結果，不寫秘密或原始帳戶識別。
 ## 存取與維護現況

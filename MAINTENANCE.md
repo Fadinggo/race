@@ -8,7 +8,7 @@
 
 ## 分工與流程
 
-主管負責辨識問題、訂定允許修改範圍與驗收標準；Work 雲端工作負責實作、測試及回報；主管核對結果後決定接受或退回。正式網站的唯讀資料採集仍由既有 GitHub Actions 處理，資料更新備援見 [CLOUD-REFRESH.md](CLOUD-REFRESH.md)。
+主管負責辨識問題、訂定允許修改範圍與驗收標準；Work 雲端工作負責實作、測試及回報；主管核對結果後決定接受或退回。正式網站資料由桌機推送、GitHub Actions 部署 Pages；原 GitHub Actions 雲端採集與資料更新備援：已於 2026-11-04 移除，舊版見 git 歷史。
 
 1. 主管使用已連接的 GitHub 帳戶在 `Fadinggo/race` 建立 Issue，加入 `codex-maintenance` 標籤，並放入下列唯一一段工單 JSON。
 2. `maintenance-dispatch.yml` 驗證儲存庫、作者、觸發者與工單格式，從最新 `main` 建立 `codex/maintenance-N`，只新增不可變更的工單檔案，並在 Issue 留下準備完成回條與初始 commit。
