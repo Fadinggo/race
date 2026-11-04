@@ -16,8 +16,13 @@
    "created_ts": 1793555353,
    "expires_ts": 1793641753,
    "ref_price": 77984.3,
-   "outcome": null,
-   "status": "active"
+   "outcome": {
+    "price_at_expiry": 76862.4,
+    "change_pct": -1.439,
+    "verdict": "hit",
+    "review": "自動檢討：做空觀察，參考價 77984.3 → 到期價 76862.4（-1.44%），判斷準確。"
+   },
+   "status": "expired"
   },
   {
    "id": "A-20261102-0149-HYPE",
@@ -34,8 +39,13 @@
    "created_ts": 1793555353,
    "expires_ts": 1793641753,
    "ref_price": 88.023,
-   "outcome": null,
-   "status": "active"
+   "outcome": {
+    "price_at_expiry": 83.997,
+    "change_pct": -4.574,
+    "verdict": "miss",
+    "review": "自動檢討：做多觀察，參考價 88.023 → 到期價 83.997（-4.57%），判斷錯誤。"
+   },
+   "status": "expired"
   },
   {
    "id": "B-20261102-0148-BTC",
@@ -52,8 +62,13 @@
    "created_ts": 1793555322,
    "expires_ts": 1793641722,
    "ref_price": 78016.6,
-   "outcome": null,
-   "status": "active"
+   "outcome": {
+    "price_at_expiry": 76827.6,
+    "change_pct": -1.524,
+    "verdict": "hit",
+    "review": "自動檢討：做空觀察，參考價 78016.6 → 到期價 76827.6（-1.52%），判斷準確。"
+   },
+   "status": "expired"
   },
   {
    "id": "B-20261102-0148-HYPE",
@@ -70,8 +85,13 @@
    "created_ts": 1793555322,
    "expires_ts": 1793641722,
    "ref_price": 88.17,
-   "outcome": null,
-   "status": "active"
+   "outcome": {
+    "price_at_expiry": 83.944,
+    "change_pct": -4.793,
+    "verdict": "miss",
+    "review": "自動檢討：做多觀察，參考價 88.17 → 到期價 83.944（-4.79%），判斷錯誤。"
+   },
+   "status": "expired"
   }
  ]
 }
