@@ -3,6 +3,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const dashboard = require('../dashboard.js');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const now = Date.parse('2026-10-30T03:00:00+08:00');
 const makeData = (overrides = {}) => ({
@@ -312,4 +314,40 @@ test('the top update line follows data.json generated_at, not the page-open time
   // Editing generated_at and reloading changes the line; the collector's epoch seconds work too.
   assert.deepEqual(shown('2026-10-30T02:00:00+08:00'), ['資料更新時間 10/30 02:00', 'data-updated neg']);
   assert.deepEqual(shown((now - 60000) / 1000), ['資料更新時間 10/30 02:59', 'data-updated']);
+});
+
+test('notes shelf moves right after the trader cards in single-column layout and back below the ledger otherwise', () => {
+  // .wrap children in index.html order, with only the sibling API placeNotesShelf uses.
+  const wrap = [];
+  let moves = 0;
+  const block = id => ({
+    id,
+    get nextElementSibling() { return wrap[wrap.indexOf(this) + 1] || null; },
+    after(node) {
+      moves++;
+      wrap.splice(wrap.indexOf(node), 1);
+      wrap.splice(wrap.indexOf(this) + 1, 0, node);
+    }
+  });
+  wrap.push(...['cards', 'positions', 'watchlist', 'chart', 'ledger', 'notes-shelf'].map(block));
+  const [cards, ledger, shelf] = ['cards', 'ledger', 'notes-shelf'].map(id => wrap.find(node => node.id === id));
+  const state = () => [wrap.map(node => node.id).join(' > '), moves];
+  dashboard.placeNotesShelf(shelf, cards, ledger, false);
+  assert.deepEqual(state(), ['cards > positions > watchlist > chart > ledger > notes-shelf', 0]);
+  dashboard.placeNotesShelf(shelf, cards, ledger, true);
+  // A second resize in the same layout must not re-insert the shelf.
+  dashboard.placeNotesShelf(shelf, cards, ledger, true);
+  assert.deepEqual(state(), ['cards > notes-shelf > positions > watchlist > chart > ledger', 1]);
+  dashboard.placeNotesShelf(shelf, cards, ledger, false);
+  assert.deepEqual(state(), ['cards > positions > watchlist > chart > ledger > notes-shelf', 2]);
+});
+
+test('index.html sets notes-after-cards only in the one-column rule and lists the notes shelf after the ledger', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const flagged = html.split('\n').filter(line => line.includes('--notes-after-cards'));
+  assert.equal(flagged.length, 1);
+  assert.match(flagged[0], /^@media\(max-width:760px\)\{.*\.cards,\.notes-shelf\{grid-template-columns:1fr;/);
+  // Multi-column layouts keep this static order: trader cards, ..., ledger, then the notes shelf.
+  const [cards, ledger, shelf] = ['id="cards"', 'class="ledger-section"', 'id="notes-shelf"'].map(marker => html.indexOf(marker));
+  assert.ok(cards >= 0 && cards < ledger && ledger < shelf);
 });
