@@ -3,6 +3,7 @@
 
   const REFRESH_MS = 30000;
   const STALE_MS = 15 * 60000;
+  const SNAPSHOT_STALE_MS = 30 * 60000;
   const TIME_ZONE = 'Asia/Taipei';
   const FAILED_STATES = new Set(['error', 'failed', 'unavailable', 'not_connected', 'not_configured', 'pending']);
   const colors = ['#00f0ff', '#ff2bd6', '#39ff88', '#7a5cff'];
@@ -33,6 +34,22 @@
     return value === null ? '尚無成功更新' : new Date(value).toLocaleString('zh-TW', {
       timeZone: TIME_ZONE, hour12: false
     });
+  }
+
+  // formatToParts keeps MM/DD HH:mm free of locale punctuation; h23 avoids "24:05" after midnight.
+  const SHORT_TIME = new Intl.DateTimeFormat('en-US', {
+    timeZone: TIME_ZONE, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+  });
+
+  function shortTaipeiTime(value) {
+    const parts = Object.fromEntries(SHORT_TIME.formatToParts(value).map(part => [part.type, part.value]));
+    return `${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
+  }
+
+  // Top line: when data.json was generated; red once that is over 30 minutes ago or unknown.
+  function renderUpdated(node, generatedAt, now = Date.now()) {
+    node.textContent = '資料更新時間 ' + (generatedAt === null ? '—' : shortTaipeiTime(generatedAt));
+    node.className = generatedAt === null || now - generatedAt > SNAPSHOT_STALE_MS ? 'data-updated neg' : 'data-updated';
   }
 
   function day(value) {
@@ -132,7 +149,8 @@
     const staleAfterMs = configuredStaleSeconds !== null && configuredStaleSeconds >= 60 && configuredStaleSeconds <= 3600
       ? configuredStaleSeconds * 1000 : STALE_MS;
     return {
-      snapshotId: dataId, updated: timestamp(data.updated), source: String(data.source ?? ''),
+      snapshotId: dataId, updated: timestamp(data.updated), generatedAt: timestamp(data.generated_at),
+      source: String(data.source ?? ''),
       staleAfterMs, traders, trades: trades.sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0)), series
     };
   }
@@ -369,6 +387,7 @@
   function start(doc) {
     const clock = doc.getElementById('clk');
     const status = doc.getElementById('data-status');
+    const updatedLine = doc.getElementById('data-updated');
     const cards = doc.getElementById('cards');
     const rows = doc.getElementById('rows');
     const chartStatus = doc.getElementById('chart-status');
@@ -411,6 +430,8 @@
         status.className = `data-status ${lastError ? 'neg' : 'muted'}`;
         return;
       }
+      // Runs every second, so the line turns red after 30 minutes even if refreshes keep failing.
+      if (updatedLine) renderUpdated(updatedLine, current.generatedAt);
       const states = current.traders.map(trader => freshness(trader, Date.now(), current.staleAfterMs));
       const allFresh = states.every(state => state.className === 'pos');
       status.textContent = `${current.updated === null ? '尚無成功更新' : '資料更新：' + taipeiTime(current.updated) + ' 台灣'} ／ ` +
@@ -515,7 +536,7 @@
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
   }
 
-  const api = { number, timestamp, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair };
+  const api = { number, timestamp, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair };
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));

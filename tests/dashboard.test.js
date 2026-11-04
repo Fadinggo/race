@@ -281,3 +281,35 @@ test('an account read failure preserves cumulative values and their last update 
   assert.equal(next.fundingTotal, 0);
   assert.equal(next.totalsUpdated, now);
 });
+
+test('the top update line formats the snapshot time as MM/DD HH:mm in Asia/Taipei', () => {
+  assert.equal(dashboard.shortTaipeiTime(Date.parse('2026-11-04T19:05:00+08:00')), '11/04 19:05');
+  // 16:30 UTC is already 00:30 on the next day in Taipei: 24-hour clock, zero-padded.
+  assert.equal(dashboard.shortTaipeiTime(Date.parse('2026-11-04T16:30:00Z')), '11/05 00:30');
+  assert.equal(dashboard.shortTaipeiTime(Date.parse('2026-01-02T03:04:59+08:00')), '01/02 03:04');
+});
+
+test('the top update line turns red only when the snapshot is over 30 minutes old or has no time', () => {
+  const line = {};
+  dashboard.renderUpdated(line, now - 30 * 60000, now);
+  assert.deepEqual([line.textContent, line.className], ['資料更新時間 10/30 02:30', 'data-updated']);
+  dashboard.renderUpdated(line, now - 30 * 60000 - 1, now);
+  assert.equal(line.className, 'data-updated neg');
+  // Without generated_at the push time is unknown; the trader-based updated field is not a substitute.
+  dashboard.renderUpdated(line, dashboard.pairSnapshot(makeData(), makeHistory()).generatedAt, now);
+  assert.deepEqual([line.textContent, line.className], ['資料更新時間 —', 'data-updated neg']);
+});
+
+test('the top update line follows data.json generated_at, not the page-open time', () => {
+  const line = {};
+  const shown = generatedAt => {
+    const snapshot = dashboard.pairSnapshot(makeData({ generated_at: generatedAt }), makeHistory());
+    dashboard.renderUpdated(line, snapshot.generatedAt, now);
+    return [line.textContent, line.className];
+  };
+  // The page opens at now (10/30 03:00), which is also updated in makeData; neither is shown.
+  assert.deepEqual(shown('2026-10-30T02:48:00+08:00'), ['資料更新時間 10/30 02:48', 'data-updated']);
+  // Editing generated_at and reloading changes the line; the collector's epoch seconds work too.
+  assert.deepEqual(shown('2026-10-30T02:00:00+08:00'), ['資料更新時間 10/30 02:00', 'data-updated neg']);
+  assert.deepEqual(shown((now - 60000) / 1000), ['資料更新時間 10/30 02:59', 'data-updated']);
+});
