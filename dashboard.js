@@ -108,6 +108,8 @@
       trader: String(raw.trader ?? ''), timestamp: timestamp(raw.ts) ?? timestamp(raw.time),
       time: String(raw.time ?? ''), timeLabel: typeof raw.time_label === 'string' ? raw.time_label : '',
       market: String(raw.market ?? '').trim() || '—', side: String(raw.side ?? ''), event: String(raw.event ?? ''),
+      tradeId: typeof raw.trade_id === 'string' || typeof raw.trade_id === 'number' ? String(raw.trade_id) : '',
+      heldSeconds: number(raw.held_seconds),
       price: raw.price === null || raw.price === undefined ? '—' : String(raw.price),
       qty: raw.qty === null || raw.qty === undefined ? '—' : String(raw.qty),
       pnl: number(raw.pnl),

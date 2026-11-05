@@ -189,6 +189,74 @@ test('positions render A and B as separate blocks with collapsed details and hon
   assert.equal(node.querySelectorAll('details').every(detail => !detail.open), true);
 });
 
+test('recent transactions pair events including partial closes and show matching notes as literal text', () => {
+  const dashboard = require('../dashboard.js');
+  const raw = (changes = {}) => ({ trader: traderA, trade_id: 'fixture-one', market: 'ETH-USDT-SWAP', side: 'long',
+    ts: now / 1000 - 90000, event: 'open', time_label: '開倉時間', price: 2500, qty: '2 張', ...changes });
+  const trades = [raw(), raw({ event: 'partial_close', ts: now / 1000 - 1800, time_label: '減倉時間', price: 2510, pnl: 0.1, held_seconds: 88200 }),
+    raw({ event: 'close', ts: now / 1000 - 600, time_label: '平倉時間', price: 2520, pnl: -0.22345, held_seconds: 89400 }),
+    raw({ trader: traderB, trade_id: 'other', ts: now / 1000 - 60, time_label: '乙時間' })];
+  const data = { snapshot_id: 'fixture', source: 'own-okx-readonly', trades, traders: {
+    [traderA]: { positions: [] }, [traderB]: { positions: [] }
+  } };
+  const normalized = dashboard.pairSnapshot(data, { snapshot_id: 'fixture', series: {} });
+  const entry = open({ ts: trades[0].ts, reasons: { ...open().reasons, key_levels: '<img src=x>突破' } });
+  const { trader, kind, ts, ...review } = open();
+  const exit = { trader, kind: 'close', ts: trades[2].ts, review, variance: { right: '按計畫出場', wrong: '太早', lesson: '等待確認' } };
+  const doc = makeDocument();
+  layout.renderPositions(doc, doc.nodes.positions, normalized, [entry, exit], now);
+  const blocks = doc.nodes.positions.children;
+  assert.match(blocks[0].textContent, /空手（過去 24 小時 1 筆交易）/);
+  assert.match(blocks[1].textContent, /空手（過去 24 小時 1 筆交易）/);
+  assert.doesNotMatch(blocks[0].textContent, /乙時間/);
+  const detail = blocks[0].querySelector('details');
+  assert.doesNotMatch(detail.dataset.layoutKey, /fixture-one/);
+  assert.match(detail.textContent, /開倉時間 → 減倉時間 → 平倉時間/);
+  assert.match(detail.textContent, /2500 → 2510 \/ 2520/);
+  assert.match(detail.textContent, /數量 2 張/);
+  assert.match(detail.textContent, /淨損益 -0\.1235/);
+  assert.match(detail.textContent, /持有時間 24 小時 50 分/);
+  assert.match(detail.textContent, /<img src=x>突破/);
+  assert.match(detail.textContent, /按計畫出場/);
+  assert.match(detail.textContent, /等待確認/);
+  assert.doesNotMatch(detail.textContent, /停損|停利|2400|2700/);
+  assert.equal(doc.nodes.positions.querySelectorAll('img').length, 0);
+  assert.equal(detail.querySelector('.neg').textContent.includes('-0.1235'), true);
+  detail.open = true;
+  layout.renderPositions(doc, doc.nodes.positions, normalized, [entry, exit], now);
+  assert.equal(doc.nodes.positions.children[0].querySelector('details').open, true);
+  normalized.trades.find(event => event.event === 'partial_close').pnlCurrency = 'USD';
+  normalized.trades.find(event => event.event === 'close').pnlCurrency = 'USDT';
+  layout.renderPositions(doc, doc.nodes.positions, normalized, [entry, exit], now);
+  assert.match(doc.nodes.positions.children[0].textContent, /淨損益 —/);
+});
+
+test('recent transaction boundary, open status, missing notes and old snapshots are safe', () => {
+  const dashboard = require('../dashboard.js');
+  const raw = (id, ts, overrides = {}) => ({ trader: traderA, trade_id: id, market: 'ETH-USDT-SWAP', side: 'long',
+    ts: ts / 1000, event: 'open', time_label: id, price: 2500, qty: 1, ...overrides });
+  const data = { snapshot_id: 'fixture', source: 'own-okx-readonly', traders: {
+    [traderA]: { positions: [] }, [traderB]: { positions: [] }
+  }, trades: [raw('boundary', now - 86400000), raw('too-old', now - 86400001), raw('future', now + 1),
+    raw('closed', now - 1000, { event: 'close', pnl: 1.25, held_seconds: 120 })] };
+  const normalized = dashboard.pairSnapshot(data, { snapshot_id: 'fixture', series: {} });
+  const doc = makeDocument();
+  layout.renderPositions(doc, doc.nodes.positions, normalized, [open({ trader: traderB, ts: (now - 86400000) / 1000 }),
+    open({ instrument: 'BTC-USDT-SWAP', ts: (now - 86400000) / 1000 }), open({ ts: (now - 86400000) / 1000 + 901 })], now);
+  const a = doc.nodes.positions.children[0];
+  assert.match(a.textContent, /空手（過去 24 小時 2 筆交易）/);
+  assert.match(a.textContent, /boundary/);
+  assert.doesNotMatch(a.textContent, /too-old|future|支撐守住/);
+  assert.match(a.textContent, /持倉中/);
+  assert.match(a.textContent, /交易心得—/);
+  assert.equal(a.querySelector('.pos').textContent.includes('1.2500'), true);
+  assert.match(doc.nodes.positions.children[1].textContent, /過去 24 小時沒有交易/);
+  data.trades = [{ trader: traderA, time: '2026-11-01 13:59:00', market: 'ETH-USDT-SWAP' }];
+  const legacy = dashboard.pairSnapshot(data, { snapshot_id: 'fixture', series: {} });
+  assert.doesNotThrow(() => layout.renderPositions(doc, doc.nodes.positions, legacy, [], now));
+  assert.match(doc.nodes.positions.children[0].textContent, /過去 24 小時沒有交易/);
+});
+
 test('positions show no-explanation fallback and render markup only as text', () => {
   const doc = makeDocument();
   const attack = '<img src=x onerror=alert(1)>';
