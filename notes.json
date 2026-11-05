@@ -1206,6 +1206,66 @@
      "net_after_costs": null
     }
    }
+  },
+  {
+   "trader": "Grok-Trader-A",
+   "ts": 1793896536.568,
+   "kind": "daily_settlement",
+   "date": "2026-11-05",
+   "trades": [],
+   "table": {
+    "realized_pnl": 0,
+    "unrealized_pnl": null,
+    "fees": 0,
+    "funding": 0.0,
+    "api_cost_by_model": {},
+    "api_cost_total": null,
+    "net_after_costs": null,
+    "cum": {
+     "realized_pnl": 0.0,
+     "unrealized_pnl": null,
+     "fees": 0.0,
+     "funding": 0.00494017,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": 10.51256,
+     "net_after_costs": -10.50761983
+    }
+   }
+  },
+  {
+   "trader": "Grok-Trader-B",
+   "ts": 1793896536.568,
+   "kind": "daily_settlement",
+   "date": "2026-11-05",
+   "trades": [],
+   "table": {
+    "realized_pnl": 0,
+    "unrealized_pnl": null,
+    "fees": 0,
+    "funding": 0.0,
+    "api_cost_by_model": {},
+    "api_cost_total": null,
+    "net_after_costs": null,
+    "cum": {
+     "realized_pnl": 0.0,
+     "unrealized_pnl": null,
+     "fees": 0.0,
+     "funding": -0.00530318,
+     "api_cost_by_model": {
+      "gpt-6-astra": null,
+      "gpt-6.1-sol": null,
+      "gpt-6.1-terra": null,
+      "gpt-6-luna": null
+     },
+     "api_cost_total": null,
+     "net_after_costs": null
+    }
+   }
   }
  ]
 }
