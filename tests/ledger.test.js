@@ -57,7 +57,7 @@ test('trader grouping sums fees and PNL with newest group first and never mutate
   assert.deepEqual(grouped.map(item => item.label), ['Grok-Trader-A', 'Grok-Trader-B']);
   assert.equal(grouped[0].trades.length, 2);
   assert.equal(grouped[0].pnl, '+6 USDT');
-  assert.equal(grouped[0].fees, '-0.08 USDT');
+  assert.equal(grouped[0].fees, '+0.08 USDT');
   assert.equal(JSON.stringify(trades), before);
 });
 
@@ -76,6 +76,24 @@ test('open/close grouping recognizes normal closes and liquidations while preser
   assert.deepEqual(grouped.map(item => [item.label, item.trades.length]), [['其他', 1], ['平倉', 3], ['開倉', 1]]);
 });
 
+test('normalized events group by action and side, with missing markets grouped together', () => {
+  const snapshot = dashboard.pairSnapshot({
+    snapshot_id: 'fixture', source: 'own-okx-readonly', traders: { 'Grok-Trader-A': {} },
+    trades: [
+      { trader: 'Grok-Trader-A', event: 'open', side: 'long', market: '' },
+      { trader: 'Grok-Trader-A', event: 'close', side: 'short', market: '—' }
+    ]
+  }, { snapshot_id: 'fixture', series: {} });
+  assert.deepEqual(dashboard.groupTrades(snapshot.trades, 'action').map(group => group.label), ['平倉 short', '開倉 long']);
+  assert.deepEqual(dashboard.groupTrades(snapshot.trades, 'market').map(group => [group.label, group.trades.length]), [['幣種未提供', 2]]);
+});
+
+test('positive fee costs display negative totals and negative fees display rebates', () => {
+  const groups = dashboard.groupTrades([trade({ fee: 0.3 }), trade({ trader: 'Grok-Trader-B', fee: -0.1 })], 'trader');
+  assert.equal(groups[0].fees, '+0.1 USDT');
+  assert.equal(groups[1].fees, '-0.3 USDT');
+});
+
 test('profit/loss grouping keeps break-even and unknown PNL distinct', () => {
   const grouped = dashboard.groupTrades([
     trade({ pnl: 0 }), trade({ pnl: 1 }), trade({ pnl: -1 }), trade({ pnl: null })
@@ -91,8 +109,8 @@ test('totals preserve mixed currency units and explicitly mark unknown amounts',
   assert.match(group.pnl, /0.002 BTC/);
   assert.match(group.pnl, /2 USDT/);
   assert.match(group.pnl, /資料不完整/);
-  assert.match(group.fees, /0.0001 BTC/);
-  assert.match(group.fees, /-0.1 USDT/);
+  assert.match(group.fees, /-0.0001 BTC/);
+  assert.match(group.fees, /\+0.1 USDT/);
   assert.match(group.fees, /資料不完整/);
   assert.equal(dashboard.groupTrades([trade({ pnl: null })], 'trader')[0].pnl, '—（資料不完整）');
 });
@@ -116,7 +134,7 @@ test('group button expands fills, reports totals and retains expansion on refres
   dashboard.renderGroupedRows(doc, container, trades, 'trader', opened);
   let button = nodes(container).find(node => node.tagName === 'button');
   assert.equal(button.attributes['aria-expanded'], 'false');
-  assert.match(button.textContent, /2 筆・合計損益 \+5 USDT・合計手續費 -0.2 USDT/);
+  assert.match(button.textContent, /2 筆・合計損益 \+5 USDT・合計手續費 \+0.2 USDT/);
   assert.ok(container.children.slice(1).every(line => line.hidden));
   button.click();
   assert.equal(button.attributes['aria-expanded'], 'true');

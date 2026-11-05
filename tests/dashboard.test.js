@@ -178,10 +178,10 @@ test('renders each fill PNL in its own settlement currency and never assumes USD
   const container = new TextNode('tbody');
   dashboard.renderRows(documentSink, container, snapshot.trades);
   const pnlCells = descendants(container).filter(node => node.tagName === 'td').map(node => node.textContent);
-  assert.ok(pnlCells.includes('0 USDT'));
-  assert.ok(pnlCells.includes('0.002 BTC'));
-  assert.ok(pnlCells.includes('5 幣別未提供'));
-  assert.equal(pnlCells.includes('5 USDT'), false);
+  assert.ok(pnlCells.includes('0.0000 USDT'));
+  assert.ok(pnlCells.includes('0.0020 BTC'));
+  assert.ok(pnlCells.includes('5.0000 幣別未提供'));
+  assert.equal(pnlCells.includes('5.0000 USDT'), false);
 });
 
 test('a failed HTTP response or mixed pair cannot replace the previous snapshot', async () => {
@@ -350,4 +350,97 @@ test('index.html sets notes-after-cards only in the one-column rule and lists th
   // Multi-column layouts keep this static order: trader cards, ..., ledger, then the notes shelf.
   const [cards, ledger, shelf] = ['id="cards"', 'class="ledger-section"', 'id="notes-shelf"'].map(marker => html.indexOf(marker));
   assert.ok(cards >= 0 && cards < ledger && ledger < shelf);
+});
+
+test('new account fields display separate trading PNL and AI costs for both traders', () => {
+  const data = makeData();
+  for (const [index, trader] of Object.values(data.traders).entries()) Object.assign(trader, {
+    net_pnl_usdt: index ? -0.1234 : 0.25, net_after_api_usd: -10.5,
+    api_cost_total_usd: index ? 0 : 10.51256, api_cost_gpt_usd: index ? 0 : 10.5,
+    api_cost_claude_usd: index ? 0 : 0.01256, api_cost_updated: Date.parse('2026-11-04T16:05:06Z') / 1000,
+    api_cost_note: '過時的淨損益說明', api_cost_is_account_debit: index ? true : false, fees_total: index ? -0.2 : -0.3,
+    totals_since: now / 1000, totals_status: 'complete', fees_total_partial: false
+  });
+  const snapshot = dashboard.pairSnapshot(data, makeHistory());
+  for (const [index, trader] of snapshot.traders.entries()) {
+    const card = dashboard.renderCard(documentSink, trader, [], now);
+    const values = new Map(card.children.filter(node => node.className === 'row')
+      .map(node => node.children.map(child => child.textContent)));
+    assert.equal(values.get('交易損益'), index ? '-0.1234 USDT' : '+0.2500 USDT');
+    assert.equal(values.get('AI 花費（另計）'), index ? '0.0000 USD' : '10.5126 USD');
+    assert.ok([...values.keys()].indexOf('交易損益') < [...values.keys()].indexOf('AI 花費（另計）'));
+    assert.match(card.textContent, index ? /GPT 0\.0000 USD／Claude 0\.0000 USD/ : /GPT 10\.5000 USD／Claude 0\.0126 USD/);
+    assert.match(card.textContent, /資料時間 2026\/11\/5.*00:05:06.*台灣/);
+    assert.equal(card.textContent.includes('AI 額度的花費，不從交易帳戶扣'), !index);
+    assert.doesNotMatch(card.textContent, /過時的淨損益說明|累計 API 花費/);
+    assert.match(values.get('全局累計手續費'), /^-0\.[23]00 USDT/);
+    assert.equal(card.children.find(node => node.className === 'settlement-summary'), undefined);
+    assert.doesNotMatch(card.textContent, /未知|交易員填報|扣除 API 後淨損益|-10\.5 USDT/);
+  }
+  data.traders['Grok-Trader-A'].api_cost_total_usd = null;
+  const missing = dashboard.renderCard(documentSink, dashboard.pairSnapshot(data, makeHistory()).traders[0], [], now);
+  assert.ok(missing.textContent.includes('AI 花費（另計）—'));
+  assert.equal(missing.children.some(node => node.className === 'settlement-summary'), false);
+});
+
+test('new opening counts override recent event counts and partial markers, including zero', () => {
+  const data = makeData({ trades: Array.from({ length: 12 }, (_, i) => ({
+    trader: 'Grok-Trader-A', ts: (now - i * 60000) / 1000, event: i % 2 ? 'close' : 'open'
+  })) });
+  Object.assign(data.traders['Grok-Trader-A'], { opened_today: 6, opened_last_hour: 0, opened_counted_at: now / 1000, fills_partial: true });
+  const snapshot = dashboard.pairSnapshot(data, makeHistory());
+  const view = dashboard.traderView(snapshot.traders[0], snapshot.trades, now);
+  assert.equal(view.today, '6');
+  assert.equal(view.lastHour, '0');
+  const card = dashboard.renderCard(documentSink, snapshot.traders[0], snapshot.trades, now);
+  assert.match(card.textContent, /今日筆數6近 1 小時0/);
+});
+
+test('opening counts expire at Taipei midnight and require a valid epoch-seconds timestamp', () => {
+  const midnight = Date.parse('2026-10-30T00:00:00+08:00');
+  const data = makeData({ trades: [{ trader: 'Grok-Trader-A', ts: (midnight - 60000) / 1000 }] });
+  const trader = data.traders['Grok-Trader-A'];
+  Object.assign(trader, { opened_today: 9, opened_last_hour: 8, opened_counted_at: (midnight - 1000) / 1000 });
+  let snapshot = dashboard.pairSnapshot(data, makeHistory());
+  assert.equal(dashboard.traderView(snapshot.traders[0], snapshot.trades, midnight - 1).today, '9');
+  assert.equal(dashboard.traderView(snapshot.traders[0], snapshot.trades, midnight).today, '0');
+  assert.equal(dashboard.traderView(snapshot.traders[0], snapshot.trades, midnight).lastHour, '1');
+  for (const invalid of [null, 'bad', 253402300800, midnight]) {
+    trader.opened_counted_at = invalid;
+    snapshot = dashboard.pairSnapshot(data, makeHistory());
+    assert.equal(dashboard.traderView(snapshot.traders[0], snapshot.trades, midnight).today, '0');
+  }
+});
+
+test('position card uses the position section precision and avoids missing-unit wording', () => {
+  const data = makeData();
+  Object.assign(data.traders['Grok-Trader-A'], { currency: null, positions: [
+    { inst: 'ETH', side: 'long', sz: 1, avgPx: 2, upl: -0.12345678 }
+  ] });
+  const card = dashboard.renderCard(documentSink, dashboard.pairSnapshot(data, makeHistory()).traders[0], [], now);
+  const line = card.children.find(node => node.className === 'row position-row');
+  assert.equal(line.children[1].textContent, '-0.12345678 —');
+  assert.doesNotMatch(line.textContent, /未提供|（—）/);
+});
+
+test('new ledger rows use Taipei labels, four decimals, close price and quantity, and a nonempty market', () => {
+  const data = makeData({ trades: [{ trader: 'Grok-Trader-A', ts: now / 1000, time_label: '10/30 03:00:00',
+    event: 'close', market: '', side: '平多', price: 123.45, qty: '2 張', pnl: -0.123456, pnl_ccy: 'USDT' }] });
+  const snapshot = dashboard.pairSnapshot(data, makeHistory());
+  const container = new TextNode('tbody');
+  dashboard.renderRows(documentSink, container, snapshot.trades);
+  const cells = descendants(container).filter(node => node.tagName === 'td').map(node => node.textContent);
+  assert.deepEqual(cells.slice(0, 7), ['10/30 03:00:00', 'Grok-Trader-A', '—', '平多', '123.45', '2 張', '-0.1235 USDT']);
+});
+
+test('legacy account and ledger fields retain their existing fallback paths', () => {
+  const data = makeData({ trades: [{ trader: 'Grok-Trader-A', ts: now / 1000, time: '2026-10-30 03:00:00', market: 'ETH-USDT-SWAP' }] });
+  data.traders['Grok-Trader-A'].fills_partial = true;
+  const snapshot = dashboard.pairSnapshot(data, makeHistory());
+  assert.equal(dashboard.traderView(snapshot.traders[0], snapshot.trades, now).today, '≥1');
+  const card = dashboard.renderCard(documentSink, snapshot.traders[0], snapshot.trades, now);
+  assert.ok(card.children.some(node => node.className === 'settlement-summary'));
+  const container = new TextNode('tbody');
+  dashboard.renderRows(documentSink, container, snapshot.trades);
+  assert.match(container.textContent, /03:00:00/);
 });

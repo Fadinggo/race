@@ -74,9 +74,19 @@
       feesTotalPartial: !hasTotalsMetadata || raw.fees_total_partial !== false,
       fundingTotalPartial: !hasTotalsMetadata || raw.funding_total_partial !== false,
       fillsPartial: raw.fills_partial === true,
+      openedToday: number(raw.opened_today), openedLastHour: number(raw.opened_last_hour),
+      openedCountedAt: number(raw.opened_counted_at) > 0 && number(raw.opened_counted_at) <= 253402300799
+        ? number(raw.opened_counted_at) * 1000 : null,
+      hasApiCost: Object.hasOwn(raw, 'api_cost_total_usd'),
+      apiCostTotal: number(raw.api_cost_total_usd), apiCostGpt: number(raw.api_cost_gpt_usd),
+      apiCostClaude: number(raw.api_cost_claude_usd), apiCostUpdated: timestamp(raw.api_cost_updated),
+      apiCostIsAccountDebit: raw.api_cost_is_account_debit,
+      netPnl: number(raw.net_pnl_usdt),
       positions: Array.isArray(raw.positions) ? raw.positions.filter(record).map(position => ({
         inst: String(position.inst ?? ''), side: String(position.side ?? ''),
         size: number(position.sz), averagePrice: number(position.avgPx), upl: number(position.upl),
+        markPrice: number(position.markPx), heldSeconds: number(position.held_seconds),
+        reason: typeof position.reason === 'string' ? position.reason : '',
         unit: typeof (position.qty_unit ?? position.unit) === 'string' ? (position.qty_unit ?? position.unit) : null,
         uplCurrency: typeof (position.upl_ccy ?? position.currency) === 'string' ? (position.upl_ccy ?? position.currency) : null
       })) : null
@@ -92,7 +102,8 @@
     if (!record(raw)) throw new Error('Invalid trade');
     return {
       trader: String(raw.trader ?? ''), timestamp: timestamp(raw.ts) ?? timestamp(raw.time),
-      time: String(raw.time ?? ''), market: String(raw.market ?? ''), side: String(raw.side ?? ''),
+      time: String(raw.time ?? ''), timeLabel: typeof raw.time_label === 'string' ? raw.time_label : '',
+      market: String(raw.market ?? '').trim() || '—', side: String(raw.side ?? ''), event: String(raw.event ?? ''),
       price: raw.price === null || raw.price === undefined ? '—' : String(raw.price),
       qty: raw.qty === null || raw.qty === undefined ? '—' : String(raw.qty),
       pnl: number(raw.pnl),
@@ -189,6 +200,7 @@
     const lowerBound = trader.fillsPartial ? '≥' : '';
     const roi = trader.equity !== null && trader.start !== null && trader.start > 0
       ? (trader.equity / trader.start - 1) * 100 : null;
+    const countsCurrent = trader.openedCountedAt != null && day(trader.openedCountedAt) === day(now);
     return {
       roi,
       roiText: roi === null ? (trader.start === null ? '—（本金未確認）'
@@ -196,9 +208,9 @@
         : `${roi >= 0 ? '+' : ''}${roi.toFixed(2)}%`,
       total: trader.fillsTotal === null ? '—（partial／待補齊）'
         : `${trader.fillsTotalPartial ? '≥' : ''}${trader.fillsTotal}${trader.fillsTotalPartial ? '（partial／資料不完整）' : ''}`,
-      today: known ? lowerBound + String(ownTrades.filter(trade => trade.timestamp !== null &&
+      today: countsCurrent && trader.openedToday != null ? String(trader.openedToday) : known ? lowerBound + String(ownTrades.filter(trade => trade.timestamp !== null &&
         trade.timestamp <= now && day(trade.timestamp) === day(now)).length) : '—',
-      lastHour: known ? lowerBound + String(ownTrades.filter(trade => trade.timestamp !== null &&
+      lastHour: countsCurrent && trader.openedLastHour != null ? String(trader.openedLastHour) : known ? lowerBound + String(ownTrades.filter(trade => trade.timestamp !== null &&
         now - trade.timestamp >= 0 && now - trade.timestamp < 3600000).length) : '—'
     };
   }
@@ -214,6 +226,7 @@
     const line = element(doc, 'div', null, 'row');
     line.append(element(doc, 'span', label), element(doc, 'span', value, className));
     card.append(line);
+    return line;
   }
 
   function renderCard(doc, trader, trades, now = Date.now(), staleAfterMs = STALE_MS) {
@@ -230,15 +243,15 @@
     row(doc, card, '統計起點', trader.totalsSince === null ? '待確認' : taipeiTime(trader.totalsSince) + ' 台灣');
     row(doc, card, '累計更新', trader.totalsUpdated === null ? '尚無完整更新' : taipeiTime(trader.totalsUpdated) + ' 台灣');
     if (trader.positions === null) {
-      row(doc, card, '持倉', '尚未提供', 'muted');
+      row(doc, card, '持倉', '—', 'muted');
     } else {
       for (const position of trader.positions) {
         const side = { long: '多', short: '空', net: '淨持倉' }[position.side] || position.side;
-        const unit = position.unit || '（單位未提供）';
+        const unit = position.unit || '';
         const average = position.averagePrice === null ? '—' : String(+position.averagePrice.toPrecision(6));
-        const pnl = position.upl === null ? '—' : `${fixed(position.upl)} ${currencyText(position.uplCurrency || trader.currency)}`;
+        const pnl = position.upl === null ? '—' : `${position.upl > 0 ? '+' : ''}${+position.upl.toPrecision(8)} ${position.uplCurrency || trader.currency || '—'}`;
         row(doc, card, `持倉 ${position.inst} ${side} ${position.size ?? '—'}${unit} @${average}`,
-          pnl, signedClass(position.upl));
+          pnl, signedClass(position.upl)).className = 'row position-row';
       }
     }
     const amount = (value, partial) => value === null ? '—（partial／待補齊）'
@@ -246,9 +259,18 @@
     row(doc, card, '全局累計手續費', amount(trader.feesTotal, trader.feesTotalPartial), signedClass(trader.feesTotal));
     row(doc, card, '全局累計資金費', amount(trader.fundingTotal, trader.fundingTotalPartial), signedClass(trader.fundingTotal));
     row(doc, card, '累計資料', trader.totalsStatus === 'complete' ? 'complete／完整' : 'partial／資料不完整');
-    const settlementSummary = element(doc, 'div', null, 'settlement-summary');
-    settlementSummary.dataset.trader = trader.name;
-    card.append(settlementSummary);
+    if (trader.hasApiCost) {
+      const usd = value => value === null ? '—' : `${fixed(value, 4)} USD`;
+      row(doc, card, '交易損益', trader.netPnl === null ? '—' : `${trader.netPnl > 0 ? '+' : ''}${fixed(trader.netPnl, 4)} USDT`, signedClass(trader.netPnl));
+      row(doc, card, 'AI 花費（另計）', usd(trader.apiCostTotal));
+      card.append(element(doc, 'div', `GPT ${usd(trader.apiCostGpt)}／Claude ${usd(trader.apiCostClaude)}`, 'api-cost-detail'),
+        element(doc, 'div', `資料時間 ${trader.apiCostUpdated === null ? '—' : taipeiTime(trader.apiCostUpdated) + ' 台灣'}`, 'api-cost-detail'));
+      if (trader.apiCostIsAccountDebit === false) card.append(element(doc, 'div', 'AI 額度的花費，不從交易帳戶扣', 'api-cost-detail'));
+    } else {
+      const settlementSummary = element(doc, 'div', null, 'settlement-summary');
+      settlementSummary.dataset.trader = trader.name;
+      card.append(settlementSummary);
+    }
     row(doc, card, '今日筆數', view.today);
     row(doc, card, '近 1 小時', view.lastHour);
     const status = freshness(trader, now, staleAfterMs);
@@ -261,15 +283,15 @@
   function renderTradeRow(doc, trade, index) {
     const line = element(doc, 'tr');
     line.style.animationDelay = `${0.3 + Math.min(index, 12) * 0.08}s`;
-    const time = trade.timestamp === null ? trade.time || '—' : new Date(trade.timestamp).toLocaleTimeString(
-      'zh-TW', { timeZone: TIME_ZONE, hour12: false });
+    const time = trade.timeLabel || (trade.timestamp === null ? trade.time || '—' : new Date(trade.timestamp).toLocaleTimeString(
+      'zh-TW', { timeZone: TIME_ZONE, hour12: false }));
     const timeCell = element(doc, 'td', time);
     timeCell.title = taipeiTime(trade.timestamp);
     line.append(timeCell);
     for (const text of [trade.trader, trade.market, trade.side, trade.price, trade.qty]) {
       line.append(element(doc, 'td', text));
     }
-    const pnl = trade.pnl === null ? '—' : `${trade.pnl} ${currencyText(trade.pnlCurrency)}`;
+    const pnl = trade.pnl === null ? '—' : `${trade.pnl.toFixed(4)} ${currencyText(trade.pnlCurrency)}`;
     line.append(element(doc, 'td', pnl, signedClass(trade.pnl)), element(doc, 'td', trade.note));
     return line;
   }
@@ -291,8 +313,9 @@
 
   function tradeGroupLabel(trade, mode) {
     if (mode === 'trader') return trade.trader || '交易員未提供';
-    if (mode === 'market') return trade.market?.split('-')[0] || '幣種未提供';
+    if (mode === 'market') return !trade.market || trade.market === '—' ? '幣種未提供' : trade.market.split('-')[0] || '幣種未提供';
     if (mode === 'action') {
+      if (trade.event === 'open' || trade.event === 'close') return `${trade.event === 'open' ? '開倉' : '平倉'}${trade.side ? ' ' + trade.side : ''}`;
       if (['開多', '開空'].includes(trade.side)) return '開倉';
       if (['平多', '平空', '部分強平多', '部分強平空', '強平多', '強平空', '減倉平多', '減倉平空'].includes(trade.side)) return '平倉';
       return '其他';
@@ -314,7 +337,7 @@
         incomplete = true;
         continue;
       }
-      totals.set(currency, (totals.get(currency) || 0) + value);
+      totals.set(currency, (totals.get(currency) || 0) + (field === 'fee' ? -value : value));
     }
     const text = [...totals].map(([currency, value]) => {
       if (!Number.isFinite(value)) {
@@ -744,7 +767,7 @@
       return `${note.review.instrument} ${sideLabel(note.review.direction)} 已實現 ${decimal(note.realized_pnl_usdt)} USDT`;
     }
     if (note.kind === 'daily_settlement') {
-      return `${note.date} ${note.trades.length} 筆 淨損益 ${amount(note.table.net_after_costs)} USDT`;
+      return `${note.date} ${note.trades.length} 筆 交易損益減 AI 花費（對照用；AI 花費不從交易帳戶扣） ${amount(note.table.net_after_costs)} USDT`;
     }
     return clip(note.market_recap);
   }
@@ -775,7 +798,7 @@
       Object.hasOwn(note.table.api_cost_by_model, model) ? note.table.api_cost_by_model[model] : null,
       Object.hasOwn(note.table.cum.api_cost_by_model, model) ? note.table.cum.api_cost_by_model[model] : null));
     line('API 花費合計（USD）', note.table.api_cost_total, note.table.cum.api_cost_total);
-    line('扣除所有成本後淨損益（USDT）', note.table.net_after_costs, note.table.cum.net_after_costs);
+    line('交易損益減 AI 花費（對照用；AI 花費不從交易帳戶扣）（USDT）', note.table.net_after_costs, note.table.cum.net_after_costs);
     table.append(head, body);
     return table;
   }

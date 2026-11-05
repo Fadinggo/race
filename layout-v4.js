@@ -111,6 +111,10 @@
     const values = [note.reasons.key_levels, ...Object.keys(REASONS).filter(key => key !== 'key_levels').map(key => note.reasons[key])];
     const reason = values.find(value => typeof value === 'string' && value.trim() && !value.includes('未取得資料'));
     if (!reason) return '尚無說明';
+    return clipReason(reason);
+  }
+
+  function clipReason(reason) {
     const characters = Array.from(reason.trim());
     return characters.length > 60 ? characters.slice(0, 59).join('') + '…' : characters.join('');
   }
@@ -181,37 +185,44 @@
       block.append(element(doc, 'h3', trader));
       const account = snapshot?.traders?.find(item => item.name === trader);
       if (!account || account.positions === null || !Array.isArray(account.positions)) {
-        block.append(element(doc, 'p', '持倉資料尚未提供', 'muted'));
+        block.append(element(doc, 'p', '—', 'muted'));
       } else if (!account.positions.length) {
         block.append(element(doc, 'p', '空手', 'muted'));
       } else {
         const header = element(doc, 'div', undefined, 'layout-summary position-head');
-        ['標的與方向', '原因簡介', '數量', '進場價 → 現價', '未實現損益', '持有多久'].forEach(label => header.append(element(doc, 'span', label)));
+        ['標的與方向', '進場原因', '數量', '進場價 → 現價', '未實現損益', '持有時間'].forEach(label => header.append(element(doc, 'span', label)));
         block.append(header);
         for (const position of account.positions) {
           const note = latestOpen(notes, trader, position.inst);
           const key = `position:${trader}:${position.inst}:${position.side}`;
-          const pnl = finite(position.upl) ? `${signed(position.upl)} ${position.uplCurrency || account.currency || '幣別未提供'}` : '未提供';
-          // shortcut: snapshots omit current price and entry time; use them when exports include them.
+          const pnl = finite(position.upl) ? `${signed(position.upl)} ${position.uplCurrency || account.currency || '—'}` : '—';
           const entryTs = note?.ts;
+          const noteHoldingTime = holdingTime(entryTs, now);
+          const held = finite(position.heldSeconds) && position.heldSeconds >= 0
+            ? `${Math.floor(position.heldSeconds / 3600)} 小時 ${Math.floor(position.heldSeconds % 3600 / 60)} 分`
+            : noteHoldingTime === '未提供' ? '—' : noteHoldingTime;
+          const noteReason = reasonSummary(note);
+          const rawReason = position.reason?.trim();
+          const reason = rawReason ? (suspiciousText(rawReason) ? '—' : rawReason) : (noteReason === '尚無說明' ? '—' : noteReason);
+          const displayNumber = value => finite(value) ? numeric(value) : '—';
           const own = detailRow(doc, key, [
-            `${position.inst} ${sideLabel(position.side)}`, reasonSummary(note),
-            `${numeric(position.size)} ${position.unit || '單位未提供'}`,
-            `${numeric(position.averagePrice)} → 未提供`,
+            `${position.inst || '—'} ${position.side ? sideLabel(position.side) : '—'}`, clipReason(reason),
+            `${displayNumber(position.size)} ${position.unit || '—'}`,
+            `${displayNumber(position.averagePrice)} → ${displayNumber(position.markPrice)}`,
             { text: pnl, className: finite(position.upl) ? position.upl >= 0 ? 'pos' : 'neg' : 'muted' },
-            holdingTime(entryTs, now)
+            held
           ], preserved);
+          field(doc, own.body, '進場原因', reason);
           if (note) {
-            for (const [name, label] of Object.entries(REASONS)) field(doc, own.body, `進場理由・${label}`, note.reasons?.[name] || '尚無說明');
-            field(doc, own.body, '停損', numeric(note.stop_loss));
-            field(doc, own.body, '目標', numeric(note.take_profit));
-            field(doc, own.body, '什麼情況出場', note.invalidation || '尚無說明');
-            field(doc, own.body, '信心度', note.confidence || '尚無說明');
+            for (const [name, label] of Object.entries(REASONS)) field(doc, own.body, `進場理由・${label}`, note.reasons?.[name] || '—');
+            field(doc, own.body, '停損', displayNumber(note.stop_loss));
+            field(doc, own.body, '目標', displayNumber(note.take_profit));
+            field(doc, own.body, '什麼情況出場', note.invalidation || '—');
+            field(doc, own.body, '信心度', note.confidence || '—');
           } else {
-            field(doc, own.body, '進場理由', '尚無說明');
-            ['停損', '目標', '什麼情況出場', '信心度'].forEach(label => field(doc, own.body, label, '尚無說明'));
+            ['停損', '目標', '什麼情況出場', '信心度'].forEach(label => field(doc, own.body, label, '—'));
           }
-          field(doc, own.body, '進場時間（依便利貼）', localTime(entryTs));
+          field(doc, own.body, '進場時間（依便利貼）', epoch(entryTs) ? localTime(entryTs) : '—');
           block.append(own.details);
         }
       }
