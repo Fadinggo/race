@@ -2,6 +2,10 @@
   'use strict';
 
   const REFRESH_MS = 30000;
+  const VERSION_CHECK_MS = 5 * 60000;
+  const VERSION_RELOAD_COOLDOWN_MS = 10 * 60000;
+  const VERSION_RELOAD_KEY = 'race-dashboard-version-reload-at';
+  const VERSION_FILES = ['index.html', 'dashboard.js', 'layout-v4.js'];
   const STALE_MS = 15 * 60000;
   const SNAPSHOT_STALE_MS = 30 * 60000;
   const TIME_ZONE = 'Asia/Taipei';
@@ -414,6 +418,91 @@
     if (shelf && anchor && anchor.nextElementSibling !== shelf) anchor.after(shelf);
   }
 
+  // shortcut: 32-bit collisions are possible; use a stronger hash if missed deploys justify it.
+  function versionFingerprint(texts) {
+    let hash = 2166136261;
+    const text = texts.join('\n');
+    for (let index = 0; index < text.length; index++) {
+      hash = Math.imul(hash ^ text.charCodeAt(index), 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+  }
+
+  async function fetchVersionFingerprint(fetcher, signal, cache = 'reload') {
+    const responses = await Promise.all(VERSION_FILES.map(file => fetcher(file, { cache, signal })));
+    if (responses.some(response => response.status !== 200)) throw new Error('Version check HTTP error');
+    return versionFingerprint(await Promise.all(responses.map(response => response.text())));
+  }
+
+  function startVersionCheck(doc, options = {}) {
+    const fetcher = options.fetcher || (typeof root.fetch === 'function' ? root.fetch.bind(root) : () => Promise.reject(new Error('Fetch unavailable')));
+    const clock = options.now || Date.now;
+    const delay = options.setTimeout || root.setTimeout.bind(root);
+    const cancel = options.clearTimeout || root.clearTimeout.bind(root);
+    const schedule = options.setInterval || root.setInterval.bind(root);
+    const page = options.location || root.location;
+    let initialFingerprint = null;
+    let checking = false;
+    let reloadPending = false;
+
+    async function check() {
+      if (doc.visibilityState === 'hidden' || checking || reloadPending) return false;
+      checking = true;
+      let timeout;
+      try {
+        const controller = new root.AbortController();
+        const timedOut = new Promise((_, reject) => {
+          timeout = delay(() => {
+            controller.abort();
+            reject(new Error('Version check timed out'));
+          }, 10000);
+        });
+        const versionCheck = initialFingerprint === null
+          ? fetchVersionFingerprint(fetcher, controller.signal, 'force-cache')
+            .catch(() => null)
+            .then(cached => fetchVersionFingerprint(fetcher, controller.signal)
+              .then(current => ({ current, baseline: cached || current })))
+          : fetchVersionFingerprint(fetcher, controller.signal).then(current => ({ current, baseline: null }));
+        const { current, baseline } = await Promise.race([versionCheck, timedOut]);
+        if (doc.visibilityState === 'hidden') return false;
+        if (initialFingerprint === null) {
+          initialFingerprint = baseline;
+        }
+        if (current === initialFingerprint) return false;
+
+        let storage;
+        try { storage = options.sessionStorage === undefined ? root.sessionStorage : options.sessionStorage; } catch (_) {}
+        try {
+          const saved = storage?.getItem(VERSION_RELOAD_KEY);
+          const lastReload = saved === null || saved === undefined ? null : Number(saved);
+          if (lastReload !== null && Number.isFinite(lastReload) && clock() - lastReload < VERSION_RELOAD_COOLDOWN_MS) return false;
+          storage?.setItem(VERSION_RELOAD_KEY, String(clock()));
+        } catch (_) {}
+
+        reloadPending = true;
+        const status = doc.getElementById('data-status');
+        if (status) {
+          status.textContent = '網頁有新版本，重新載入中…';
+          status.className = 'data-status muted';
+        }
+        delay(() => page.reload(), 100);
+        return true;
+      } catch (_) {
+        return false;
+      } finally {
+        if (timeout !== undefined) cancel(timeout);
+        checking = false;
+      }
+    }
+
+    const ready = check();
+    schedule(check, VERSION_CHECK_MS);
+    doc.addEventListener('visibilitychange', () => {
+      if (doc.visibilityState !== 'hidden') return check();
+    });
+    return { check, ready };
+  }
+
   function start(doc) {
     const clock = doc.getElementById('clk');
     const status = doc.getElementById('data-status');
@@ -571,9 +660,10 @@
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
   }
 
-  const api = { number, timestamp, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair, placeNotesShelf };
+  const api = { number, timestamp, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair, placeNotesShelf, startVersionCheck };
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (typeof document !== 'undefined') {
+    startVersionCheck(document);
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
     else start(document);
   }
