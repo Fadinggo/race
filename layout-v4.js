@@ -177,17 +177,92 @@
       : `${Math.floor(minutes / 1440)} 天 ${Math.floor(minutes % 1440 / 60)} 小時`) + '（依便利貼）';
   }
 
+  function recentTrades(snapshot, trader, now) {
+    const groups = new Map();
+    for (const [index, trade] of (Array.isArray(snapshot?.trades) ? snapshot.trades : []).entries()) {
+      if (trade.trader !== trader || !['open', 'close', 'partial_close'].includes(trade.event) ||
+          !finite(trade.timestamp) || trade.timestamp > now) continue;
+      const key = trade.tradeId ? `id:${trade.tradeId}` : `legacy:${index}`;
+      if (!groups.has(key)) groups.set(key, { key: index, events: [] });
+      groups.get(key).events.push(trade);
+    }
+    return [...groups.values()].map(group => ({ ...group, events: group.events.sort((a, b) => a.timestamp - b.timestamp) }))
+      .filter(group => group.events.some(event => event.timestamp >= now - 86400000))
+      .sort((a, b) => b.events.at(-1).timestamp - a.events.at(-1).timestamp);
+  }
+
+  function matchingNote(notes, event, events) {
+    const kind = event.event === 'open' ? 'open' : 'close';
+    return notes.filter(note => {
+      const instrument = note.kind === 'open' ? note.instrument : note.review?.instrument;
+      const direction = note.kind === 'open' ? note.direction : note.review?.direction;
+      if (note.kind !== kind || note.trader !== event.trader || instrument !== event.market ||
+          (['long', 'short'].includes(event.side) && direction !== event.side) || !epoch(note.ts)) return false;
+      const distance = Math.abs(note.ts * 1000 - event.timestamp);
+      // shortcut: notes lack trade IDs, so matches beyond 15 minutes need a shared ID to be reliable.
+      return distance <= 15 * 60000 && !events.some(other => other !== event && other.trader === event.trader &&
+        other.market === event.market && other.side === event.side && (other.event === 'open' ? 'open' : 'close') === kind &&
+        Math.abs(note.ts * 1000 - other.timestamp) <= distance);
+    }).sort((a, b) => Math.abs(a.ts * 1000 - event.timestamp) - Math.abs(b.ts * 1000 - event.timestamp))[0];
+  }
+
+  function renderRecentTrades(doc, block, groups, notes, snapshot, preserved, now) {
+    block.append(element(doc, 'h4', '過去 24 小時交易', 'layout-group-title'));
+    if (!groups.length) {
+      block.append(element(doc, 'p', '過去 24 小時沒有交易', 'muted'));
+      return;
+    }
+    const allEvents = (snapshot?.trades || []).filter(event => finite(event.timestamp) && ['open', 'close', 'partial_close'].includes(event.event));
+    for (const group of groups) {
+      const opened = group.events.find(event => event.event === 'open');
+      const exits = group.events.filter(event => event.event !== 'open');
+      const last = group.events.at(-1);
+      const closed = exits.find(event => event.event === 'close');
+      const pnl = exits.length && exits.every(event => finite(event.pnl)) && new Set(exits.map(event => event.pnlCurrency)).size === 1
+        ? exits.reduce((sum, event) => sum + event.pnl, 0) : null;
+      const held = !closed && opened ? (now - opened.timestamp) / 1000 : last.heldSeconds;
+      const own = detailRow(doc, `trade:${last.trader}:${group.key}`, [
+        group.events.map(event => event.timeLabel || event.time || '—').join(' → '),
+        `${last.market} ${sideLabel(opened?.side || last.side)}`,
+        `${opened?.price ?? '—'} → ${exits.length ? exits.map(event => event.price).join(' / ') : '持倉中'}`,
+        `數量 ${opened?.qty ?? last.qty ?? '—'}`,
+        { text: pnl === null ? '淨損益 —' : `淨損益 ${pnl.toFixed(4)} ${last.pnlCurrency || ''}`.trim(), className: pnl === null ? 'muted' : pnl >= 0 ? 'pos' : 'neg' },
+        `持有時間 ${finite(held) && held >= 0 ? `${Math.floor(held / 3600)} 小時 ${Math.floor(held % 3600 / 60)} 分` : '—'}${closed ? '' : '（持倉中）'}`
+      ], preserved);
+      own.body.append(element(doc, 'strong', '交易心得'));
+      let found = false;
+      for (const event of group.events) {
+        const note = matchingNote(notes, event, allEvents);
+        if (!note) {
+          field(doc, own.body, event.event === 'open' ? '開倉心得' : '平倉心得', '—');
+          continue;
+        }
+        found = true;
+        const review = note.kind === 'open' ? note : note.review;
+        for (const [name, label] of Object.entries(REASONS)) field(doc, own.body, `${note.kind === 'open' ? '開倉' : '平倉'}理由・${label}`, review.reasons?.[name] || '—');
+        field(doc, own.body, '出場原因／失效條件', review.invalidation || '—');
+        field(doc, own.body, '信心', review.confidence || '—');
+        if (note.kind === 'close') {
+          for (const [name, label] of Object.entries({ right: '做對的部分', wrong: '做錯的部分', lesson: '教訓' })) field(doc, own.body, label, note.variance?.[name] || '—');
+        }
+      }
+      if (!found) field(doc, own.body, '交易心得', '—');
+      block.append(own.details);
+    }
+  }
+
   function renderPositions(doc, container, snapshot, notes = [], now = Date.now()) {
     const preserved = preserve(container);
     const blocks = TRADERS.map(trader => {
       const block = element(doc, 'section', undefined, 'layout-trader-block');
       block.dataset.trader = trader;
       block.append(element(doc, 'h3', trader));
+      const recent = recentTrades(snapshot, trader, now);
       const account = snapshot?.traders?.find(item => item.name === trader);
       if (!account || account.positions === null || !Array.isArray(account.positions)) {
         block.append(element(doc, 'p', '—', 'muted'));
       } else if (!account.positions.length) {
-        block.append(element(doc, 'p', '空手', 'muted'));
+        block.append(element(doc, 'p', `空手（過去 24 小時 ${recent.length} 筆交易）`, 'muted'));
       } else {
         const header = element(doc, 'div', undefined, 'layout-summary position-head');
         ['標的與方向', '進場原因', '數量', '進場價 → 現價', '未實現損益', '持有時間'].forEach(label => header.append(element(doc, 'span', label)));
@@ -226,6 +301,7 @@
           block.append(own.details);
         }
       }
+      renderRecentTrades(doc, block, recent, notes, snapshot, preserved, now);
       return block;
     });
     container.replaceChildren(...blocks);
