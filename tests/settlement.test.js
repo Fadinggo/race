@@ -106,10 +106,22 @@ test('settlement table renders daily and cumulative inputs without inventing a U
     ['已實現損益（USDT）', '1', '50'], ['未實現損益（USDT）', '2', '-3'],
     ['手續費（USDT）', '-0.2', '-0.4'], ['資金費（USDT）', '-0.03', '0'],
     ['API gpt-4.1-mini（USD）', '0.07', '未知'], ['API gpt-4o-mini（USD）', '未知', '未知'],
-    ['API 花費合計（USD）', '0.07', '未知'], ['扣除所有成本後淨損益（USDT）', '123.456', '-7']
+    ['API 花費合計（USD）', '0.07', '未知'], ['交易損益減 AI 花費（對照用；AI 花費不從交易帳戶扣）（USDT）', '123.456', '-7']
   ]) assert.ok(tableRows.some(row => JSON.stringify(row) === JSON.stringify(expected)), JSON.stringify(expected));
   assert.match(doc.nodes['notes-a'].textContent, /依 token 用量自記估算/);
   assert.match(doc.nodes['notes-a'].textContent, /不自行換匯或重算/);
+});
+
+test('settlement combined figures are explicitly labelled as a non-debit comparison', () => {
+  const note = settlement({ table: {
+    ...totals({ net_after_costs: -10.50761983 }),
+    cum: totals({ net_after_costs: -10.50761983 })
+  } });
+  const doc = makeDocument();
+  notes.renderColumn(doc, doc.nodes['notes-a'], traderA, [note], now);
+  const label = '交易損益減 AI 花費（對照用；AI 花費不從交易帳戶扣）';
+  assert.ok(doc.nodes['notes-a'].querySelector('.note-summary').textContent.includes(label + ' -10.50761983 USDT'));
+  assert.ok(rows(doc.nodes['notes-a']).some(row => row[0] === label + '（USDT）' && row[1] === '-10.50761983' && row[2] === '-10.50761983'));
 });
 
 test('absent model costs stay unknown even when model names match inherited object properties', () => {
@@ -251,7 +263,7 @@ test('the yellow statement lists each trade before costs and sums PnL in the pag
   const feesAt = text.indexOf('手續費（USDT）');
   const fundingAt = text.indexOf('資金費（USDT）');
   const apiAt = text.indexOf('API gpt-4.1-mini（USD）');
-  const netAt = text.indexOf('扣除所有成本後淨損益（USDT）');
+  const netAt = text.indexOf('交易損益減 AI 花費（對照用；AI 花費不從交易帳戶扣）（USDT）');
   assert.ok(tradeAt >= 0 && tradeAt < feesAt && feesAt < fundingAt && fundingAt < apiAt && apiAt < netAt);
   assert.ok(text.includes('空'));
   assert.ok(text.includes('ETH-USDT-SWAP'));
@@ -260,7 +272,7 @@ test('the yellow statement lists each trade before costs and sums PnL in the pag
   assert.ok(text.includes('1.25'));
   assert.match(text, /不呼叫模型、不新增 API 費用/);
   assert.equal(doc.nodes['notes-a'].querySelector('.note-details').open, false);
-  assert.match(doc.nodes['notes-a'].querySelector('.note-summary').textContent, /2026-10-31 2 筆 淨損益/);
+  assert.match(doc.nodes['notes-a'].querySelector('.note-summary').textContent, /2026-10-31 2 筆 交易損益減 AI 花費（對照用；AI 花費不從交易帳戶扣）/);
   const incomplete = settlement();
   delete incomplete.trades;
   assert.deepEqual(notes.normalizeDocument(documentOf([incomplete])), []);

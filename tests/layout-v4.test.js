@@ -184,7 +184,7 @@ test('positions render A and B as separate blocks with collapsed details and hon
   assert.ok(node.textContent.includes('支撐守住。'));
   assert.ok(node.textContent.includes('2400'));
   assert.ok(node.textContent.includes('2700'));
-  assert.ok(node.textContent.includes('未提供'));
+  assert.ok(node.textContent.includes('—'));
   assert.ok(node.querySelectorAll('details').length >= 1);
   assert.equal(node.querySelectorAll('details').every(detail => !detail.open), true);
 });
@@ -196,9 +196,51 @@ test('positions show no-explanation fallback and render markup only as text', ()
     { name: traderA, currency: 'USDT', positions: [position({ inst: attack })] },
     { name: traderB, currency: 'USDT', positions: [] }
   ] }), [], now);
-  assert.ok(doc.nodes.positions.textContent.includes('尚無說明'));
+  assert.ok(doc.nodes.positions.textContent.includes('—'));
   assert.ok(doc.nodes.positions.textContent.includes(attack));
   assert.equal(doc.nodes.positions.querySelectorAll('img').length, 0);
+});
+
+test('snapshot position fields survive normalization and appear without stop-loss or take-profit prices', () => {
+  const dashboard = require('../dashboard.js');
+  const data = { snapshot_id: 'fixture', source: 'own-okx-readonly', updated: now / 1000, trades: [], traders: {
+    [traderA]: { equity: 10, start: 10, currency: 'USDT', updated: now / 1000, positions: [{
+      inst: 'ETH-USDT-SWAP', side: 'long', sz: '2', avgPx: '2500', markPx: '2512.5', upl: '-0.1234',
+      qty_unit: '張', upl_ccy: 'USDT', held_seconds: 7500, reason: '<b>突破支撐</b>', sl: 2222, tp: 3333
+    }] },
+    [traderB]: { equity: 10, start: 10, currency: 'USDT', updated: now / 1000, positions: [] }
+  } };
+  const normalized = dashboard.pairSnapshot(data, { snapshot_id: 'fixture', series: {} });
+  const doc = makeDocument();
+  layout.renderPositions(doc, doc.nodes.positions, normalized, [open()], now);
+  const text = doc.nodes.positions.textContent;
+  assert.match(text, /2500 → 2512\.5/);
+  assert.match(text, /-0\.1234 USDT/);
+  assert.match(text, /2 小時 5 分/);
+  assert.match(text, /<b>突破支撐<\/b>/);
+  assert.doesNotMatch(text, /2222|3333|未提供|尚無說明/);
+  assert.equal(doc.nodes.positions.querySelectorAll('b').length, 0);
+  normalized.traders[0].positions[0].heldSeconds = 0;
+  layout.renderPositions(doc, doc.nodes.positions, normalized, [], now);
+  assert.match(doc.nodes.positions.textContent, /0 小時 0 分/);
+});
+
+test('position reason is clipped in the summary, retained in details, and filtered before display', () => {
+  const doc = makeDocument();
+  const reason = '觀'.repeat(70);
+  const data = snapshot({ traders: [
+    { name: traderA, currency: 'USDT', positions: [position({ reason })] },
+    { name: traderB, positions: [] }
+  ] });
+  layout.renderPositions(doc, doc.nodes.positions, data, [], now);
+  let details = doc.nodes.positions.querySelectorAll('details')[0];
+  assert.equal(details.querySelector('summary').children[1].textContent, '觀'.repeat(59) + '…');
+  assert.ok(details.textContent.includes(reason));
+  data.traders[0].positions[0].reason = 'token: TEST_ONLY';
+  layout.renderPositions(doc, doc.nodes.positions, data, [open()], now);
+  details = doc.nodes.positions.querySelectorAll('details')[0];
+  assert.equal(details.querySelector('summary').children[1].textContent, '—');
+  assert.doesNotMatch(details.textContent, /token: TEST_ONLY/);
 });
 
 test('watchlist expiry uses strict now-greater-than boundary and explicit expired status', () => {
