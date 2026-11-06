@@ -142,7 +142,7 @@ test('Taipei day folds show filtered counts and four-decimal USDT net; desktop o
   assert.deepEqual(tradeRows(container)[1].children.map(cell => cell.textContent).slice(0, 2), ['00:30:00', 'A']);
   assert.equal(nodes(container).some(node => node.tagName === 'img'), false);
   dashboard.renderGroupedRows(doc, container, dayTrades(), 'all', state(), dayNow, true);
-  assert.ok(dayGroups(container).every(group => !group.open));
+  assert.deepEqual(dayGroups(container).map(group => group.open), [true, false]);
 });
 
 test('default disclosure state follows the 600px media query', () => {
@@ -155,7 +155,7 @@ test('default disclosure state follows the 600px media query', () => {
       };
       const container = new TextNode('div');
       dashboard.renderGroupedRows(doc, container, dayTrades(), 'all', state(), dayNow);
-      assert.deepEqual(dayGroups(container).map(group => group.open), [!phone, false]);
+      assert.deepEqual(dayGroups(container).map(group => group.open), [true, false]);
     }
   } finally { global.matchMedia = previous; }
 });
@@ -191,7 +191,7 @@ test('compact rows expose seven columns and each row toggles only its own text',
 test('chips filter within days and recalculate counts and totals', () => {
   const container = new TextNode('div');
   const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../index.html'), 'utf8');
-  assert.deepEqual([...html.matchAll(/data-ledger-mode="([^"]+)"/g)].map(match => match[1]), ['all', 'A', 'B', 'profit', 'loss']);
+  assert.deepEqual([...html.matchAll(/data-ledger-mode="([^"]+)"/g)].map(match => match[1]), ['A', 'B', 'profit', 'loss', 'open', 'close', 'partial_close']);
   for (const [filter, expected] of [
     ['A', ['11/02（1 筆，淨 +2.0000 USDT）', '11/01（1 筆，淨 -3.0000 USDT）']],
     ['B', ['11/02（1 筆，淨 -0.5000 USDT）']],
@@ -237,4 +237,18 @@ test('unknown currency is not added to the USDT day net', () => {
   dashboard.renderGroupedRows(doc, container, [trade({ event: 'close', pnl: 5, pnlCurrency: 'BTC' })], 'all', state(), dayNow, false);
   assert.match(dayGroups(container)[0].children[0].textContent, /淨 — USDT/);
   assert.doesNotMatch(dayGroups(container)[0].children[0].textContent, /資料不完整/);
+});
+
+test('filters use OR within each group and AND between groups', () => {
+  const container = new TextNode('div');
+  const filters = { trader: new Set(['A', 'B']), result: new Set(['loss']), action: new Set(['close', 'partial_close']) };
+  dashboard.renderGroupedRows(doc, container, dayTrades(), filters, state(), dayNow);
+  assert.equal(tradeRows(container).length, 2);
+  filters.trader.delete('B');
+  dashboard.renderGroupedRows(doc, container, dayTrades(), filters, state(), dayNow);
+  assert.equal(tradeRows(container).length, 1);
+  filters.action.clear();
+  filters.result.clear();
+  dashboard.renderGroupedRows(doc, container, dayTrades(), filters, state(), dayNow);
+  assert.equal(tradeRows(container).length, 2);
 });

@@ -151,7 +151,18 @@
   const price = value => value !== null && value !== undefined && value !== '—' && Number.isFinite(Number(value)) ? String(+Number(value).toPrecision(6)) : '—';
   const signed = value => finite(value) ? `${value > 0 ? '+' : ''}${numeric(value)}` : '未提供';
   const percent = value => value <= 1 ? Math.round(value * 100) : value;
-  const confidence = value => '●'.repeat(Math.round(percent(value) / 20)) + '○'.repeat(5 - Math.round(percent(value) / 20)) + ` ${percent(value)}%`;
+  function confidence(doc, value) {
+    const display = element(doc, 'span');
+    const filled = Math.round(percent(value) / 20);
+    display.setAttribute('aria-label', `\u4fe1\u5fc3\u5ea6 ${percent(value)}%`);
+    for (let index = 0; index < 5; index++) {
+      const dot = element(doc, 'span', undefined, `confidence-dot${index < filled ? ' filled' : ''}`);
+      dot.setAttribute('aria-hidden', 'true');
+      display.append(dot);
+    }
+    display.append(element(doc, 'span', ` ${percent(value)}%`));
+    return display;
+  }
 
   function phoneMore(doc, parent, items, key, preserved, render) {
     const phone = root.matchMedia?.('(max-width: 600px)').matches === true;
@@ -245,6 +256,11 @@
         `持有時間 ${finite(held) && held >= 0 ? `${Math.floor(held / 3600)} 小時 ${Math.floor(held % 3600 / 60)} 分` : '—'}${closed ? '' : '（持倉中）'}`
       ], preserved);
       own.body.append(element(doc, 'strong', '交易心得'));
+      if (!closed && opened) {
+        const tick = own.details.children[0].children[5];
+        tick.dataset.holdingStart = String(opened.timestamp);
+        tick.dataset.holdingKind = 'trade';
+      }
       const opening = opened || group.events.find(event => event.openReason);
       const noteEvents = opened ? [opened, ...exits] : [opening || last, ...exits];
       for (const [index, event] of noteEvents.entries()) {
@@ -308,6 +324,14 @@
             held
           ], preserved);
           field(doc, own.body, '進場原因', reason);
+          const tick = own.details.children[0].children[5];
+          if (finite(position.heldSeconds) && position.heldSeconds >= 0) {
+            tick.dataset.holdingStart = String(now - position.heldSeconds * 1000);
+            tick.dataset.holdingKind = 'position';
+          } else if (epoch(entryTs)) {
+            tick.dataset.holdingStart = String(entryTs * 1000);
+            tick.dataset.holdingKind = 'note';
+          }
           if (note) {
             for (const [name, label] of Object.entries(REASONS)) field(doc, own.body, `進場理由・${label}`, note.reasons?.[name] || '—');
             field(doc, own.body, '什麼情況出場', note.invalidation || '—');
@@ -322,7 +346,7 @@
       renderRecentTrades(doc, block, recent, notes, snapshot, preserved, now);
       return block;
     });
-    container.replaceChildren(...blocks);
+    (root.RaceMorph || ((node, children) => node.replaceChildren(...children)))(container, blocks);
   }
 
   function appendWatchRows(doc, parent, items, expired, mode, preserved) {
@@ -343,10 +367,11 @@
       const outcome = item.outcome;
       const verdict = { hit: ['✔ 準', 'pos'], miss: ['✘ 不準', 'neg'], unclear: ['– 無法判斷', 'muted'] }[outcome?.verdict] || ['– 無法判斷', 'muted'];
       const result = outcome ? `${numeric(outcome.price_at_expiry)}（${signed(outcome.change_pct)}%）` : '尚無結果';
-      const cells = [`${item.instrument} ${sideLabel(item.direction)}`, item.summary, confidence(item.confidence)];
+      const cells = [`${item.instrument} ${sideLabel(item.direction)}`, item.summary, ''];
       if (expired) cells.push(result, { text: verdict[0], className: verdict[1] });
       else cells.push(localTime(item.expires_ts));
       const own = detailRow(doc, `watch:${item.id}`, cells, preserved);
+      own.details.children[0].children[2].append(confidence(doc, item.confidence));
       if (expired) {
         field(doc, own.body, '當時判斷', item.detail.reason || '尚無說明');
         field(doc, own.body, '打算怎麼做', item.detail.plan || '尚無說明');
@@ -376,6 +401,7 @@
       toolbar.setAttribute('aria-label', `${trader} 觀察分類`);
       FILTERS.forEach(([value, label]) => {
         const button = element(doc, 'button', label, mode === value ? 'active' : '');
+        button.dataset.morphKey = 'filter:' + trader + ':' + value;
         button.type = 'button';
         button.setAttribute('aria-pressed', String(mode === value));
         button.addEventListener('click', () => {
@@ -410,7 +436,16 @@
       }
       return block;
     });
-    container.replaceChildren(...blocks);
+    (root.RaceMorph || ((node, children) => node.replaceChildren(...children)))(container, blocks);
+  }
+
+  function updateHoldingTimes(container, now) {
+    for (const node of container.querySelectorAll?.('[data-holding-start]') || []) {
+      const start = Number(node.dataset.holdingStart);
+      const seconds = Math.max(0, (now - start) / 1000);
+      node.textContent = node.dataset.holdingKind === 'note' ? holdingTime(start / 1000, now)
+        : `${node.dataset.holdingKind === 'trade' ? '\u6301\u6709\u6642\u9593 ' : ''}${Math.floor(seconds / 3600)} \u5c0f\u6642 ${Math.floor(seconds % 3600 / 60)} \u5206${node.dataset.holdingKind === 'trade' ? '\uff08\u6301\u5009\u4e2d\uff09' : ''}`;
+    }
   }
 
   function mount(doc, options = {}) {
@@ -429,11 +464,17 @@
     let positionAgeState = '';
     let watchAgeState = '';
     const modes = new Map();
+    const tickKey = {};
+    const refreshTickKey = {};
     const stable = (node, render) => root.RaceStable ? root.RaceStable(node, render) : render();
     const positionAge = () => JSON.stringify((snapshot?.trades || []).map(trade => trade.timestamp >= clock() - 86400000));
     const watchAge = () => JSON.stringify(items.map(item => clock() > item.expires_ts * 1000));
     const renderPositionsNow = () => { positionAgeState = positionAge(); stable(positions, () => renderPositions(doc, positions, snapshot, notes, clock())); };
-    const renderWatchlistNow = () => { watchAgeState = watchAge(); stable(watchlist, () => renderWatchlist(doc, watchlist, items, modes, clock(), renderWatchlistNow)); };
+    const renderWatchlistNow = (immediate = false) => {
+      watchAgeState = watchAge();
+      const render = () => renderWatchlist(doc, watchlist, items, modes, clock(), () => renderWatchlistNow(true));
+      if (immediate && root.RaceStable?.now) root.RaceStable.now(watchlist, render); else stable(watchlist, render);
+    };
     const render = () => { renderPositionsNow(); renderWatchlistNow(); };
     async function refresh() {
       if (loading) return;
@@ -449,7 +490,7 @@
     const ready = refresh();
     schedule(refresh, 30000);
     schedule(() => {
-      if (positionAge() !== positionAgeState) renderPositionsNow();
+      stable(tickKey, () => { if (positionAge() !== positionAgeState) renderPositionsNow(); else updateHoldingTimes(positions, clock()); });
       if (watchAge() !== watchAgeState) renderWatchlistNow();
     }, 60000);
     root.matchMedia?.('(max-width: 600px)').addEventListener?.('change', render);
@@ -457,17 +498,17 @@
     return {
       ready, refresh, render,
       updateSnapshot: value => {
-        const relevant = item => [item?.traders?.map(trader => [trader.name, trader.currency, trader.positions]), item?.trades];
+        const relevant = item => [item?.traders?.map(trader => [trader.name, trader.currency, trader.positions?.map(({ heldSeconds, ...position }) => ({ ...position, hasHeldSeconds: finite(heldSeconds) && heldSeconds >= 0 }))]), item?.trades];
         const changed = JSON.stringify(relevant(snapshot)) !== JSON.stringify(relevant(value));
         snapshot = value;
-        if (changed) renderPositionsNow();
+        if (changed) renderPositionsNow(); else stable(refreshTickKey, () => updateHoldingTimes(positions, clock()));
       },
-      updateNotes: value => { const next = Array.isArray(value) ? value : []; if (JSON.stringify(notes) !== JSON.stringify(next)) { notes = next; renderPositionsNow(); } }
+      updateNotes: value => { const next = Array.isArray(value) ? value.filter(note => note.kind === 'open' || note.kind === 'close') : []; if (JSON.stringify(notes) !== JSON.stringify(next)) { notes = next; renderPositionsNow(); } }
     };
   }
 
   const api = { suspiciousText, safeWatch, normalizeWatchlist, parseWatchlistJSON, fetchWatchlist,
-    latestOpen, reasonSummary, splitWatchlist, renderPositions, renderWatchlist, mount };
+    latestOpen, reasonSummary, splitWatchlist, renderPositions, updateHoldingTimes, renderWatchlist, mount };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.RaceLayout = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

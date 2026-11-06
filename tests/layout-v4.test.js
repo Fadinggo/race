@@ -346,7 +346,10 @@ test('watchlist renders confidence dots, the expired disclosure and all outcome 
   layout.renderWatchlist(doc, doc.nodes.watchlist, items, new Map(), now);
   const text = doc.nodes.watchlist.textContent;
   assert.ok(text.includes('70%'));
-  assert.ok(/[●○]/u.test(text));
+  assert.equal(doc.nodes.watchlist.querySelectorAll('.confidence-dot').length, 20);
+  const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+  assert.match(html, /\.confidence-dot\{[^}]*box-sizing:border-box;[^}]*width:\.8em;height:\.8em;[^}]*border:1px solid/);
+  assert.match(html, /\.confidence-dot\.filled\{background:currentColor\}/);
   assert.ok(text.includes('3 已過期的觀察'));
   assert.ok(text.includes('✔ 準'));
   assert.ok(text.includes('✘ 不準'));
@@ -497,7 +500,8 @@ test('fractional confidence becomes percent and sorting compares normalized valu
   const doc = makeDocument();
   const items = [watch({ confidence: 0.8133 }), watch({ id: 'A-other', confidence: 75 })];
   layout.renderWatchlist(doc, doc.nodes.watchlist, items, new Map([[traderA, 'confidence']]), now);
-  assert.match(doc.nodes.watchlist.textContent, /●●●●○ 81%/);
+  assert.match(doc.nodes.watchlist.textContent, /81%/);
+  assert.equal(doc.nodes.watchlist.querySelectorAll('.confidence-dot').slice(0, 5).filter(dot => dot.className.includes('filled')).length, 4);
   assert.deepEqual(layout.splitWatchlist(items, traderA, 'confidence', now).active.map(item => item.confidence), [0.8133, 75]);
 });
 
@@ -550,8 +554,20 @@ test('independent refresh skips sections when the underlying data is unchanged',
   await controller.refresh();
   assert.equal(doc.nodes.watchlist.children[0], beforeWatch);
   const value = snapshot();
+  value.traders[0].positions[0].heldSeconds = 60;
   controller.updateSnapshot(value);
   const beforePositions = doc.nodes.positions.children[0];
-  controller.updateSnapshot({ ...value, snapshotId: 'new' });
+  controller.updateSnapshot({ ...value, snapshotId: 'new', traders: value.traders.map(trader => ({ ...trader, positions: trader.positions.map(position => ({ ...position, heldSeconds: 120 })) })) });
   assert.equal(doc.nodes.positions.children[0], beforePositions);
+});
+
+test('holding time updates existing nodes without rebuilding positions', () => {
+  const doc = makeDocument();
+  layout.renderPositions(doc, doc.nodes.positions, snapshot(), [open()], now);
+  const tick = doc.nodes.positions.querySelectorAll('[data-holding-start]')[0];
+  const block = doc.nodes.positions.children[0];
+  const old = tick.textContent;
+  layout.updateHoldingTimes(doc.nodes.positions, now + 60000);
+  assert.notEqual(tick.textContent, old);
+  assert.equal(doc.nodes.positions.children[0], block);
 });

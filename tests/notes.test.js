@@ -112,23 +112,19 @@ test('unsafe content in any one field hides the entire note without hiding safe 
   assert.equal(column(doc).textContent.includes('FAKE_ONLY'), false);
 });
 
-test('each trader groups every recent note under one date and keeps it open on refresh', () => {
+test('latest five notes stay in one list and older notes share a remembered fold', () => {
   const doc = makeDocument();
-  const source = Array.from({ length: 13 }, (_, index) => makeNote({ ts: (now - index * 1000) / 1000, watch_next: `筆記 ${index}` }));
-  source.push(makeNote({ trader: 'Grok-Trader-B', watch_next: '乙便利貼' }));
+  const source = Array.from({ length: 13 }, (_, index) => makeNote({ ts: (now - index * 1000) / 1000 }));
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
   const list = column(doc).querySelector('.notes-list');
-  const more = list.querySelector('.notes-day');
+  assert.equal(list.children.filter(node => node.tagName === 'article').length, 5);
+  const more = list.querySelector('.notes-more');
   assert.equal(more.open, false);
-  assert.equal(more.children[0].tagName, 'summary');
-  assert.equal(more.children[0].textContent, '10/31（13 則）');
-  assert.equal(more.children.filter(node => node.tagName === 'article').length, 13);
+  assert.equal(more.children[0].textContent, '\u66f4\u65e9\u7684\u4fbf\u5229\u8cbc\uff088 \u5247\uff09');
+  assert.equal(descendants(more).filter(node => node.tagName === 'article').length, 8);
   more.open = true;
-  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now + 60000);
+  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
   assert.equal(column(doc).querySelector('.notes-more').open, true);
-  notes.renderColumn(doc, column(doc, 'Grok-Trader-B'), 'Grok-Trader-B', source, now);
-  assert.equal(descendants(column(doc, 'Grok-Trader-B')).filter(node => node.tagName === 'article').length, 1);
-  assert.equal(column(doc, 'Grok-Trader-B').querySelector('.notes-day').children[0].textContent, '10/31（1 則）');
 });
 
 test('timestamps use Taipei and all note kinds have labels; stale starts strictly after 48 hours', () => {
@@ -145,22 +141,6 @@ test('timestamps use Taipei and all note kinds have labels; stale starts strictl
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, timestamp + 48 * 3600000 + 1);
   nodes = descendants(column(doc));
   assert.equal(nodes.filter(node => node.className === 'note-stale').length, 3);
-});
-
-test('all sticky notes are grouped by Taipei date and remain collapsed', () => {
-  const doc = makeDocument();
-  const source = [makeNote(), makeNote({ ts: (now - 25 * 3600000) / 1000 }),
-    makeNote({ ts: (now - 26 * 3600000) / 1000 }), makeNote({ ts: (now - 49 * 3600000) / 1000 })];
-  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
-  const list = column(doc).querySelector('.notes-list');
-  assert.equal(list.children.filter(node => node.tagName === 'article').length, 0);
-  const groups = descendants(list).filter(node => node.className.includes('notes-day'));
-  assert.deepEqual(groups.map(group => group.children[0].textContent), ['10/31（1 則）', '10/30（2 則）', '10/29（1 則）']);
-  assert.ok(groups.every(group => !group.open));
-  groups[0].open = true;
-  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
-  assert.equal(descendants(list).length > 0, true);
-  assert.equal(descendants(column(doc)).find(node => node.className.includes('notes-day')).open, true);
 });
 
 test('missing, malformed, or unreadable notes show an empty state without touching financial content', async () => {
@@ -280,7 +260,7 @@ test('open and close notes render every required review field from text nodes', 
   const doc = makeDocument();
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', [makeOpen(), makeClose({ ts: now / 1000 - 10 })], now);
   const text = column(doc).textContent;
-  for (const label of ['標的', '方向', '槓桿', '進場價', '停損', '停利', '最大虧損（USDT）', '資金費率', '未平倉量', '關鍵價位', '成交量', '事件', '信心', '失效條件']) {
+  for (const label of ['標的', '方向', '槓桿', '進場價', '最大虧損（USDT）', '資金費率', '未平倉量', '關鍵價位', '成交量', '事件', '信心', '失效條件']) {
     assert.ok(text.includes(label), label);
   }
   assert.ok(text.includes('BTC-USDT-SWAP'));
@@ -312,4 +292,16 @@ test('shallow legacy notes and incomplete position notes are withheld', () => {
 test('unrepresentable numeric values are rejected before schema normalization', async () => {
   const body = JSON.stringify(documentOf([makeNote()])).replace('"version":1', '"version":1e9999');
   await assert.rejects(notes.fetchNotes(async () => ({ ok: true, text: async () => body }), undefined, 1), /Invalid notes number/);
+});
+
+
+test('stop-loss and take-profit values and labels are absent even in expanded position notes', () => {
+  const doc = makeDocument();
+  notes.renderColumn(doc, doc.nodes['notes-a'], 'Grok-Trader-A', [makeOpen({ stop_loss: 98761, take_profit: 12345 })], now);
+  const column = doc.nodes['notes-a'];
+  const details = column.querySelector('.note-details');
+  for (const expanded of [false, true]) {
+    details.open = expanded;
+    for (const forbidden of ['\u505c\u640d', '\u505c\u5229', '98761', '12345']) assert.equal(column.textContent.includes(forbidden), false);
+  }
 });
