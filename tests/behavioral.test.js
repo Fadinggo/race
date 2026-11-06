@@ -33,6 +33,7 @@ class Node {
   replaceChildren(...nodes) { for (const n of [...this.childNodes]) n.remove(); this.append(...nodes); }
   after(node) { this.parentNode.insertBefore(node, this.nextSibling); }
   addEventListener(type, fn, options) { (this.listeners[type] ||= []).push({ fn, options }); }
+  removeEventListener(type, fn) { this.listeners[type] = (this.listeners[type] || []).filter(item => item.fn !== fn); }
   dispatchEvent(event) { if (!event.target) Object.defineProperty(event, 'target', { value: this }); for (const item of this.listeners[event.type] || []) item.fn(event); return true; }
   contains(node) { return node === this || this.childNodes.some(c => c.contains?.(node)); }
   matches(selector) { if (selector.startsWith('.')) return this.classList.contains(selector.slice(1)); if (selector.startsWith('[')) return this.hasAttribute(selector.slice(1, -1)); if (selector === 'button[data-ledger-mode]') return this.nodeName === 'button' && this.hasAttribute('data-ledger-mode'); return this.nodeName === selector; }
@@ -62,7 +63,7 @@ const snapshot = value => ({ snapshot_id: 'one', source: 'own-okx-readonly', upd
   traders: { 'Grok-Trader-A': { equity: value, start: 100, updated: 1760000000, positions: [] }, 'Grok-Trader-B': { equity: 100, start: 100, updated: 1760000000, positions: [] } },
   trades: [{ trader: 'Grok-Trader-A', market: 'ETH', side: 'long', ts: 1760000000, price: 1, qty: 1 }, { trader: 'Grok-Trader-B', market: 'BTC', side: 'long', ts: 1760000000, price: 1, qty: 1 }] });
 function withPage(run) {
-  const names = ['fetch', 'setInterval', 'setTimeout', 'clearTimeout', 'addEventListener', 'getComputedStyle', 'RaceLayout', 'RaceNotesReady', 'scrollTo', 'scrollBy', 'sessionStorage'];
+  const names = ['fetch', 'setInterval', 'setTimeout', 'clearTimeout', 'addEventListener', 'getComputedStyle', 'RaceLayout', 'RaceNotesReady', 'scrollTo', 'scrollBy', 'sessionStorage', 'requestAnimationFrame', 'history', 'innerHeight', 'scrollY'];
   const saved = Object.fromEntries(names.map(n => [n, global[n]]));
   const timeouts = []; let data = snapshot(110);
   global.fetch = async url => ({ ok: true, json: async () => url.startsWith('data') ? data : { snapshot_id: 'one', series: {} } });
@@ -93,6 +94,30 @@ test('initial content remains hidden until asynchronous sections are ready', asy
   let release; global.RaceNotesReady = new Promise(resolve => { release = resolve; });
   dashboard.start(p.doc); await settle(); assert.equal(p.wrap.classList.contains('is-loading'), true);
   release(); await settle(); assert.equal(p.wrap.classList.contains('is-loading'), false);
+}));
+
+test('startup restores only after async reveal and later refreshes stay scroll-free', async () => withPage(async p => {
+  let release, saved = JSON.stringify({ y: 500, id: 'positions', offset: -20 });
+  const frames = [];
+  global.RaceNotesReady = new Promise(resolve => { release = resolve; });
+  global.sessionStorage = { getItem: () => saved, removeItem: () => { saved = null; } };
+  global.requestAnimationFrame = fn => frames.push(fn);
+  global.history = { scrollRestoration: 'auto' }; global.innerHeight = 100; global.scrollY = 0;
+  p.doc.documentElement = { scrollHeight: 200 };
+  const positions = p.doc.add('positions', 'div', p.wrap);
+  positions.getBoundingClientRect = () => ({ top: 480 });
+  const controller = dashboard.start(p.doc); await settle();
+  assert.equal(global.history.scrollRestoration, 'manual');
+  assert.equal(frames.length, 0); assert.notEqual(saved, null);
+  release(); await settle();
+  assert.equal(p.wrap.classList.contains('is-loading'), false);
+  assert.deepEqual(p.scrollCalls, []);
+  p.doc.documentElement.scrollHeight = 600;
+  p.timeouts.find(timer => timer.ms === 50).fn();
+  assert.deepEqual(p.scrollCalls, [['scrollTo', 0, 500]]); assert.equal(saved, null);
+  assert.equal(global.history.scrollRestoration, 'auto');
+  p.setData(snapshot(125)); await controller.refresh();
+  assert.deepEqual(p.scrollCalls, [['scrollTo', 0, 500]]);
 }));
 
 test('chip clicks render immediately after interaction and retain and clear height', async () => withPage(async p => {
@@ -134,17 +159,27 @@ test('position updates retain existing rows and insert only new keyed positions'
 test('fallback reveals page even if startup throws', () => {
   const vm = require('node:vm'), fs = require('node:fs');
   const wrap = new Node('div'); wrap.className = 'wrap is-loading';
-  const events = {}, timers = [];
-  const doc = { readyState: 'loading', addEventListener: (name, fn) => (events[name] ||= []).push(fn),
+  const events = {}, timers = [], scrolls = [];
+  let saved = JSON.stringify({ y: 500, id: '' });
+  const doc = { readyState: 'loading', visibilityState: 'visible', documentElement: { scrollHeight: 600 },
+    addEventListener: (name, fn) => (events[name] ||= []).push(fn),
+    removeEventListener: (name, fn) => { events[name] = (events[name] || []).filter(item => item !== fn); },
     getElementById() { throw Error('startup failed'); }, querySelector: () => wrap };
   const context = { document: doc, setTimeout: (fn, ms) => { timers.push({ fn, ms }); return 1; }, clearTimeout() {},
-    setInterval() {}, console: { error() {} }, AbortController, Date, Event, Promise, TextEncoder };
+    setInterval() {}, console: { error() {} }, AbortController, Date, Event, Promise, TextEncoder,
+    sessionStorage: { getItem: () => saved, removeItem: () => { saved = null; } },
+    history: { scrollRestoration: 'auto' }, innerHeight: 100, scrollY: 0, scrollTo: (x, y) => scrolls.push([x, y]) };
   context.globalThis = context;
   vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname, '../dashboard.js'), 'utf8'), context);
   events.DOMContentLoaded[0]();
   assert.equal(wrap.classList.contains('is-loading'), true);
+  const restoreEvents = ['visibilitychange', 'touchstart', 'touchmove', 'wheel', 'scroll', 'pointerdown'];
+  const listenerCounts = Object.fromEntries(restoreEvents.map(type => [type, events[type].length]));
   timers.find(timer => timer.ms === 15000).fn();
   assert.equal(wrap.classList.contains('is-loading'), false);
+  assert.deepEqual(scrolls, [[0, 500]]); assert.equal(saved, null);
+  assert.equal(context.history.scrollRestoration, 'auto');
+  for (const type of restoreEvents) assert.equal(events[type].length, listenerCounts[type] - 1);
 });
 
 test('watchlist filter is immediate while a background render is deferred', async () => {

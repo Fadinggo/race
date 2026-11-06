@@ -561,15 +561,62 @@
   root.RaceStable = stableRender;
 
   function restoreSavedScroll(doc, page = root) {
+    const key = 'race-dashboard-scroll';
     try {
-      const saved = JSON.parse(page.sessionStorage.getItem('race-dashboard-scroll') || 'null');
-      page.sessionStorage.removeItem('race-dashboard-scroll');
-      if (!saved || !Number.isFinite(saved.y)) return;
-      page.requestAnimationFrame(() => page.requestAnimationFrame(() => {
-        const section = saved.id && doc.getElementById(saved.id);
-        page.scrollTo(0, section && Number.isFinite(saved.offset) ? page.scrollY + section.getBoundingClientRect().top - saved.offset : saved.y);
-      }));
-    } catch (_) {}
+      const saved = JSON.parse(page.sessionStorage.getItem(key) || 'null');
+      if (!saved || !Number.isFinite(saved.y)) return () => {};
+      page.history.scrollRestoration = 'manual';
+      let pending = true;
+      let timer, deadline, visibleSince;
+      let remaining = 3000;
+      let started = false;
+      const events = ['touchstart', 'touchmove', 'wheel', 'scroll', 'pointerdown'];
+      function finish() {
+        if (!pending) return;
+        pending = false;
+        page.clearTimeout(timer);
+        page.clearTimeout(deadline);
+        events.forEach(type => doc.removeEventListener(type, finish, true));
+        doc.removeEventListener('visibilitychange', visibilityChanged);
+        page.history.scrollRestoration = 'auto';
+        try { page.sessionStorage.removeItem(key); } catch (_) {}
+      }
+      events.forEach(type => doc.addEventListener(type, finish, { passive: true, capture: true }));
+      const now = () => (page.Date || Date).now();
+      function attempt(giveUp = false) {
+        if (!pending || doc.visibilityState === 'hidden') return;
+        if (!doc.querySelector('.wrap')?.classList.contains('is-loading')) {
+          const section = saved.id && doc.getElementById(saved.id);
+          const target = Math.max(0, section && Number.isFinite(saved.offset) ? page.scrollY + section.getBoundingClientRect().top - saved.offset : saved.y);
+          const max = Math.max(0, doc.documentElement.scrollHeight - page.innerHeight);
+          if (max >= target || giveUp) {
+            finish();
+            page.scrollTo(0, Math.min(target, max));
+            return;
+          }
+        }
+        if (giveUp) finish();
+        else timer = page.setTimeout(attempt, 50);
+      }
+      function visibilityChanged() {
+        if (!pending || !started) return;
+        if (doc.visibilityState === 'hidden') {
+          remaining = Math.max(0, remaining - (now() - visibleSince));
+          page.clearTimeout(timer);
+          page.clearTimeout(deadline);
+        } else {
+          visibleSince = now();
+          deadline = page.setTimeout(() => attempt(true), remaining);
+          attempt();
+        }
+      }
+      doc.addEventListener('visibilitychange', visibilityChanged);
+      return () => {
+        if (!pending || started) return;
+        started = true;
+        if (doc.visibilityState !== 'hidden') visibilityChanged();
+      };
+    } catch (_) { return () => {}; }
   }
 
   // shortcut: 32-bit collisions are possible; use a stronger hash if missed deploys justify it.
@@ -619,7 +666,14 @@
       try {
         const storage = options.sessionStorage === undefined ? root.sessionStorage : options.sessionStorage;
         const visible = doc.elementFromPoint?.(20, 1);
-        const section = visible?.closest?.('[id]');
+        const ids = ['cards', 'notes-shelf', 'positions', 'watchlist', 'rows'];
+        const found = visible?.closest?.('[id]');
+        let section = ids.includes(found?.id) ? found : visible?.closest?.(ids.map(id => `#${id}`).join(','));
+        if (!section) {
+          section = ids.map(id => doc.getElementById(id)).filter(Boolean).map(node => ({ node, rect: node.getBoundingClientRect() }))
+            .filter(({ rect }) => rect.bottom > rect.top)
+            .sort((a, b) => Math.max(a.rect.top - 1, 1 - a.rect.bottom, 0) - Math.max(b.rect.top - 1, 1 - b.rect.bottom, 0))[0]?.node;
+        }
         storage?.setItem('race-dashboard-scroll', JSON.stringify({ y: root.scrollY || 0, id: section?.id || '', offset: section?.getBoundingClientRect().top }));
         storage?.setItem(VERSION_RELOAD_KEY, String(clock()));
       } catch (_) {}
@@ -684,7 +738,7 @@
     return { check, ready };
   }
 
-  function start(doc) {
+  function start(doc, restoreScroll = restoreSavedScroll(doc)) {
     scheduleRender = createRenderScheduler(doc);
     const clock = doc.getElementById('clk');
     const status = doc.getElementById('data-status');
@@ -743,17 +797,10 @@
     let lastError = false;
     let loading = false;
     let chart = null;
-    let restorePending = true;
     let initialPaintPending = true;
     let ledgerAges = '';
     const ledgerAgeState = () => day(Date.now());
     const visibleData = value => JSON.stringify(value, (key, item) => key === 'heldSeconds' ? undefined : item);
-
-    function restoreScroll() {
-      if (!restorePending) return;
-      restorePending = false;
-      restoreSavedScroll(doc);
-    }
 
     function updateStatus() {
       clock.textContent = taipeiTime(Date.now()) + ' 台灣';
@@ -895,8 +942,12 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (typeof document !== 'undefined') {
     const begin = () => {
-      root.setTimeout(() => document.querySelector('.wrap')?.classList.remove('is-loading'), 15000);
-      try { start(document); } catch (error) { root.console.error(error); }
+      const restoreScroll = restoreSavedScroll(document);
+      root.setTimeout(() => {
+        document.querySelector('.wrap')?.classList.remove('is-loading');
+        restoreScroll();
+      }, 15000);
+      try { start(document, restoreScroll); } catch (error) { root.console.error(error); }
     };
     try { startVersionCheck(document); } catch (error) { root.console.error(error); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', begin);
