@@ -196,23 +196,86 @@ test('activity defers reload until idle and a hidden tab reloads immediately wit
   assert.deepEqual(JSON.parse(values.get('race-dashboard-scroll')), { y: 0, id: 'positions', offset: -23 });
 });
 
-test('saved scroll is restored after rendering, using section offset or absolute fallback', () => {
-  let saved = JSON.stringify({ y: 500, id: 'positions', offset: -20 });
-  const frames = [];
-  const scrolls = [];
-  const page = { scrollY: 100, requestAnimationFrame: fn => frames.push(fn), scrollTo: (x, y) => scrolls.push([x, y]),
+test('reload saves a major section when the top hit is inline or empty', async () => {
+  for (const hit of ['nested', 'inline', 'empty']) {
+    let version = 'v1';
+    const timers = [], listeners = {}, values = new Map();
+    const positions = { id: 'positions', getBoundingClientRect: () => ({ top: -639, bottom: 200 }) };
+    const cards = { id: 'cards', getBoundingClientRect: () => ({ top: -1000, bottom: -10 }) };
+    const tiny = { id: 'clk' };
+    const doc = { visibilityState: 'visible', addEventListener: (type, fn) => { listeners[type] = fn; },
+      getElementById: id => ({ positions, cards })[id] || null,
+      elementFromPoint: () => hit === 'empty' ? null : { closest: selector => selector === '[id]' ? tiny : hit === 'nested' ? positions : null } };
+    const checker = dashboard.startVersionCheck(doc, { now: () => 100000,
+      sessionStorage: { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) },
+      location: { reload() {} }, setInterval() {},
+      setTimeout: (fn, ms) => { const timer = { fn, ms }; timers.push(timer); return timer; }, clearTimeout() {},
+      fetcher: async url => ({ status: 200, text: async () => version + url }) });
+    await checker.ready; version = 'v2'; await checker.check();
+    doc.visibilityState = 'hidden'; listeners.visibilitychange();
+    assert.deepEqual(JSON.parse(values.get('race-dashboard-scroll')), { y: 0, id: 'positions', offset: -639 });
+  }
+});
+
+function savedScrollPage(value = { y: 500, id: 'positions', offset: -20 }, visibilityState = 'visible') {
+  let saved = JSON.stringify(value), loading = true, now = 0;
+  const scrolls = [], listeners = {}, timers = [];
+  const page = { scrollY: 100, innerHeight: 100, history: { scrollRestoration: 'auto' }, Date: { now: () => now },
+    requestAnimationFrame: () => {}, scrollTo: (x, y) => { scrolls.push([x, y]); listeners.scroll?.(); },
+    setTimeout: (fn, ms) => { const timer = { fn, at: now + ms }; timers.push(timer); return timer; },
+    clearTimeout: timer => { if (timer) timer.cleared = true; },
     sessionStorage: { getItem: () => saved, removeItem: () => { saved = null; } } };
-  const doc = { getElementById: () => ({ getBoundingClientRect: () => ({ top: 70 }) }) };
-  dashboard.restoreSavedScroll(doc, page);
-  assert.equal(saved, null);
-  assert.equal(scrolls.length, 0);
-  frames.shift()(); frames.shift()();
-  assert.deepEqual(scrolls, [[0, 190]]);
-  saved = JSON.stringify({ y: 500, id: 'missing', offset: -20 });
-  dashboard.restoreSavedScroll({ getElementById: () => null }, page);
-  frames.shift()(); frames.shift()();
-  assert.deepEqual(scrolls[1], [0, 500]);
-  assert.doesNotThrow(() => dashboard.restoreSavedScroll(doc, { get sessionStorage() { throw new Error('blocked'); } }));
+  const doc = { visibilityState, documentElement: { scrollHeight: 150 },
+    querySelector: () => ({ classList: { contains: () => loading } }),
+    getElementById: id => id === 'positions' ? { getBoundingClientRect: () => ({ top: 70 }) } : null,
+    addEventListener: (type, fn) => { listeners[type] = fn; }, removeEventListener: type => { delete listeners[type]; } };
+  function advance(ms) {
+    const end = now + ms;
+    for (;;) {
+      const next = timers.filter(timer => !timer.cleared && timer.at <= end).sort((a, b) => a.at - b.at)[0];
+      if (!next) break;
+      now = next.at; next.cleared = true; next.fn();
+    }
+    now = end;
+  }
+  return { page, doc, scrolls, listeners, advance, saved: () => saved, reveal: () => { loading = false; },
+    visibility: value => { doc.visibilityState = value; listeners.visibilitychange?.(); } };
+}
+
+test('hidden load waits for visibility and restores through timers without animation frames', () => {
+  const p = savedScrollPage(undefined, 'hidden');
+  const restore = dashboard.restoreSavedScroll(p.doc, p.page);
+  p.reveal(); restore(); p.advance(10000);
+  assert.notEqual(p.saved(), null); assert.deepEqual(p.scrolls, []);
+  p.visibility('visible'); p.advance(100);
+  assert.deepEqual(p.scrolls, []);
+  p.doc.documentElement.scrollHeight = 290; p.advance(50);
+  assert.deepEqual(p.scrolls, [[0, 190]]); assert.equal(p.saved(), null);
+  assert.equal(p.page.history.scrollRestoration, 'auto');
+  assert.deepEqual(p.listeners, {});
+  restore(); p.advance(5000); assert.deepEqual(p.scrolls, [[0, 190]]);
+});
+
+test('visible time pauses when hidden and gives up at the furthest reachable point', () => {
+  const p = savedScrollPage({ y: 500, id: 'missing', offset: -20 });
+  p.reveal(); dashboard.restoreSavedScroll(p.doc, p.page)();
+  p.advance(1200); p.visibility('hidden'); p.advance(10000);
+  assert.notEqual(p.saved(), null); assert.deepEqual(p.scrolls, []);
+  p.visibility('visible'); p.advance(1799); assert.deepEqual(p.scrolls, []);
+  p.advance(1); assert.deepEqual(p.scrolls, [[0, 50]]);
+  assert.equal(p.saved(), null); assert.equal(p.page.history.scrollRestoration, 'auto');
+  assert.deepEqual(p.listeners, {});
+});
+
+test('user interaction cancels restoration and restores automatic browser scrolling', () => {
+  for (const event of ['touchstart', 'touchmove', 'wheel', 'scroll', 'pointerdown']) {
+    const p = savedScrollPage();
+    const restore = dashboard.restoreSavedScroll(p.doc, p.page);
+    p.reveal(); restore(); p.listeners[event](); p.advance(5000); restore();
+    assert.equal(p.saved(), null); assert.deepEqual(p.scrolls, []);
+    assert.equal(p.page.history.scrollRestoration, 'auto'); assert.deepEqual(p.listeners, {});
+  }
+  assert.doesNotThrow(() => dashboard.restoreSavedScroll({}, { get sessionStorage() { throw new Error('blocked'); } }));
 });
 
 test('a visible tab waits a full thirty seconds after the latest activity', async () => {
