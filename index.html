@@ -64,12 +64,13 @@ button:focus-visible,.layout-section summary:focus-visible{outline:2px solid var
 
 .layout-summary{display:grid;grid-template-columns:1.2fr 1.4fr .7fr 1fr 1fr 1fr;gap:12px;align-items:start}
 .position-head,.watch-head,.watch-expired-head{font-size:11px;color:#9bb;margin:16px 0 6px;padding-left:16px}
+.phone-only-label{display:none}
 .watch-active .layout-summary{grid-template-columns:1.15fr 1.6fr 1fr 1.4fr}
 .watch-expired-list .layout-summary{grid-template-columns:1.15fr 1.6fr 1fr 1fr .8fr}
 .layout-detail-body{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin:16px 0 0 16px;padding:14px;background:#070e18;border-radius:8px}
 .layout-field{min-width:0}.layout-field strong{display:block;font-size:12px}.layout-field p{margin:4px 0 0;white-space:pre-wrap}
 .layout-group-title{color:#9bb;border-bottom:1px dashed #245061;padding-bottom:6px}
-@media(max-width:1000px){.layout-summary,.watch-active .layout-summary,.watch-expired-list .layout-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}.position-head,.watch-head,.watch-expired-head{display:none}}
+@media(max-width:1000px){.layout-summary,.watch-active .layout-summary,.watch-expired-list .layout-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}.position-head,.watch-head,.watch-expired-head{display:none}.phone-only-label{display:inline}}
 @media(max-width:600px){.layout-summary,.watch-active .layout-summary,.watch-expired-list .layout-summary,.layout-detail-body{grid-template-columns:1fr}.layout-summary{gap:5px}.layout-summary>span:first-child{color:var(--c);font-weight:600}.layout-detail-body{margin-left:0}.layout-trader-block{padding:14px}}
 html,body,.wrap{overflow-anchor:auto}
 .wrap.is-loading{visibility:hidden;position:fixed;inset:0;overflow:hidden;min-height:100vh}.wrap.is-loading:before{content:"資料讀取中…";visibility:visible;position:fixed;top:40vh;left:0;width:100%;text-align:center;color:#9bb}
