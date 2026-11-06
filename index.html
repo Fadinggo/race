@@ -52,8 +52,13 @@ button:focus-visible,.layout-section summary:focus-visible{outline:2px solid var
 .layout-section .layout-field{margin:10px 0;white-space:pre-wrap}
 .layout-section .layout-field strong{color:#9bb}
 .layout-section .watch-expired{margin-top:16px;color:#a3bdc8}
-.ledger-scroll{overflow-x:auto}.ledger-section table{margin-top:12px;min-width:760px}
-.ledger-group td{padding:0}.ledger-group button{display:block;width:100%;text-align:left;border-radius:0;border:0;border-bottom:1px solid #245061;padding:14px}
+.filter-bar{flex-wrap:nowrap;overflow-x:auto}.filter-bar button{flex:none}
+.ledger-day{border-top:1px solid #245061;padding:10px 0}.ledger-day>summary{cursor:pointer;color:var(--c)}
+.ledger-scroll{overflow-x:auto}.ledger-section table{margin:8px 0 0;min-width:630px;table-layout:fixed}
+.ledger-section th,.ledger-trade td{width:14.285%;padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ledger-section th{height:30px;letter-spacing:0;font-size:10px}.ledger-trade{height:36px;cursor:pointer;opacity:1;animation:none}
+.ledger-trade td{height:36px;box-sizing:border-box}.ledger-trade:focus-visible{outline:2px solid var(--c);outline-offset:-2px}
+.ledger-trade-detail{opacity:1;animation:none}.ledger-trade-detail[hidden]{display:none}.ledger-trade-detail td{padding:8px 12px;white-space:pre-wrap;overflow-wrap:anywhere}.ledger-trade-detail p{margin:4px 0}
 .notes-shelf{margin-top:28px}.notes-shelf .notes-column{max-width:100%;margin-top:0}
 @media(max-width:760px){.layout-trader-block{padding:14px}.layout-section summary>span{display:block}.filter-bar button,.layout-filters button{padding:8px 10px}.notes-shelf{gap:28px}}
 
@@ -74,7 +79,7 @@ button:focus-visible,.layout-section summary:focus-visible{outline:2px solid var
 <section class="layout-section" aria-label="目前持倉"><h2>目前持倉</h2><div id="positions"><p class="muted">正在讀取持倉…</p></div></section>
 <section class="layout-section" aria-label="接下來正在觀察的方向"><h2>接下來正在觀察的方向</h2><div id="watchlist"><p class="muted">尚無觀察</p></div></section>
 
-<div class="card" style="opacity:1;transform:none;animation:none;margin-top:28px;border-color:#7a5cff"><h2>資產變化</h2><div id="chart-status" class="chart-status" role="status"></div><canvas id="eqc" height="110"></canvas></div><section class="ledger-section" aria-label="流水帳"><h2>流水帳</h2><div class="filter-bar" id="ledger-filters" role="group" aria-label="流水帳分類"><button type="button" data-ledger-mode="all" aria-pressed="true">全部</button><button type="button" data-ledger-mode="trader" aria-pressed="false">依交易員</button><button type="button" data-ledger-mode="market" aria-pressed="false">依幣種</button><button type="button" data-ledger-mode="action" aria-pressed="false">開倉・平倉</button><button type="button" data-ledger-mode="result" aria-pressed="false">賺・賠</button></div><div class="ledger-scroll"><table><thead><tr><th>TIME (台灣)</th><th>TRADER</th><th>MARKET</th><th>SIDE</th><th>PRICE</th><th>QTY</th><th>PNL</th><th>NOTE</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<div class="card" style="opacity:1;transform:none;animation:none;margin-top:28px;border-color:#7a5cff"><h2>資產變化</h2><div id="chart-status" class="chart-status" role="status"></div><canvas id="eqc" height="110"></canvas></div><section class="ledger-section" aria-label="流水帳"><h2>流水帳</h2><div class="filter-bar" id="ledger-filters" role="group" aria-label="流水帳篩選"><button type="button" data-ledger-mode="all" aria-pressed="true">全部</button><button type="button" data-ledger-mode="A" aria-pressed="false">A</button><button type="button" data-ledger-mode="B" aria-pressed="false">B</button><button type="button" data-ledger-mode="profit" aria-pressed="false">賺</button><button type="button" data-ledger-mode="loss" aria-pressed="false">賠</button></div><div id="rows"></div></section>
 <div class="notes-shelf" id="notes-shelf"><aside class="notes-column notes-a" id="notes-a" aria-label="Grok-Trader-A 交易員便利貼"><h3>Grok-Trader-A 交易員便利貼</h3><p class="notes-disclaimer">AI 交易員自述，非投資建議</p><p class="notes-empty">暫無便利貼</p></aside><aside class="notes-column notes-b" id="notes-b" aria-label="Grok-Trader-B 交易員便利貼"><h3>Grok-Trader-B 交易員便利貼</h3><p class="notes-disclaimer">AI 交易員自述，非投資建議</p><p class="notes-empty">暫無便利貼</p></aside></div></div>
 <script src="layout-v4.js" defer></script>
 <script src="dashboard.js" defer></script></html>

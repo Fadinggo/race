@@ -112,24 +112,23 @@ test('unsafe content in any one field hides the entire note without hiding safe 
   assert.equal(column(doc).textContent.includes('FAKE_ONLY'), false);
 });
 
-test('each trader shows ten recent cards and a separate accessible more disclosure', () => {
+test('each trader groups every recent note under one date and keeps it open on refresh', () => {
   const doc = makeDocument();
   const source = Array.from({ length: 13 }, (_, index) => makeNote({ ts: (now - index * 1000) / 1000, watch_next: `筆記 ${index}` }));
   source.push(makeNote({ trader: 'Grok-Trader-B', watch_next: '乙便利貼' }));
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
   const list = column(doc).querySelector('.notes-list');
-  assert.equal(list.children.filter(node => node.tagName === 'article').length, 10);
-  const more = list.querySelector('.notes-more');
+  const more = list.querySelector('.notes-day');
   assert.equal(more.open, false);
   assert.equal(more.children[0].tagName, 'summary');
-  assert.equal(more.children[0].textContent, '看更多（3）');
-  assert.equal(more.children.filter(node => node.tagName === 'article').length, 3);
+  assert.equal(more.children[0].textContent, '10/31（13 則）');
+  assert.equal(more.children.filter(node => node.tagName === 'article').length, 13);
   more.open = true;
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now + 60000);
   assert.equal(column(doc).querySelector('.notes-more').open, true);
   notes.renderColumn(doc, column(doc, 'Grok-Trader-B'), 'Grok-Trader-B', source, now);
   assert.equal(descendants(column(doc, 'Grok-Trader-B')).filter(node => node.tagName === 'article').length, 1);
-  assert.equal(column(doc, 'Grok-Trader-B').querySelector('.notes-more'), null);
+  assert.equal(column(doc, 'Grok-Trader-B').querySelector('.notes-day').children[0].textContent, '10/31（1 則）');
 });
 
 test('timestamps use Taipei and all note kinds have labels; stale starts strictly after 48 hours', () => {
@@ -146,6 +145,22 @@ test('timestamps use Taipei and all note kinds have labels; stale starts strictl
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, timestamp + 48 * 3600000 + 1);
   nodes = descendants(column(doc));
   assert.equal(nodes.filter(node => node.className === 'note-stale').length, 3);
+});
+
+test('all sticky notes are grouped by Taipei date and remain collapsed', () => {
+  const doc = makeDocument();
+  const source = [makeNote(), makeNote({ ts: (now - 25 * 3600000) / 1000 }),
+    makeNote({ ts: (now - 26 * 3600000) / 1000 }), makeNote({ ts: (now - 49 * 3600000) / 1000 })];
+  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
+  const list = column(doc).querySelector('.notes-list');
+  assert.equal(list.children.filter(node => node.tagName === 'article').length, 0);
+  const groups = descendants(list).filter(node => node.className.includes('notes-day'));
+  assert.deepEqual(groups.map(group => group.children[0].textContent), ['10/31（1 則）', '10/30（2 則）', '10/29（1 則）']);
+  assert.ok(groups.every(group => !group.open));
+  groups[0].open = true;
+  notes.renderColumn(doc, column(doc), 'Grok-Trader-A', source, now);
+  assert.equal(descendants(list).length > 0, true);
+  assert.equal(descendants(column(doc)).find(node => node.className.includes('notes-day')).open, true);
 });
 
 test('missing, malformed, or unreadable notes show an empty state without touching financial content', async () => {

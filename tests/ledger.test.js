@@ -115,52 +115,126 @@ test('totals preserve mixed currency units and explicitly mark unknown amounts',
   assert.equal(dashboard.groupTrades([trade({ pnl: null })], 'trader')[0].pnl, '—（資料不完整）');
 });
 
-test('all mode preserves the original eight columns and reverse chronological order', () => {
-  const container = new TextNode('tbody');
-  const original = new TextNode('tbody');
-  const trades = [trade({ note: '較舊' }), trade({ note: '較新' })];
-  dashboard.renderRows(doc, original, trades);
-  dashboard.renderGroupedRows(doc, container, trades, 'all');
-  assert.equal(container.textContent, original.textContent);
-  assert.equal(container.children[0].children.length, 8);
-  assert.equal(container.children[0].children.at(-1).textContent, '較新');
-  assert.equal(nodes(container).filter(node => node.tagName === 'button').length, 0);
-});
-
-test('group button expands fills, reports totals and retains expansion on refresh or mode changes', () => {
-  const container = new TextNode('tbody');
-  const opened = new Set();
-  const trades = [trade(), trade({ pnl: 3 })];
-  dashboard.renderGroupedRows(doc, container, trades, 'trader', opened);
-  let button = nodes(container).find(node => node.tagName === 'button');
-  assert.equal(button.attributes['aria-expanded'], 'false');
-  assert.match(button.textContent, /2 筆・合計損益 \+5 USDT・合計手續費 \+0.2 USDT/);
-  assert.ok(container.children.slice(1).every(line => line.hidden));
-  button.click();
-  assert.equal(button.attributes['aria-expanded'], 'true');
-  assert.ok(container.children.slice(1).every(line => !line.hidden));
-  dashboard.renderGroupedRows(doc, container, trades, 'market', opened);
-  assert.equal(nodes(container).find(node => node.tagName === 'button').attributes['aria-expanded'], 'false');
-  dashboard.renderGroupedRows(doc, container, trades.concat(trade()), 'trader', opened);
-  button = nodes(container).find(node => node.tagName === 'button');
-  assert.equal(button.attributes['aria-expanded'], 'true');
-  button.click();
-  assert.equal(opened.size, 0);
-});
-
-test('empty grouping stays readable and untrusted group labels remain plain text', () => {
-  const container = new TextNode('tbody');
-  dashboard.renderGroupedRows(doc, container, [], 'trader');
-  assert.match(container.textContent, /目前沒有可顯示的交易紀錄/);
-  const attack = '<img src=x onerror=alert(1)>';
-  dashboard.renderGroupedRows(doc, container, [trade({ trader: attack, note: attack })], 'trader');
-  assert.ok(container.textContent.includes(attack));
-  assert.equal(nodes(container).some(node => ['img', 'script'].includes(node.tagName)), false);
-});
-
-
 test('overflow in grouped finite monetary inputs is unavailable rather than Infinity', () => {
   const group = dashboard.groupTrades([trade({ pnl: 1e308, fee: -1e308 }), trade({ pnl: 1e308, fee: -1e308 })], 'trader')[0];
   assert.equal(group.pnl, '— USDT（資料不完整）');
   assert.equal(group.fees, '— USDT（資料不完整）');
+});
+
+const state = () => ({ days: new Map(), rows: new Set() });
+const dayGroups = container => container.children.filter(node => node.className === 'ledger-day');
+const tradeRows = container => nodes(container).filter(node => node.className === 'ledger-trade');
+const dayNow = Date.parse('2026-11-02T00:30:00+08:00');
+const dayTrades = () => [
+  trade({ timestamp: Date.parse('2026-11-01T23:59:59+08:00'), event: 'close', pnl: -3 }),
+  trade({ timestamp: dayNow, event: 'close', pnl: 2, openReason: '<img src=x>', closeReason: 'close', note: 'long note' }),
+  trade({ timestamp: dayNow + 1000, trader: 'Grok-Trader-B', event: 'close', pnl: -0.5 })
+];
+
+test('Taipei day folds show filtered counts and four-decimal USDT net; desktop opens only today', () => {
+  const container = new TextNode('div');
+  dashboard.renderGroupedRows(doc, container, dayTrades(), 'all', state(), dayNow, false);
+  const groups = dayGroups(container);
+  assert.deepEqual(groups.map(group => group.children[0].textContent), [
+    '11/02（2 筆，淨 +1.5000 USDT）',     '11/01（1 筆，淨 -3.0000 USDT）'
+  ]);
+  assert.deepEqual(groups.map(group => group.open), [true, false]);
+  assert.deepEqual(tradeRows(container)[1].children.map(cell => cell.textContent).slice(0, 2), ['00:30:00', 'A']);
+  assert.equal(nodes(container).some(node => node.tagName === 'img'), false);
+  dashboard.renderGroupedRows(doc, container, dayTrades(), 'all', state(), dayNow, true);
+  assert.ok(dayGroups(container).every(group => !group.open));
+});
+
+test('default disclosure state follows the 600px media query', () => {
+  const previous = global.matchMedia;
+  try {
+    for (const phone of [true, false]) {
+      global.matchMedia = query => {
+        assert.equal(query, '(max-width: 600px)');
+        return { matches: phone };
+      };
+      const container = new TextNode('div');
+      dashboard.renderGroupedRows(doc, container, dayTrades(), 'all', state(), dayNow);
+      assert.deepEqual(dayGroups(container).map(group => group.open), [!phone, false]);
+    }
+  } finally { global.matchMedia = previous; }
+});
+
+test('compact rows expose seven columns and each row toggles only its own text', () => {
+  const container = new TextNode('div');
+  dashboard.renderGroupedRows(doc, container, dayTrades(), 'all', state(), dayNow, true);
+  const rows = tradeRows(container);
+  assert.ok(rows.every(row => row.children.length === 7));
+  assert.deepEqual(nodes(container).filter(node => node.tagName === 'th').map(node => node.textContent).slice(0, 7),
+    ['TIME', 'TRADER', 'MARKET', 'SIDE', 'PRICE', 'QTY', 'PNL']);
+  const details = nodes(container).filter(node => node.className === 'ledger-trade-detail');
+  assert.ok(details.every(detail => detail.hidden));
+  rows[1].click();
+  assert.equal(rows[1].attributes['aria-expanded'], 'true');
+  assert.equal(details[1].hidden, false);
+  assert.equal(details[0].hidden, true);
+  assert.match(details[1].textContent, /開倉理由：<img src=x>/);
+  assert.match(details[1].textContent, /平倉理由：close/);
+  assert.match(details[1].textContent, /NOTE：long note/);
+  rows[1].click();
+  assert.equal(details[1].hidden, true);
+  let prevented = false;
+  rows[1].listeners.keydown({ key: ' ', preventDefault: () => { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(details[1].hidden, false);
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../index.html'), 'utf8');
+  assert.match(html, /\.ledger-trade\{height:36px/);
+  assert.match(html, /text-overflow:ellipsis;white-space:nowrap/);
+  assert.match(html, /\.ledger-section table\{[^}]*table-layout:fixed/);
+});
+
+test('chips filter within days and recalculate counts and totals', () => {
+  const container = new TextNode('div');
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../index.html'), 'utf8');
+  assert.deepEqual([...html.matchAll(/data-ledger-mode="([^"]+)"/g)].map(match => match[1]), ['all', 'A', 'B', 'profit', 'loss']);
+  for (const [filter, expected] of [
+    ['A', ['11/02（1 筆，淨 +2.0000 USDT）', '11/01（1 筆，淨 -3.0000 USDT）']],
+    ['B', ['11/02（1 筆，淨 -0.5000 USDT）']],
+    ['profit', ['11/02（1 筆，淨 +2.0000 USDT）']],
+    ['loss', ['11/02（1 筆，淨 -0.5000 USDT）', '11/01（1 筆，淨 -3.0000 USDT）']]
+  ]) {
+    dashboard.renderGroupedRows(doc, container, dayTrades(), filter, state(), dayNow, true);
+    assert.deepEqual(dayGroups(container).map(group => group.children[0].textContent), expected);
+  }
+});
+
+test('open day and row survive changed snapshots and filtering; closed today stays closed', () => {
+  const container = new TextNode('div');
+  const saved = state();
+  const trades = dayTrades();
+  dashboard.renderGroupedRows(doc, container, trades, 'all', saved, dayNow, false);
+  const groups = dayGroups(container);
+  groups[0].open = false; groups[0].listeners.toggle();
+  groups[1].open = true; groups[1].listeners.toggle();
+  tradeRows(container)[2].click();
+  dashboard.renderGroupedRows(doc, container, trades.concat(trade({ timestamp: dayNow + 2000 })), 'B', saved, dayNow, false);
+  dashboard.renderGroupedRows(doc, container, trades.concat(trade({ timestamp: dayNow + 2000 })), 'all', saved, dayNow, false);
+  assert.deepEqual(dayGroups(container).map(group => group.open), [false, true]);
+  const rows = tradeRows(container);
+  assert.equal(rows.at(-1).attributes['aria-expanded'], 'true');
+  assert.equal(nodes(container).filter(node => node.className === 'ledger-trade-detail').at(-1).hidden, false);
+});
+
+test('day completeness ignores open rows and marks missing close PNL', () => {
+  const container = new TextNode('div');
+  dashboard.renderGroupedRows(doc, container, [
+    trade({ timestamp: dayNow - 86400000, event: 'close', pnl: null }),
+    trade({ timestamp: dayNow, event: 'open', pnl: null }),
+    trade({ timestamp: dayNow + 1000, event: 'close', pnl: 2 })
+  ], 'all', state(), dayNow, false);
+  assert.deepEqual(dayGroups(container).map(group => group.children[0].textContent), [
+    '11/02（2 筆，淨 +2.0000 USDT）', '11/01（1 筆，淨 — USDT，資料不完整）'
+  ]);
+});
+
+test('unknown currency is not added to the USDT day net', () => {
+  const container = new TextNode('div');
+  dashboard.renderGroupedRows(doc, container, [trade({ event: 'close', pnl: 5, pnlCurrency: 'BTC' })], 'all', state(), dayNow, false);
+  assert.match(dayGroups(container)[0].children[0].textContent, /淨 — USDT/);
+  assert.doesNotMatch(dayGroups(container)[0].children[0].textContent, /資料不完整/);
 });
