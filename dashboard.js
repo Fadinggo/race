@@ -395,9 +395,14 @@
       const occurrence = occurrences.get(keyBase) || 0;
       occurrences.set(keyBase, occurrence + 1);
       const key = keyBase + ':' + occurrence;
-      if (mode === 'A' || mode === 'B') {
-        if (trade.trader !== `Grok-Trader-${mode}`) continue;
-      } else if (mode === 'profit' && !(trade.pnl > 0) || mode === 'loss' && !(trade.pnl < 0)) continue;
+      const filters = typeof mode === 'string' ? {
+        trader: new Set(['A', 'B'].includes(mode) ? [mode] : []),
+        result: new Set(['profit', 'loss'].includes(mode) ? [mode] : []), action: new Set()
+      } : mode;
+      const action = trade.event === 'partial_close' ? 'partial_close' : trade.event === 'close' ? 'close' : trade.event === 'open' ? 'open' : '';
+      if (filters.trader.size && !filters.trader.has(trade.trader.replace('Grok-Trader-', ''))) continue;
+      if (filters.result.size && !((trade.pnl > 0 && filters.result.has('profit')) || (trade.pnl < 0 && filters.result.has('loss')))) continue;
+      if (filters.action.size && !filters.action.has(action)) continue;
       const date = trade.timestamp == null ? '日期未提供' : day(trade.timestamp);
       if (!days.has(date)) days.set(date, []);
       days.get(date).push({ trade, key });
@@ -406,7 +411,7 @@
     for (const [date, items] of days) {
       const group = element(doc, 'details', null, 'ledger-day');
       group.dataset.day = date;
-      group.open = state.days.has(date) ? state.days.get(date) : !phone && date === day(now);
+      group.open = state.days.has(date) ? state.days.get(date) : date === day(now);
       group.addEventListener('toggle', () => { if (group.isConnected !== false) state.days.set(date, group.open); });
       const closes = items.map(({ trade }) => trade).filter(trade => trade.event === 'close' || trade.event === 'partial_close');
       const amounts = closes.filter(trade => Number.isFinite(trade.pnl));
@@ -443,6 +448,8 @@
         }
         if (!cell.children.length) cell.append(element(doc, 'p', '沒有提供說明'));
         detail.append(cell);
+        line.dataset.morphKey = key + ':line';
+        detail.dataset.morphKey = key + ':detail';
         line.tabIndex = 0;
         line.setAttribute('role', 'button');
         function update() {
@@ -467,7 +474,7 @@
       groups.push(group);
     }
     if (!groups.length) groups.push(element(doc, 'p', '目前沒有可顯示的交易紀錄', 'muted'));
-    container.replaceChildren(...groups);
+    morph(container, groups);
   }
 
   async function fetchPair(fetcher, previous, signal, nonce) {
@@ -486,28 +493,71 @@
     if (shelf && anchor && anchor.nextElementSibling !== shelf) anchor.after(shelf);
   }
 
-  function stableRender(container, render) {
-    const doc = container.ownerDocument;
-    if (!doc || !root.scrollTo || !container.getBoundingClientRect) return render();
-    let anchor = doc.elementFromPoint(Math.max(0, Math.min(root.innerWidth - 1, 20)), 1);
-    const path = [];
-    const top = anchor?.getBoundingClientRect().top;
-    while (anchor && anchor !== container && container.contains(anchor)) {
-      const parent = anchor.parentElement;
-      path.unshift(Array.prototype.indexOf.call(parent.children, anchor));
-      anchor = parent;
+  // Keep existing nodes (and their focus, scroll and open state) when data changes.
+  function morph(container, nodes) {
+    if (!container.childNodes || !container.insertBefore) { container.replaceChildren(...nodes); return; }
+    const key = node => node.nodeType === 1 && (node.dataset?.morphKey || node.dataset?.layoutKey || node.dataset?.noteKey || node.dataset?.day || node.dataset?.trader);
+    function sync(parent, desired) {
+      const keyed = new Map();
+      for (const node of parent.childNodes) {
+        const id = key(node);
+        if (id && !keyed.has(id)) keyed.set(id, node);
+      }
+      let cursor = parent.firstChild;
+      for (const fresh of desired) {
+        const id = key(fresh);
+        let old = id ? keyed.get(id) : cursor;
+        if (id) keyed.delete(id);
+        if (old && (old.nodeName !== fresh.nodeName || (!id && key(old)))) old = null;
+        if (!old) { parent.insertBefore(fresh, cursor); continue; }
+        if (old !== cursor) parent.insertBefore(old, cursor);
+        if (old.nodeType === 3) {
+          if (old.textContent !== fresh.textContent) old.textContent = fresh.textContent;
+        } else if (old.nodeType === 1) {
+          for (const attr of Array.from(old.attributes)) if (!fresh.hasAttribute(attr.name)) old.removeAttribute(attr.name);
+          for (const attr of Array.from(fresh.attributes)) if (old.getAttribute(attr.name) !== attr.value) old.setAttribute(attr.name, attr.value);
+          if (!old.classList.contains('settlement-summary')) sync(old, Array.from(fresh.childNodes));
+        }
+        cursor = old.nextSibling;
+      }
+      while (cursor) { const next = cursor.nextSibling; cursor.remove(); cursor = next; }
     }
-    const inside = anchor === container;
-    const original = inside ? null : doc.elementFromPoint(Math.max(0, Math.min(root.innerWidth - 1, 20)), 1);
-    const previousMin = container.style.minHeight;
-    container.style.minHeight = `${container.getBoundingClientRect().height}px`;
-    try { render(); } finally {
-      container.style.minHeight = previousMin;
-      let target = inside ? container : original;
-      if (inside) for (const index of path) target = target.children[index] || target;
-      if (target?.isConnected && Number.isFinite(top)) root.scrollTo(root.scrollX, root.scrollY + target.getBoundingClientRect().top - top);
-    }
+    sync(container, nodes);
   }
+  root.RaceMorph = morph;
+
+  function createRenderScheduler(doc, options = {}) {
+    const clock = options.now || Date.now;
+    const delay = options.setTimeout || root.setTimeout.bind(root);
+    const cancel = options.clearTimeout || root.clearTimeout.bind(root);
+    let lastActivity = -Infinity;
+    let timer;
+    const pending = new Map();
+    function flush() {
+      const remaining = 2000 - (clock() - lastActivity);
+      if (remaining > 0) { timer = delay(flush, remaining); return; }
+      timer = undefined;
+      const work = [...pending.values()];
+      pending.clear();
+      work.forEach(render => { try { render(); } catch (error) { root.console.error(error); } });
+    }
+    for (const type of ['touchstart', 'touchmove', 'wheel', 'scroll', 'pointerdown']) {
+      doc.addEventListener(type, () => {
+        lastActivity = clock();
+        if (pending.size) { cancel(timer); timer = delay(flush, 2000); }
+      }, { passive: true, capture: type === 'scroll' });
+    }
+    const schedule = (container, render) => {
+      pending.set(container, render);
+      if (timer !== undefined) cancel(timer);
+      flush();
+    };
+    schedule.now = (container, render) => { pending.delete(container); render(); };
+    return schedule;
+  }
+  let scheduleRender = (_container, render) => render();
+  function stableRender(container, render) { scheduleRender(container, render); }
+  stableRender.now = (container, render) => scheduleRender.now ? scheduleRender.now(container, render) : render();
   root.RaceStable = stableRender;
 
   function restoreSavedScroll(doc, page = root) {
@@ -635,6 +685,7 @@
   }
 
   function start(doc) {
+    scheduleRender = createRenderScheduler(doc);
     const clock = doc.getElementById('clk');
     const status = doc.getElementById('data-status');
     const updatedLine = doc.getElementById('data-updated');
@@ -645,9 +696,16 @@
     const layout = root.RaceLayout?.mount(doc);
     const ledgerFilters = doc.getElementById('ledger-filters');
     const ledgerOpenGroups = { days: new Map(), rows: new Set() };
-    let ledgerMode = 'all';
+    const ledgerMode = { trader: new Set(), result: new Set(), action: new Set() };
+    let filterHeight = 0;
+    const rememberFilterHeight = () => {
+      if (!Object.values(ledgerMode).some(group => group.size) || !ledger) return;
+      const height = ledger.getBoundingClientRect().height;
+      if (height > filterHeight) { filterHeight = height; ledger.style.minHeight = `${height}px`; }
+    };
     const noteColumns = ['notes-a', 'notes-b'].map(id => doc.getElementById(id));
     const ledger = doc.querySelector('.ledger-section');
+    if (ledger && root.ResizeObserver) new root.ResizeObserver(rememberFilterHeight).observe(ledger);
     function placeNotes() {
       const shelf = doc.getElementById('notes-shelf');
       const style = root.getComputedStyle(cards);
@@ -657,29 +715,39 @@
         const trader = index === 0 ? 'Grok-Trader-A' : 'Grok-Trader-B';
         const panel = Array.from(cards.children).find(item => item.dataset.trader === trader);
         const target = wideNotes && panel ? panel : shelf;
-        if (node && target) target.append(node);
+        if (node && target && node.parentElement !== target) target.append(node);
       });
     }
-    root.addEventListener('resize', placeNotes);
+    root.addEventListener('resize', () => stableRender(doc.getElementById('notes-shelf'), placeNotes));
     // Notes load independently of the snapshot, so place them before the first refresh too.
     placeNotes();
     doc.addEventListener('race:notes-updated', event => layout?.updateNotes(event.detail));
     ledgerFilters?.addEventListener('click', event => {
       const button = event.target.closest('button[data-ledger-mode]');
       if (!button || !ledgerFilters.contains(button)) return;
-      ledgerMode = button.dataset.ledgerMode;
-      for (const item of ledgerFilters.querySelectorAll('button')) {
-        item.setAttribute('aria-pressed', String(item === button));
-      }
-      if (current) stableRender(rows, () => renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups));
+      const selected = ledgerMode[button.dataset.ledgerGroup];
+      if (!selected) return;
+      const value = button.dataset.ledgerMode;
+      const wasFiltering = Object.values(ledgerMode).some(group => group.size);
+      if (!wasFiltering) filterHeight = ledger?.getBoundingClientRect().height || 0;
+      if (selected.has(value)) selected.delete(value); else selected.add(value);
+      const filtering = Object.values(ledgerMode).some(group => group.size);
+      if (filtering) {
+        filterHeight = Math.max(filterHeight, ledger?.getBoundingClientRect().height || 0);
+        if (ledger) ledger.style.minHeight = `${filterHeight}px`;
+      } else { filterHeight = 0; if (ledger) ledger.style.minHeight = ''; }
+      button.setAttribute('aria-pressed', String(selected.has(value)));
+      if (current) stableRender.now(rows, () => renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups));
     });
     let current = null;
     let lastError = false;
     let loading = false;
     let chart = null;
     let restorePending = true;
+    let initialPaintPending = true;
     let ledgerAges = '';
     const ledgerAgeState = () => day(Date.now());
+    const visibleData = value => JSON.stringify(value, (key, item) => key === 'heldSeconds' ? undefined : item);
 
     function restoreScroll() {
       if (!restorePending) return;
@@ -768,35 +836,44 @@
         const hadPrevious = previous !== null;
         current = next;
         lastError = false;
-        if (!previous || JSON.stringify([previous.traders, previous.trades, previous.staleAfterMs]) !== JSON.stringify([current.traders, current.trades, current.staleAfterMs])) stableRender(cards, () => {
-        const panels = current.traders.map(trader => {
-          const panel = element(doc, 'section', null, 'trader-panel');
-          panel.dataset.trader = trader.name;
-          panel.append(renderCard(doc, trader, current.trades, Date.now(), current.staleAfterMs));
-          const notesId = { 'Grok-Trader-A': 'notes-a', 'Grok-Trader-B': 'notes-b' }[trader.name];
-          const notes = notesId ? doc.getElementById(notesId) : null;
-          if (notes) panel.append(notes);
-          return panel;
-        });
-        cards.replaceChildren(...panels);
+        if (!previous || visibleData([previous.traders, previous.trades, previous.staleAfterMs]) !== visibleData([current.traders, current.trades, current.staleAfterMs])) stableRender(cards, () => {
+        for (const trader of current.traders) {
+          let panel = Array.from(cards.children).find(item => item.dataset.trader === trader.name);
+          if (!panel) {
+            panel = element(doc, 'section', null, 'trader-panel');
+            panel.dataset.trader = trader.name;
+            cards.append(panel);
+          }
+          const card = renderCard(doc, trader, current.trades, Date.now(), current.staleAfterMs);
+          if (panel.firstElementChild) morph(panel.firstElementChild, Array.from(card.childNodes));
+          else panel.append(card);
+        }
         placeNotes();
         doc.dispatchEvent(new Event('race:cards-updated'));
         if (hadPrevious) cards.classList.add('is-ready');
         });
         layout?.updateSnapshot(current);
-        if (!previous || JSON.stringify(previous.trades) !== JSON.stringify(current.trades)) {
+        if (!previous || visibleData(previous.trades) !== visibleData(current.trades)) {
           ledgerAges = ledgerAgeState(current.trades);
           stableRender(rows, () => renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups));
         }
-        try { if (!previous || JSON.stringify([previous.series, previous.traders.map(t => t.currency), previous.staleAfterMs]) !== JSON.stringify([current.series, current.traders.map(t => t.currency), current.staleAfterMs])) updateChart(current); } catch (_) {
+        if (!previous || JSON.stringify([previous.series, previous.traders.map(t => t.currency), previous.staleAfterMs]) !== JSON.stringify([current.series, current.traders.map(t => t.currency), current.staleAfterMs])) stableRender(canvas, () => {
+          try { updateChart(current); } catch (_) {
           chartStatus.textContent = '圖表更新失敗；帳戶與交易資料仍可更新。';
-        }
-        restoreScroll();
+          }
+        });
       } catch (_) {
         lastError = true;
       } finally {
         loading = false;
         updateStatus();
+        if (initialPaintPending) {
+          initialPaintPending = false;
+          Promise.resolve().then(() => Promise.allSettled([layout?.ready, root.RaceNotesReady])).then(() => stableRender(doc, () => {
+            doc.querySelector('.wrap')?.classList.remove('is-loading');
+            restoreScroll();
+          }));
+        }
       }
     }
 
@@ -811,14 +888,19 @@
       }
     }, 60000);
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
+    return { refresh };
   }
 
-  const api = { number, timestamp, price, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair, placeNotesShelf, stableRender, restoreSavedScroll, startVersionCheck };
+  const api = { start, morph, number, timestamp, price, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair, placeNotesShelf, stableRender, createRenderScheduler, restoreSavedScroll, startVersionCheck };
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (typeof document !== 'undefined') {
-    startVersionCheck(document);
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
-    else start(document);
+    const begin = () => {
+      root.setTimeout(() => document.querySelector('.wrap')?.classList.remove('is-loading'), 15000);
+      try { start(document); } catch (error) { root.console.error(error); }
+    };
+    try { startVersionCheck(document); } catch (error) { root.console.error(error); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', begin);
+    else begin();
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
@@ -1107,8 +1189,6 @@
     appendField(doc, parent, '方向', sideLabel(source.direction));
     appendField(doc, parent, '槓桿', decimal(source.leverage) + 'x');
     appendField(doc, parent, '進場價', decimal(source.entry_price));
-    appendField(doc, parent, '停損', decimal(source.stop_loss));
-    appendField(doc, parent, '停利', decimal(source.take_profit));
     appendField(doc, parent, '最大虧損（USDT）', decimal(source.max_loss_usdt));
     parent.append(element(doc, 'p', '數據理由', 'note-section'));
     appendField(doc, parent, '資金費率', source.reasons.funding_rate);
@@ -1148,6 +1228,7 @@
   function renderNote(doc, note, now, preserved) {
     const settlement = note.kind === 'daily_settlement';
     const card = element(doc, 'article', undefined, settlement ? 'note note-settlement' : 'note');
+    card.dataset.morphKey = noteKey(note);
     const header = element(doc, 'div', undefined, 'note-meta');
     header.append(element(doc, 'span', KINDS[note.kind], 'note-kind'));
     const time = element(doc, 'time', new Date(note.ts * 1000).toLocaleString('zh-TW', {
@@ -1178,33 +1259,29 @@
   }
 
   function renderColumn(doc, container, trader, notes, now = Date.now()) {
-    const openDates = new Set(Array.from(container.querySelectorAll?.('.notes-day') || []).filter(node => node.open).map(node => node.dataset.day));
+    const moreOpen = container.querySelector?.('.notes-more')?.open || false;
     const preserved = preservedKeys(container);
     const own = notes.filter(note => safeNote(note) && note.trader === trader).slice().sort((a, b) => b.ts - a.ts);
-    const heading = element(doc, 'h3', trader + ' 交易員便利貼');
-    const disclaimer = element(doc, 'p', 'AI 交易員自述，非投資建議', 'notes-disclaimer');
-    const content = element(doc, 'div', undefined, 'notes-list');
-    if (!own.length) content.append(element(doc, 'p', '目前沒有可顯示的便利貼', 'notes-empty'));
-    const days = new Map();
-    for (const note of own) {
-      const date = new Date(note.ts * 1000).toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
-      if (!days.has(date)) days.set(date, []);
-      days.get(date).push(note);
-    }
     const pinned = latestSettlement(own, trader);
-    if (pinned) {
-      const items = days.get(new Date(pinned.ts * 1000).toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' }));
-      items.unshift(items.splice(items.indexOf(pinned), 1)[0]);
+    const ordinary = own.filter(note => note.kind !== 'daily_settlement');
+    const visible = pinned ? [pinned, ...ordinary.slice(0, 4)] : ordinary.slice(0, 5);
+    const remaining = own.filter(note => !visible.includes(note));
+    const heading = element(doc, 'h3', trader + ' \u4ea4\u6613\u54e1\u4fbf\u5229\u8cbc');
+    const disclaimer = element(doc, 'p', 'AI \u4ea4\u6613\u54e1\u81ea\u8ff0\uff0c\u975e\u6295\u8cc7\u5efa\u8b70', 'notes-disclaimer');
+    const content = element(doc, 'div', undefined, 'notes-list');
+    if (!own.length) content.append(element(doc, 'p', '\u76ee\u524d\u6c92\u6709\u53ef\u986f\u793a\u7684\u4fbf\u5229\u8cbc', 'notes-empty'));
+    visible.forEach(note => content.append(renderNote(doc, note, now, preserved)));
+    if (remaining.length) {
+      const more = element(doc, 'details', undefined, 'notes-more');
+      more.dataset.morphKey = 'notes-more:' + trader;
+      more.open = moreOpen;
+      more.append(element(doc, 'summary', `\u66f4\u65e9\u7684\u4fbf\u5229\u8cbc\uff08${remaining.length} \u5247\uff09`));
+      const list = element(doc, 'div', undefined, 'notes-list');
+      remaining.forEach(note => list.append(renderNote(doc, note, now, preserved)));
+      more.append(list);
+      content.append(more);
     }
-    for (const [date, items] of days) {
-      const group = element(doc, 'details', undefined, 'notes-more notes-day');
-      group.dataset.day = date;
-      group.open = openDates.has(date);
-      group.append(element(doc, 'summary', `${date.slice(5).replace('-', '/')}（${items.length} 則）`));
-      items.forEach(note => group.append(renderNote(doc, note, now, preserved)));
-      content.append(group);
-    }
-    container.replaceChildren(heading, disclaimer, content);
+    (root.RaceMorph || ((node, children) => node.replaceChildren(...children)))(container, [heading, disclaimer, content]);
   }
 
   function parseNotesJSON(body) {
@@ -1253,11 +1330,13 @@
     let ageState = '';
     function render() {
       ageState = JSON.stringify(notes.map(note => [clock() - note.ts * 1000 > 86400000, clock() - note.ts * 1000 > STALE_MS]));
-      columns.forEach(column => (root.RaceStable || ((_node, fn) => fn()))(column.node, () => renderColumn(doc, column.node, column.trader, notes, clock())));
-      renderSummaries(doc, notes, clock());
-      if (typeof root.CustomEvent === 'function' && typeof doc.dispatchEvent === 'function') {
-        doc.dispatchEvent(new root.CustomEvent('race:notes-updated', { detail: notes }));
-      }
+      (root.RaceStable || ((_node, fn) => fn()))(columns, () => {
+        columns.forEach(column => renderColumn(doc, column.node, column.trader, notes, clock()));
+        renderSummaries(doc, notes, clock());
+        if (typeof root.CustomEvent === 'function' && typeof doc.dispatchEvent === 'function') {
+          doc.dispatchEvent(new root.CustomEvent('race:notes-updated', { detail: notes }));
+        }
+      });
     }
     async function refresh() {
       if (loading) return;
@@ -1290,7 +1369,7 @@
   const api = { normalizeDocument, suspiciousText, safeNote, renderColumn, latestSettlement, renderSummaries, fetchNotes, start };
   if (typeof module === 'object' && module.exports) module.exports.notes = api;
   if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => start(document));
-    else start(document);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { root.RaceNotesReady = start(document)?.ready; });
+    else root.RaceNotesReady = start(document)?.ready;
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this);

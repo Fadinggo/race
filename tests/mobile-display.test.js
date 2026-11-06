@@ -50,22 +50,18 @@ test('prices use six significant digits in ledger rows', () => {
   assert.equal(descendants(container).filter(node => node.tagName === 'td')[4].textContent, '1.73539');
 });
 
-test('refresh keeps the container height and restores the visible element offset', () => {
-  const saved = { scrollTo: global.scrollTo, scrollX: global.scrollX, scrollY: global.scrollY, innerWidth: global.innerWidth };
-  try {
-    let scroll;
-    global.scrollX = 0; global.scrollY = 500; global.innerWidth = 400;
-    global.scrollTo = (x, y) => { scroll = [x, y]; };
-    const doc = { elementFromPoint: () => container.children[0] };
-    const container = { ownerDocument: doc, style: { minHeight: '' }, children: [], isConnected: true,
-      getBoundingClientRect: () => ({ height: 200, top: -50 }), contains: node => container.children.includes(node) };
-    const child = top => ({ parentElement: container, children: [], isConnected: true, getBoundingClientRect: () => ({ top }) });
-    container.children = [child(-20)];
-    dashboard.stableRender(container, () => {
-      assert.equal(container.style.minHeight, '200px');
-      container.children = [child(30)];
-    });
-    assert.equal(container.style.minHeight, '');
-    assert.deepEqual(scroll, [0, 550]);
-  } finally { Object.assign(global, saved); }
+test('render waits for two seconds after the last interaction', () => {
+  let now = 10000, timer, count = 0;
+  const listeners = {};
+  const doc = { addEventListener: (type, fn) => { listeners[type] = fn; } };
+  const render = dashboard.createRenderScheduler(doc, { now: () => now,
+    setTimeout: fn => { timer = fn; return 1; }, clearTimeout: () => {} });
+  listeners.touchstart();
+  render({}, () => count++);
+  assert.equal(count, 0);
+  now += 1500; listeners.scroll();
+  now += 1999; timer();
+  assert.equal(count, 0);
+  now++; timer();
+  assert.equal(count, 1);
 });
