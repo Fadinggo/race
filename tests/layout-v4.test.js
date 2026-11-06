@@ -182,8 +182,8 @@ test('positions render A and B as separate blocks with collapsed details and hon
   assert.ok(node.textContent.includes(traderB));
   assert.ok(node.textContent.includes('空手'));
   assert.ok(node.textContent.includes('支撐守住。'));
-  assert.ok(node.textContent.includes('2400'));
-  assert.ok(node.textContent.includes('2700'));
+  assert.ok(!node.textContent.includes('2400'));
+  assert.ok(!node.textContent.includes('2700'));
   assert.ok(node.textContent.includes('—'));
   assert.ok(node.querySelectorAll('details').length >= 1);
   assert.equal(node.querySelectorAll('details').every(detail => !detail.open), true);
@@ -248,7 +248,7 @@ test('recent transaction boundary, open status, missing notes and old snapshots 
   assert.match(a.textContent, /boundary/);
   assert.doesNotMatch(a.textContent, /too-old|future|支撐守住/);
   assert.match(a.textContent, /持倉中/);
-  assert.match(a.textContent, /交易心得—/);
+  assert.match(a.textContent, /開倉心得—/);
   assert.equal(a.querySelector('.pos').textContent.includes('1.2500'), true);
   assert.match(doc.nodes.positions.children[1].textContent, /過去 24 小時沒有交易/);
   data.trades = [{ trader: traderA, time: '2026-11-01 13:59:00', market: 'ETH-USDT-SWAP' }];
@@ -491,4 +491,67 @@ test('expired verdicts have the specified green, red and grey classes and missin
   assert.ok(all.some(node => node.textContent === '✘ 不準' && node.className === 'neg'));
   assert.ok(all.some(node => node.textContent === '– 無法判斷' && node.className === 'muted'));
   assert.ok(doc.nodes.watchlist.textContent.includes('尚無結果'));
+});
+
+test('fractional confidence becomes percent and sorting compares normalized values', () => {
+  const doc = makeDocument();
+  const items = [watch({ confidence: 0.8133 }), watch({ id: 'A-other', confidence: 75 })];
+  layout.renderWatchlist(doc, doc.nodes.watchlist, items, new Map([[traderA, 'confidence']]), now);
+  assert.match(doc.nodes.watchlist.textContent, /●●●●○ 81%/);
+  assert.deepEqual(layout.splitWatchlist(items, traderA, 'confidence', now).active.map(item => item.confidence), [0.8133, 75]);
+});
+
+test('trade reasons include every partial close, release check and formatted prices as text', () => {
+  const dashboard = require('../dashboard.js');
+  const attack = '<img src=x>';
+  const base = { trader: traderA, trade_id: 'fixture', market: 'ETH-USDT-SWAP', side: 'long', ts: now / 1000 - 100,
+    event: 'open', price: 1.735390909, qty: 1, open_reason: attack, release_reason: '放行理由' };
+  const data = { snapshot_id: 'fixture', source: 'own-okx-readonly', traders: { [traderA]: { positions: [] } }, trades: [base,
+    { ...base, event: 'partial_close', ts: base.ts + 10, close_reason: '部分平倉' },
+    { ...base, event: 'close', ts: base.ts + 20, close_reason: '最後平倉' }] };
+  const doc = makeDocument();
+  layout.renderPositions(doc, doc.nodes.positions, dashboard.pairSnapshot(data, { snapshot_id: 'fixture', series: {} }), [], now);
+  const output = doc.nodes.positions.textContent;
+  assert.match(output, /開倉心得<img src=x>/);
+  assert.match(output, /平倉心得部分平倉/);
+  assert.match(output, /平倉心得最後平倉/);
+  assert.match(output, /放行檢查：放行理由/);
+  assert.match(output, /1\.73539 → 1\.73539 \/ 1\.73539/);
+  assert.equal(doc.nodes.positions.querySelectorAll('img').length, 0);
+});
+
+test('phone folds observations and recent trades after five while desktop keeps them visible', () => {
+  const oldMatchMedia = global.matchMedia;
+  try {
+    let phone = true;
+    global.matchMedia = () => ({ matches: phone });
+    const doc = makeDocument();
+    const items = Array.from({ length: 7 }, (_, i) => watch({ id: `A-mobile-${i}` }));
+    const trades = Array.from({ length: 7 }, (_, i) => ({ trader: traderA, event: 'open', timestamp: now - i * 1000,
+      tradeId: `t${i}`, market: 'ETH', side: 'long', price: '1', qty: '1' }));
+    layout.renderWatchlist(doc, doc.nodes.watchlist, items, new Map(), now);
+    layout.renderPositions(doc, doc.nodes.positions, snapshot({ trades }), [], now);
+    assert.equal(doc.nodes.watchlist.querySelector('.phone-more').children[0].textContent, '更多（2）');
+    assert.equal(doc.nodes.positions.querySelector('.phone-more').children[0].textContent, '更多（2）');
+    phone = false;
+    layout.renderWatchlist(doc, doc.nodes.watchlist, items, new Map(), now);
+    layout.renderPositions(doc, doc.nodes.positions, snapshot({ trades }), [], now);
+    assert.equal(doc.nodes.watchlist.querySelector('.phone-more'), null);
+    assert.equal(doc.nodes.positions.querySelector('.phone-more'), null);
+    assert.equal(doc.nodes.positions.querySelectorAll('details').length, 8);
+  } finally { global.matchMedia = oldMatchMedia; }
+});
+
+test('independent refresh skips sections when the underlying data is unchanged', async () => {
+  const doc = makeDocument();
+  const controller = layout.mount(doc, options(async () => response(documentOf([watch()]))));
+  await controller.ready;
+  const beforeWatch = doc.nodes.watchlist.children[0];
+  await controller.refresh();
+  assert.equal(doc.nodes.watchlist.children[0], beforeWatch);
+  const value = snapshot();
+  controller.updateSnapshot(value);
+  const beforePositions = doc.nodes.positions.children[0];
+  controller.updateSnapshot({ ...value, snapshotId: 'new' });
+  assert.equal(doc.nodes.positions.children[0], beforePositions);
 });

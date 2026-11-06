@@ -13,6 +13,7 @@ function setup({ visibilityState = 'visible', now = () => 1000000, sessionStorag
   const listeners = {};
   const reloads = [];
   const status = { textContent: '', className: '' };
+  let elapsed = 0;
   const doc = {
     visibilityState,
     addEventListener: (name, callback) => { listeners[name] = callback; },
@@ -30,7 +31,7 @@ function setup({ visibilityState = 'visible', now = () => 1000000, sessionStorag
   };
   const checker = dashboard.startVersionCheck(doc, {
     fetcher,
-    now,
+    now: () => now() + elapsed,
     sessionStorage,
     setInterval: (callback, ms) => { intervals.push({ callback, ms }); },
     setTimeout: (callback, ms) => {
@@ -47,6 +48,7 @@ function setup({ visibilityState = 'visible', now = () => 1000000, sessionStorag
     setMode: value => { mode = value; },
     fire: ms => timers.filter(timer => !timer.cleared && timer.ms === ms).forEach(timer => {
       timer.cleared = true;
+      if (ms === 100) elapsed += 30000;
       timer.callback();
     })
   };
@@ -159,4 +161,108 @@ test('hidden tabs skip checks and becoming visible starts one immediately', asyn
   assert.deepEqual(page.reloads, []);
   page.fire(100);
   assert.deepEqual(page.reloads, ['v2']);
+});
+
+test('activity defers reload until idle and a hidden tab reloads immediately with scroll saved', async () => {
+  let time = 1000000;
+  let version = 'v1';
+  const timers = [];
+  const listeners = {};
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  const section = { id: 'positions', getBoundingClientRect: () => ({ top: -23 }) };
+  const doc = { visibilityState: 'visible', addEventListener: (type, fn) => { listeners[type] = fn; },
+    getElementById: () => null, elementFromPoint: () => ({ closest: () => section }) };
+  let reloads = 0;
+  const checker = dashboard.startVersionCheck(doc, {
+    now: () => time, sessionStorage: storage, location: { reload: () => { reloads++; } },
+    setInterval: () => {}, setTimeout: (fn, ms) => { const timer = { fn, ms }; timers.push(timer); return timer; },
+    clearTimeout: timer => { timer.cleared = true; },
+    fetcher: async url => ({ status: 200, text: async () => version + url })
+  });
+  await checker.ready;
+  version = 'v2';
+  await checker.check();
+  listeners.touchstart();
+  timers.find(timer => timer.ms === 100).fn();
+  assert.equal(reloads, 0);
+  time += 15000;
+  listeners.scroll();
+  timers.find(timer => timer.ms === 30000).fn();
+  assert.equal(reloads, 0);
+  doc.visibilityState = 'hidden';
+  listeners.visibilitychange();
+  assert.equal(reloads, 1);
+  assert.deepEqual(JSON.parse(values.get('race-dashboard-scroll')), { y: 0, id: 'positions', offset: -23 });
+});
+
+test('saved scroll is restored after rendering, using section offset or absolute fallback', () => {
+  let saved = JSON.stringify({ y: 500, id: 'positions', offset: -20 });
+  const frames = [];
+  const scrolls = [];
+  const page = { scrollY: 100, requestAnimationFrame: fn => frames.push(fn), scrollTo: (x, y) => scrolls.push([x, y]),
+    sessionStorage: { getItem: () => saved, removeItem: () => { saved = null; } } };
+  const doc = { getElementById: () => ({ getBoundingClientRect: () => ({ top: 70 }) }) };
+  dashboard.restoreSavedScroll(doc, page);
+  assert.equal(saved, null);
+  assert.equal(scrolls.length, 0);
+  frames.shift()(); frames.shift()();
+  assert.deepEqual(scrolls, [[0, 190]]);
+  saved = JSON.stringify({ y: 500, id: 'missing', offset: -20 });
+  dashboard.restoreSavedScroll({ getElementById: () => null }, page);
+  frames.shift()(); frames.shift()();
+  assert.deepEqual(scrolls[1], [0, 500]);
+  assert.doesNotThrow(() => dashboard.restoreSavedScroll(doc, { get sessionStorage() { throw new Error('blocked'); } }));
+});
+
+test('a visible tab waits a full thirty seconds after the latest activity', async () => {
+  let time = 1000000;
+  let version = 'v1';
+  const timers = [];
+  const listeners = {};
+  let reloads = 0;
+  const doc = { visibilityState: 'visible', addEventListener: (name, fn) => { listeners[name] = fn; }, getElementById: () => null };
+  const checker = dashboard.startVersionCheck(doc, { now: () => time, sessionStorage: { getItem: () => null, setItem: () => {} },
+    location: { reload: () => reloads++ }, setInterval: () => {},
+    setTimeout: (fn, ms) => { const timer = { fn, ms }; timers.push(timer); return timer; }, clearTimeout: () => {},
+    fetcher: async url => ({ status: 200, text: async () => version + url }) });
+  await checker.ready;
+  version = 'v2';
+  await checker.check();
+  time += 100;
+  timers.find(timer => timer.ms === 100).fn();
+  time += 10000;
+  listeners.pointermove();
+  time += 19900;
+  timers.find(timer => timer.ms === 29900).fn();
+  assert.equal(reloads, 0);
+  time += 10100;
+  timers.find(timer => timer.ms === 10100).fn();
+  assert.equal(reloads, 1);
+});
+
+test('holding a pointer prevents reload even after thirty seconds', async () => {
+  let time = 1000000;
+  let version = 'v1';
+  const timers = [], listeners = {};
+  let reloads = 0;
+  const doc = { visibilityState: 'visible', addEventListener: (name, fn) => { listeners[name] = fn; }, getElementById: () => null };
+  const checker = dashboard.startVersionCheck(doc, { now: () => time, sessionStorage: { getItem: () => null, setItem: () => {} },
+    location: { reload: () => reloads++ }, setInterval: () => {},
+    setTimeout: (fn, ms) => { const timer = { fn, ms }; timers.push(timer); return timer; }, clearTimeout: () => {},
+    fetcher: async url => ({ status: 200, text: async () => version + url }) });
+  await checker.ready;
+  version = 'v2';
+  await checker.check();
+  listeners.pointerdown({ pointerId: 1 });
+  time += 30000;
+  timers.find(timer => timer.ms === 100).fn();
+  assert.equal(reloads, 0);
+  listeners.pointerup({ pointerId: 1 });
+  time += 1000;
+  timers.find(timer => timer.ms === 1000).fn();
+  assert.equal(reloads, 0);
+  time += 29000;
+  timers.find(timer => timer.ms === 29000).fn();
+  assert.equal(reloads, 1);
 });

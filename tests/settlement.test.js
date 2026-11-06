@@ -75,7 +75,7 @@ function summaryCells(node) {
     .map(row => row.children.map(cell => cell.textContent)));
 }
 
-test('latest settlement uses reporting date rather than submission time and is pinned above newer prose', () => {
+test('latest settlement uses reporting date and is pinned within its Taipei day', () => {
   const current = settlement({ ts: now / 1000 - 3600 });
   const lateOld = settlement({ date: '2026-10-30', ts: now / 1000 + 5 });
   const prose = Array.from({ length: 11 }, (_, i) => narrative({ ts: now / 1000 - i, watch_next: `筆記 ${i}` }));
@@ -84,11 +84,13 @@ test('latest settlement uses reporting date rather than submission time and is p
   const doc = makeDocument();
   notes.renderColumn(doc, doc.nodes['notes-a'], traderA, items, now);
   const list = doc.nodes['notes-a'].querySelector('.notes-list');
-  const visible = list.children.filter(node => node.tagName === 'article');
-  assert.equal(visible.length, 10);
+  const groups = descendants(list).filter(node => node.className.includes('notes-day'));
+  assert.equal(groups[0].children[0].textContent, '11/01（1 則）');
+  const visible = groups[1].children.filter(node => node.tagName === 'article');
+  assert.equal(visible.length, 12);
   assert.match(visible[0].textContent, /2026-10-31 今日戰果明細表/);
-  assert.match(visible[1].textContent, /2026-10-30 今日戰果明細表/);
-  assert.equal(list.querySelector('.notes-more').children[0].textContent, '看更多（3）');
+  assert.match(groups[0].textContent, /2026-10-30 今日戰果明細表/);
+  assert.equal(groups[1].children[0].textContent, '10/31（12 則）');
   assert.deepEqual(items, [lateOld, ...prose, current], 'Choosing and pinning a settlement must not mutate the input');
 });
 

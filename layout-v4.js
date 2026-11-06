@@ -122,7 +122,7 @@
   function splitWatchlist(items, trader, mode = 'all', now = Date.now()) {
     let own = items.filter(item => item.trader === trader);
     if (mode === 'long' || mode === 'short') own = own.filter(item => item.direction === mode);
-    own = own.slice().sort(mode === 'confidence' ? (a, b) => b.confidence - a.confidence || b.created_ts - a.created_ts
+    own = own.slice().sort(mode === 'confidence' ? (a, b) => percent(b.confidence) - percent(a.confidence) || b.created_ts - a.created_ts
       : mode === 'instrument' ? (a, b) => baseCoin(a.instrument).localeCompare(baseCoin(b.instrument)) || b.created_ts - a.created_ts
         : (a, b) => b.created_ts - a.created_ts);
     const expired = item => item.status === 'expired' || now > item.expires_ts * 1000;
@@ -148,8 +148,23 @@
 
   const sideLabel = side => ({ long: '做多', short: '做空', net: '淨持倉' }[side] || side || '未提供');
   const numeric = value => finite(value) ? String(+value.toPrecision(8)) : '未提供';
+  const price = value => value !== null && value !== undefined && value !== '—' && Number.isFinite(Number(value)) ? String(+Number(value).toPrecision(6)) : '—';
   const signed = value => finite(value) ? `${value > 0 ? '+' : ''}${numeric(value)}` : '未提供';
-  const confidence = value => '●'.repeat(Math.round(value / 20)) + '○'.repeat(5 - Math.round(value / 20)) + ` ${value}%`;
+  const percent = value => value <= 1 ? Math.round(value * 100) : value;
+  const confidence = value => '●'.repeat(Math.round(percent(value) / 20)) + '○'.repeat(5 - Math.round(percent(value) / 20)) + ` ${percent(value)}%`;
+
+  function phoneMore(doc, parent, items, key, preserved, render) {
+    const phone = root.matchMedia?.('(max-width: 600px)').matches === true;
+    items.slice(0, phone ? 5 : items.length).forEach(item => render(parent, item));
+    if (phone && items.length > 5) {
+      const more = element(doc, 'details', undefined, 'phone-more');
+      more.dataset.layoutKey = key;
+      more.open = preserved.has(key);
+      more.append(element(doc, 'summary', `更多（${items.length - 5}）`));
+      items.slice(5).forEach(item => render(more, item));
+      parent.append(more);
+    }
+  }
 
   function preserve(container) {
     const set = new Set();
@@ -213,7 +228,7 @@
       return;
     }
     const allEvents = (snapshot?.trades || []).filter(event => finite(event.timestamp) && ['open', 'close', 'partial_close'].includes(event.event));
-    for (const group of groups) {
+    phoneMore(doc, block, groups, `recent-more:${groups[0].events[0].trader}`, preserved, (parent, group) => {
       const opened = group.events.find(event => event.event === 'open');
       const exits = group.events.filter(event => event.event !== 'open');
       const last = group.events.at(-1);
@@ -224,31 +239,36 @@
       const own = detailRow(doc, `trade:${last.trader}:${group.key}`, [
         group.events.map(event => event.timeLabel || event.time || '—').join(' → '),
         `${last.market} ${sideLabel(opened?.side || last.side)}`,
-        `${opened?.price ?? '—'} → ${exits.length ? exits.map(event => event.price).join(' / ') : '持倉中'}`,
+        `${price(opened?.price)} → ${exits.length ? exits.map(event => price(event.price)).join(' / ') : '持倉中'}`,
         `數量 ${opened?.qty ?? last.qty ?? '—'}`,
         { text: pnl === null ? '淨損益 —' : `淨損益 ${pnl.toFixed(4)} ${last.pnlCurrency || ''}`.trim(), className: pnl === null ? 'muted' : pnl >= 0 ? 'pos' : 'neg' },
         `持有時間 ${finite(held) && held >= 0 ? `${Math.floor(held / 3600)} 小時 ${Math.floor(held % 3600 / 60)} 分` : '—'}${closed ? '' : '（持倉中）'}`
       ], preserved);
       own.body.append(element(doc, 'strong', '交易心得'));
-      let found = false;
-      for (const event of group.events) {
-        const note = matchingNote(notes, event, allEvents);
-        if (!note) {
-          field(doc, own.body, event.event === 'open' ? '開倉心得' : '平倉心得', '—');
-          continue;
+      const opening = opened || group.events.find(event => event.openReason);
+      const noteEvents = opened ? [opened, ...exits] : [opening || last, ...exits];
+      for (const [index, event] of noteEvents.entries()) {
+        const isOpen = index === 0;
+        const noteEvent = isOpen && event.event !== 'open' ? { ...event, event: 'open', timestamp: event.openedTimestamp } : event;
+        const fallback = finite(noteEvent.timestamp) ? matchingNote(notes, noteEvent, allEvents) : null;
+        const review = fallback?.kind === 'open' ? fallback : fallback?.review;
+        const raw = isOpen ? event.openReason : event.closeReason;
+        const reason = raw?.trim() ? (suspiciousText(raw) ? '—' : raw) : reasonSummary(review);
+        field(doc, own.body, isOpen ? '開倉心得' : '平倉心得', reason === '尚無說明' ? '—' : reason);
+        if (!raw?.trim() && review) {
+          for (const [name, label] of Object.entries(REASONS)) field(doc, own.body, label, review.reasons?.[name] || '—');
+          field(doc, own.body, '出場原因／失效條件', review.invalidation || '—');
+          field(doc, own.body, '信心', review.confidence || '—');
         }
-        found = true;
-        const review = note.kind === 'open' ? note : note.review;
-        for (const [name, label] of Object.entries(REASONS)) field(doc, own.body, `${note.kind === 'open' ? '開倉' : '平倉'}理由・${label}`, review.reasons?.[name] || '—');
-        field(doc, own.body, '出場原因／失效條件', review.invalidation || '—');
-        field(doc, own.body, '信心', review.confidence || '—');
-        if (note.kind === 'close') {
-          for (const [name, label] of Object.entries({ right: '做對的部分', wrong: '做錯的部分', lesson: '教訓' })) field(doc, own.body, label, note.variance?.[name] || '—');
+        if (!raw?.trim() && fallback?.kind === 'close') {
+          for (const [name, label] of Object.entries({ right: '做對的部分', wrong: '做錯的部分', lesson: '教訓' })) field(doc, own.body, label, fallback.variance?.[name] || '—');
+        }
+        if (event.releaseReason?.trim() && event.releaseReason !== event.openReason && !suspiciousText(event.releaseReason)) {
+          own.body.append(element(doc, 'small', `放行檢查：${event.releaseReason}`, 'muted'));
         }
       }
-      if (!found) field(doc, own.body, '交易心得', '—');
-      block.append(own.details);
-    }
+      parent.append(own.details);
+    });
   }
 
   function renderPositions(doc, container, snapshot, notes = [], now = Date.now()) {
@@ -283,19 +303,17 @@
           const own = detailRow(doc, key, [
             `${position.inst || '—'} ${position.side ? sideLabel(position.side) : '—'}`, clipReason(reason),
             `${displayNumber(position.size)} ${position.unit || '—'}`,
-            `${displayNumber(position.averagePrice)} → ${displayNumber(position.markPrice)}`,
+            `${price(position.averagePrice)} → ${price(position.markPrice)}`,
             { text: pnl, className: finite(position.upl) ? position.upl >= 0 ? 'pos' : 'neg' : 'muted' },
             held
           ], preserved);
           field(doc, own.body, '進場原因', reason);
           if (note) {
             for (const [name, label] of Object.entries(REASONS)) field(doc, own.body, `進場理由・${label}`, note.reasons?.[name] || '—');
-            field(doc, own.body, '停損', displayNumber(note.stop_loss));
-            field(doc, own.body, '目標', displayNumber(note.take_profit));
             field(doc, own.body, '什麼情況出場', note.invalidation || '—');
             field(doc, own.body, '信心度', note.confidence || '—');
           } else {
-            ['停損', '目標', '什麼情況出場', '信心度'].forEach(label => field(doc, own.body, label, '—'));
+            ['什麼情況出場', '信心度'].forEach(label => field(doc, own.body, label, '—'));
           }
           field(doc, own.body, '進場時間（依便利貼）', epoch(entryTs) ? localTime(entryTs) : '—');
           block.append(own.details);
@@ -370,7 +388,15 @@
       block.append(toolbar);
       const split = splitWatchlist(items, trader, mode, now);
       const active = element(doc, 'div', undefined, 'watch-active');
-      appendWatchRows(doc, active, split.active, false, mode, preserved);
+      if (root.matchMedia?.('(max-width: 600px)').matches && split.active.length > 5) {
+        appendWatchRows(doc, active, split.active.slice(0, 5), false, mode, preserved);
+        const more = element(doc, 'details', undefined, 'phone-more');
+        more.dataset.layoutKey = `watch-more:${trader}`;
+        more.open = preserved.has(more.dataset.layoutKey);
+        more.append(element(doc, 'summary', `更多（${split.active.length - 5}）`));
+        appendWatchRows(doc, more, split.active.slice(5), false, mode, preserved);
+        active.append(more);
+      } else appendWatchRows(doc, active, split.active, false, mode, preserved);
       block.append(active);
       if (split.expired.length) {
         const old = element(doc, 'details', undefined, 'watch-expired');
@@ -400,27 +426,43 @@
     let notes = [];
     let items = [];
     let loading = false;
+    let positionAgeState = '';
+    let watchAgeState = '';
     const modes = new Map();
-    const renderPositionsNow = () => renderPositions(doc, positions, snapshot, notes, clock());
-    const renderWatchlistNow = () => renderWatchlist(doc, watchlist, items, modes, clock(), renderWatchlistNow);
+    const stable = (node, render) => root.RaceStable ? root.RaceStable(node, render) : render();
+    const positionAge = () => JSON.stringify((snapshot?.trades || []).map(trade => trade.timestamp >= clock() - 86400000));
+    const watchAge = () => JSON.stringify(items.map(item => clock() > item.expires_ts * 1000));
+    const renderPositionsNow = () => { positionAgeState = positionAge(); stable(positions, () => renderPositions(doc, positions, snapshot, notes, clock())); };
+    const renderWatchlistNow = () => { watchAgeState = watchAge(); stable(watchlist, () => renderWatchlist(doc, watchlist, items, modes, clock(), renderWatchlistNow)); };
     const render = () => { renderPositionsNow(); renderWatchlistNow(); };
     async function refresh() {
       if (loading) return;
       loading = true;
       const controller = new AbortController();
       const timeout = delay(() => controller.abort(), 10000);
-      try { items = await fetchWatchlist(fetcher, controller.signal, clock()); }
-      finally { cancel(timeout); loading = false; renderWatchlistNow(); }
+      try {
+        const next = await fetchWatchlist(fetcher, controller.signal, clock());
+        if (JSON.stringify(next) !== JSON.stringify(items)) { items = next; renderWatchlistNow(); }
+      } finally { cancel(timeout); loading = false; }
     }
     render();
     const ready = refresh();
     schedule(refresh, 30000);
-    schedule(render, 60000);
+    schedule(() => {
+      if (positionAge() !== positionAgeState) renderPositionsNow();
+      if (watchAge() !== watchAgeState) renderWatchlistNow();
+    }, 60000);
+    root.matchMedia?.('(max-width: 600px)').addEventListener?.('change', render);
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
     return {
       ready, refresh, render,
-      updateSnapshot: value => { snapshot = value; renderPositionsNow(); },
-      updateNotes: value => { notes = Array.isArray(value) ? value : []; renderPositionsNow(); }
+      updateSnapshot: value => {
+        const relevant = item => [item?.traders?.map(trader => [trader.name, trader.currency, trader.positions]), item?.trades];
+        const changed = JSON.stringify(relevant(snapshot)) !== JSON.stringify(relevant(value));
+        snapshot = value;
+        if (changed) renderPositionsNow();
+      },
+      updateNotes: value => { const next = Array.isArray(value) ? value : []; if (JSON.stringify(notes) !== JSON.stringify(next)) { notes = next; renderPositionsNow(); } }
     };
   }
 

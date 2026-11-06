@@ -70,7 +70,7 @@
       name,
       equity: number(raw.equity), start: number(raw.start), deposited: number(raw.deposited),
       currency: typeof raw.currency === 'string' && raw.currency.trim() ? raw.currency.trim() : null,
-      updated: timestamp(Object.hasOwn(raw, 'updated') ? raw.updated : defaultUpdated), status: state,
+      updated: timestamp(Object.hasOwn(raw, 'updated') ? raw.updated : defaultUpdated), dataTime: timestamp(defaultUpdated), status: state,
       fillsTotal: hasTotalsMetadata ? number(raw.fills_total) : null,
       feesTotal: number(raw.fees_total), fundingTotal: number(raw.funding_total),
       totalsSince, totalsUpdated, totalsStatus: hasTotalsMetadata ? raw.totals_status : 'partial',
@@ -110,6 +110,10 @@
       market: String(raw.market ?? '').trim() || '—', side: String(raw.side ?? ''), event: String(raw.event ?? ''),
       tradeId: typeof raw.trade_id === 'string' || typeof raw.trade_id === 'number' ? String(raw.trade_id) : '',
       heldSeconds: number(raw.held_seconds),
+      openedTimestamp: timestamp(raw.opened_ts),
+      openReason: typeof raw.open_reason === 'string' ? raw.open_reason : '',
+      closeReason: typeof raw.close_reason === 'string' ? raw.close_reason : '',
+      releaseReason: typeof raw.release_reason === 'string' ? raw.release_reason : '',
       price: raw.price === null || raw.price === undefined ? '—' : String(raw.price),
       qty: raw.qty === null || raw.qty === undefined ? '—' : String(raw.qty),
       pnl: number(raw.pnl),
@@ -196,6 +200,11 @@
     return value === null ? '—' : value.toFixed(digits);
   }
 
+  function price(value) {
+    const parsed = number(value);
+    return parsed === null ? '—' : String(+parsed.toPrecision(6));
+  }
+
   function currencyText(value) {
     return value || '幣別未提供';
   }
@@ -206,9 +215,13 @@
     const lowerBound = trader.fillsPartial ? '≥' : '';
     const roi = trader.equity !== null && trader.start !== null && trader.start > 0
       ? (trader.equity / trader.start - 1) * 100 : null;
+    const days = trader.totalsSince != null && trader.dataTime != null ? (trader.dataTime - trader.totalsSince) / 86400000 : null;
+    const annual = days >= 1 && roi !== null && trader.equity >= 0 ? (Math.pow(trader.equity / trader.start, 365 / days) - 1) * 100 : null;
     const countsCurrent = trader.openedCountedAt != null && day(trader.openedCountedAt) === day(now);
     return {
       roi,
+      annual, days,
+      annualText: annual === null ? '—' : annual > 9999 ? '>+9999%' : `${annual > 0 ? '+' : ''}${annual.toFixed(1)}%`,
       roiText: roi === null ? (trader.start === null ? '—（本金未確認）'
         : trader.equity === null ? '—（資產未確認）' : '—（本金須大於 0）')
         : `${roi >= 0 ? '+' : ''}${roi.toFixed(2)}%`,
@@ -243,6 +256,8 @@
     balance.append(element(doc, 'small', currencyText(trader.currency)));
     card.append(balance);
     row(doc, card, '報酬率', view.roiText, signedClass(view.roi));
+    row(doc, card, '年化報酬率', view.annualText, view.annual === null || view.days < 7 ? 'muted' : signedClass(view.annual));
+    if (view.annual !== null) card.append(element(doc, 'div', `開賽 ${Math.floor(view.days)} 天，天數太短時僅供參考`, 'api-cost-detail'));
     const start = trader.start === null ? '待確認' : `${fixed(trader.start)} ${currencyText(trader.currency)}`;
     row(doc, card, '起始資金', start + (trader.deposited ? `（含追加 ${fixed(trader.deposited)}）` : ''));
     row(doc, card, '全局累計總筆數', view.total);
@@ -254,7 +269,7 @@
       for (const position of trader.positions) {
         const side = { long: '多', short: '空', net: '淨持倉' }[position.side] || position.side;
         const unit = position.unit || '';
-        const average = position.averagePrice === null ? '—' : String(+position.averagePrice.toPrecision(6));
+        const average = price(position.averagePrice);
         const pnl = position.upl === null ? '—' : `${position.upl > 0 ? '+' : ''}${+position.upl.toPrecision(8)} ${position.uplCurrency || trader.currency || '—'}`;
         row(doc, card, `持倉 ${position.inst} ${side} ${position.size ?? '—'}${unit} @${average}`,
           pnl, signedClass(position.upl)).className = 'row position-row';
@@ -294,7 +309,7 @@
     const timeCell = element(doc, 'td', time);
     timeCell.title = taipeiTime(trade.timestamp);
     line.append(timeCell);
-    for (const text of [trade.trader, trade.market, trade.side, trade.price, trade.qty]) {
+    for (const text of [trade.trader, trade.market, trade.side, price(trade.price), trade.qty]) {
       line.append(element(doc, 'td', text));
     }
     const pnl = trade.pnl === null ? '—' : `${trade.pnl.toFixed(4)} ${currencyText(trade.pnlCurrency)}`;
@@ -371,37 +386,88 @@
     }));
   }
 
-  function renderGroupedRows(doc, container, trades, mode = 'all', openGroups = new Set()) {
-    if (!['trader', 'market', 'action', 'result'].includes(mode) || !trades.length) {
-      renderRows(doc, container, trades);
-      return;
+  function renderGroupedRows(doc, container, trades, mode = 'all', state = { days: new Map(), rows: new Set() }, now = Date.now(), phone = root.matchMedia?.('(max-width: 600px)').matches === true) {
+    for (const group of container.querySelectorAll?.('.ledger-day') || []) state.days.set(group.dataset.day, group.open);
+    const days = new Map();
+    const occurrences = new Map();
+    for (const trade of trades.slice().reverse()) {
+      const keyBase = JSON.stringify([trade.tradeId, trade.trader, trade.timestamp, trade.market, trade.side, trade.event, trade.price, trade.qty]);
+      const occurrence = occurrences.get(keyBase) || 0;
+      occurrences.set(keyBase, occurrence + 1);
+      const key = keyBase + ':' + occurrence;
+      if (mode === 'A' || mode === 'B') {
+        if (trade.trader !== `Grok-Trader-${mode}`) continue;
+      } else if (mode === 'profit' && !(trade.pnl > 0) || mode === 'loss' && !(trade.pnl < 0)) continue;
+      const date = trade.timestamp == null ? '日期未提供' : day(trade.timestamp);
+      if (!days.has(date)) days.set(date, []);
+      days.get(date).push({ trade, key });
     }
-    const fragment = doc.createDocumentFragment();
-    for (const group of groupTrades(trades, mode)) {
-      const header = element(doc, 'tr', null, 'ledger-group');
-      const cell = element(doc, 'td');
-      cell.colSpan = 8;
-      const button = element(doc, 'button', null, 'ledger-group-toggle');
-      button.type = 'button';
-      // Reuse the original fill renderer so the eight ledger columns stay identical.
-      const groupRows = group.trades.map((trade, index) => renderTradeRow(doc, trade, index));
-      function update() {
-        const open = openGroups.has(group.key);
-        button.textContent = `${open ? '▾' : '▸'} ${group.label}｜${group.trades.length} 筆・合計損益 ${group.pnl}・合計手續費 ${group.fees}`;
-        button.setAttribute('aria-expanded', String(open));
-        for (const line of groupRows) line.hidden = !open;
-      }
-      button.addEventListener('click', () => {
-        if (openGroups.has(group.key)) openGroups.delete(group.key);
-        else openGroups.add(group.key);
+    const groups = [];
+    for (const [date, items] of days) {
+      const group = element(doc, 'details', null, 'ledger-day');
+      group.dataset.day = date;
+      group.open = state.days.has(date) ? state.days.get(date) : !phone && date === day(now);
+      group.addEventListener('toggle', () => { if (group.isConnected !== false) state.days.set(date, group.open); });
+      const closes = items.map(({ trade }) => trade).filter(trade => trade.event === 'close' || trade.event === 'partial_close');
+      const amounts = closes.filter(trade => Number.isFinite(trade.pnl));
+      const total = amounts.filter(trade => trade.pnlCurrency === 'USDT').reduce((sum, trade) => sum + trade.pnl, 0);
+      const incomplete = closes.some(trade => !Number.isFinite(trade.pnl));
+      const net = amounts.some(trade => trade.pnlCurrency === 'USDT') && Number.isFinite(total)
+        ? `${total >= 0 ? '+' : ''}${total.toFixed(4)}` : '—';
+      const label = date === '日期未提供' ? date : date.slice(5).replace('-', '/');
+      group.append(element(doc, 'summary', `${label}（${items.length} 筆，淨 ${net} USDT${incomplete ? '，資料不完整' : ''}）`));
+      const scroll = element(doc, 'div', null, 'ledger-scroll');
+      const table = element(doc, 'table');
+      const head = element(doc, 'thead');
+      const headings = element(doc, 'tr');
+      for (const title of ['TIME', 'TRADER', 'MARKET', 'SIDE', 'PRICE', 'QTY', 'PNL']) headings.append(element(doc, 'th', title));
+      head.append(headings);
+      const body = element(doc, 'tbody');
+      for (const { trade, key } of items) {
+        const line = element(doc, 'tr', null, 'ledger-trade');
+        const time = trade.timestamp == null ? '—' : new Intl.DateTimeFormat('en-GB', {
+          timeZone: TIME_ZONE, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        }).format(trade.timestamp);
+        const trader = trade.trader === 'Grok-Trader-A' ? 'A' : trade.trader === 'Grok-Trader-B' ? 'B' : trade.trader;
+        const pnl = trade.pnl == null ? '—' : `${trade.pnl.toFixed(4)} ${currencyText(trade.pnlCurrency)}`;
+        for (const value of [time, trader, trade.market, trade.side, price(trade.price), trade.qty, pnl]) {
+          const cell = element(doc, 'td', value);
+          cell.title = value;
+          line.append(cell);
+        }
+        const detail = element(doc, 'tr', null, 'ledger-trade-detail');
+        const cell = element(doc, 'td');
+        cell.colSpan = 7;
+        for (const [label, value] of [['開倉理由', trade.openReason], ['平倉理由', trade.closeReason], ['NOTE', trade.note]]) {
+          if (value) cell.append(element(doc, 'p', `${label}：${value}`));
+        }
+        if (!cell.children.length) cell.append(element(doc, 'p', '沒有提供說明'));
+        detail.append(cell);
+        line.tabIndex = 0;
+        line.setAttribute('role', 'button');
+        function update() {
+          const open = state.rows.has(key);
+          line.setAttribute('aria-expanded', String(open));
+          detail.hidden = !open;
+        }
+        function toggle() {
+          if (state.rows.has(key)) state.rows.delete(key); else state.rows.add(key);
+          update();
+        }
+        line.addEventListener('click', toggle);
+        line.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); }
+        });
         update();
-      });
-      update();
-      cell.append(button);
-      header.append(cell);
-      fragment.append(header, ...groupRows);
+        body.append(line, detail);
+      }
+      table.append(head, body);
+      scroll.append(table);
+      group.append(scroll);
+      groups.push(group);
     }
-    container.replaceChildren(fragment);
+    if (!groups.length) groups.push(element(doc, 'p', '目前沒有可顯示的交易紀錄', 'muted'));
+    container.replaceChildren(...groups);
   }
 
   async function fetchPair(fetcher, previous, signal, nonce) {
@@ -418,6 +484,42 @@
     const anchor = afterCards ? cards : ledger;
     // Mobile scrolling fires resize; re-inserting an unmoved shelf would drop focus inside the notes.
     if (shelf && anchor && anchor.nextElementSibling !== shelf) anchor.after(shelf);
+  }
+
+  function stableRender(container, render) {
+    const doc = container.ownerDocument;
+    if (!doc || !root.scrollTo || !container.getBoundingClientRect) return render();
+    let anchor = doc.elementFromPoint(Math.max(0, Math.min(root.innerWidth - 1, 20)), 1);
+    const path = [];
+    const top = anchor?.getBoundingClientRect().top;
+    while (anchor && anchor !== container && container.contains(anchor)) {
+      const parent = anchor.parentElement;
+      path.unshift(Array.prototype.indexOf.call(parent.children, anchor));
+      anchor = parent;
+    }
+    const inside = anchor === container;
+    const original = inside ? null : doc.elementFromPoint(Math.max(0, Math.min(root.innerWidth - 1, 20)), 1);
+    const previousMin = container.style.minHeight;
+    container.style.minHeight = `${container.getBoundingClientRect().height}px`;
+    try { render(); } finally {
+      container.style.minHeight = previousMin;
+      let target = inside ? container : original;
+      if (inside) for (const index of path) target = target.children[index] || target;
+      if (target?.isConnected && Number.isFinite(top)) root.scrollTo(root.scrollX, root.scrollY + target.getBoundingClientRect().top - top);
+    }
+  }
+  root.RaceStable = stableRender;
+
+  function restoreSavedScroll(doc, page = root) {
+    try {
+      const saved = JSON.parse(page.sessionStorage.getItem('race-dashboard-scroll') || 'null');
+      page.sessionStorage.removeItem('race-dashboard-scroll');
+      if (!saved || !Number.isFinite(saved.y)) return;
+      page.requestAnimationFrame(() => page.requestAnimationFrame(() => {
+        const section = saved.id && doc.getElementById(saved.id);
+        page.scrollTo(0, section && Number.isFinite(saved.offset) ? page.scrollY + section.getBoundingClientRect().top - saved.offset : saved.y);
+      }));
+    } catch (_) {}
   }
 
   // shortcut: 32-bit collisions are possible; use a stronger hash if missed deploys justify it.
@@ -446,6 +548,33 @@
     let initialFingerprint = null;
     let checking = false;
     let reloadPending = false;
+    let lastActivity = clock();
+    let reloadTimer;
+    const pointers = new Set();
+    let touching = false;
+    const activity = () => { lastActivity = clock(); };
+    for (const type of ['touchmove', 'scroll', 'pointermove', 'wheel']) doc.addEventListener(type, activity, { passive: true });
+    doc.addEventListener('touchstart', () => { touching = true; activity(); }, { passive: true });
+    for (const type of ['touchend', 'touchcancel']) doc.addEventListener(type, event => { touching = !!event.touches?.length; activity(); }, { passive: true });
+    doc.addEventListener('pointerdown', event => { pointers.add(event.pointerId); activity(); }, { passive: true });
+    for (const type of ['pointerup', 'pointercancel']) doc.addEventListener(type, event => { pointers.delete(event.pointerId); activity(); }, { passive: true });
+
+    function reloadWhenSafe() {
+      if (!reloadPending) return;
+      const remaining = 30000 - (clock() - lastActivity);
+      if (doc.visibilityState !== 'hidden' && (remaining > 0 || touching || pointers.size)) {
+        reloadTimer = delay(reloadWhenSafe, Math.max(remaining, 1000));
+        return;
+      }
+      try {
+        const storage = options.sessionStorage === undefined ? root.sessionStorage : options.sessionStorage;
+        const visible = doc.elementFromPoint?.(20, 1);
+        const section = visible?.closest?.('[id]');
+        storage?.setItem('race-dashboard-scroll', JSON.stringify({ y: root.scrollY || 0, id: section?.id || '', offset: section?.getBoundingClientRect().top }));
+        storage?.setItem(VERSION_RELOAD_KEY, String(clock()));
+      } catch (_) {}
+      page.reload();
+    }
 
     async function check() {
       if (doc.visibilityState === 'hidden' || checking || reloadPending) return false;
@@ -478,7 +607,6 @@
           const saved = storage?.getItem(VERSION_RELOAD_KEY);
           const lastReload = saved === null || saved === undefined ? null : Number(saved);
           if (lastReload !== null && Number.isFinite(lastReload) && clock() - lastReload < VERSION_RELOAD_COOLDOWN_MS) return false;
-          storage?.setItem(VERSION_RELOAD_KEY, String(clock()));
         } catch (_) {}
 
         reloadPending = true;
@@ -487,7 +615,7 @@
           status.textContent = '網頁有新版本，重新載入中…';
           status.className = 'data-status muted';
         }
-        delay(() => page.reload(), 100);
+        reloadTimer = delay(reloadWhenSafe, 100);
         return true;
       } catch (_) {
         return false;
@@ -500,7 +628,8 @@
     const ready = check();
     schedule(check, VERSION_CHECK_MS);
     doc.addEventListener('visibilitychange', () => {
-      if (doc.visibilityState !== 'hidden') return check();
+      if (reloadPending && doc.visibilityState === 'hidden') { cancel(reloadTimer); reloadWhenSafe(); }
+      else if (doc.visibilityState !== 'hidden') return check();
     });
     return { check, ready };
   }
@@ -515,7 +644,7 @@
     const canvas = doc.getElementById('eqc');
     const layout = root.RaceLayout?.mount(doc);
     const ledgerFilters = doc.getElementById('ledger-filters');
-    const ledgerOpenGroups = new Set();
+    const ledgerOpenGroups = { days: new Map(), rows: new Set() };
     let ledgerMode = 'all';
     const noteColumns = ['notes-a', 'notes-b'].map(id => doc.getElementById(id));
     const ledger = doc.querySelector('.ledger-section');
@@ -542,12 +671,21 @@
       for (const item of ledgerFilters.querySelectorAll('button')) {
         item.setAttribute('aria-pressed', String(item === button));
       }
-      if (current) renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups);
+      if (current) stableRender(rows, () => renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups));
     });
     let current = null;
     let lastError = false;
     let loading = false;
     let chart = null;
+    let restorePending = true;
+    let ledgerAges = '';
+    const ledgerAgeState = () => day(Date.now());
+
+    function restoreScroll() {
+      if (!restorePending) return;
+      restorePending = false;
+      restoreSavedScroll(doc);
+    }
 
     function updateStatus() {
       clock.textContent = taipeiTime(Date.now()) + ' 台灣';
@@ -626,9 +764,11 @@
             clearTimeout(timeout);
           }
         }
-        const hadPrevious = current !== null;
+        const previous = current;
+        const hadPrevious = previous !== null;
         current = next;
         lastError = false;
+        if (!previous || JSON.stringify([previous.traders, previous.trades, previous.staleAfterMs]) !== JSON.stringify([current.traders, current.trades, current.staleAfterMs])) stableRender(cards, () => {
         const panels = current.traders.map(trader => {
           const panel = element(doc, 'section', null, 'trader-panel');
           panel.dataset.trader = trader.name;
@@ -640,13 +780,18 @@
         });
         cards.replaceChildren(...panels);
         placeNotes();
-        layout?.updateSnapshot(current);
         doc.dispatchEvent(new Event('race:cards-updated'));
         if (hadPrevious) cards.classList.add('is-ready');
-        renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups);
-        try { updateChart(current); } catch (_) {
+        });
+        layout?.updateSnapshot(current);
+        if (!previous || JSON.stringify(previous.trades) !== JSON.stringify(current.trades)) {
+          ledgerAges = ledgerAgeState(current.trades);
+          stableRender(rows, () => renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups));
+        }
+        try { if (!previous || JSON.stringify([previous.series, previous.traders.map(t => t.currency), previous.staleAfterMs]) !== JSON.stringify([current.series, current.traders.map(t => t.currency), current.staleAfterMs])) updateChart(current); } catch (_) {
           chartStatus.textContent = '圖表更新失敗；帳戶與交易資料仍可更新。';
         }
+        restoreScroll();
       } catch (_) {
         lastError = true;
       } finally {
@@ -659,10 +804,16 @@
     refresh();
     setInterval(updateStatus, 1000);
     setInterval(refresh, REFRESH_MS);
+    setInterval(() => {
+      if (current && ledgerAgeState(current.trades) !== ledgerAges) {
+        ledgerAges = ledgerAgeState(current.trades);
+        stableRender(rows, () => renderGroupedRows(doc, rows, current.trades, ledgerMode, ledgerOpenGroups));
+      }
+    }, 60000);
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
   }
 
-  const api = { number, timestamp, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair, placeNotesShelf, startVersionCheck };
+  const api = { number, timestamp, price, shortTaipeiTime, renderUpdated, pairSnapshot, freshness, traderView, renderCard, renderRows, groupTrades, renderGroupedRows, fetchPair, placeNotesShelf, stableRender, restoreSavedScroll, startVersionCheck };
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (typeof document !== 'undefined') {
     startVersionCheck(document);
@@ -1027,22 +1178,31 @@
   }
 
   function renderColumn(doc, container, trader, notes, now = Date.now()) {
-    const expanded = container.querySelector?.('.notes-more')?.open === true;
+    const openDates = new Set(Array.from(container.querySelectorAll?.('.notes-day') || []).filter(node => node.open).map(node => node.dataset.day));
     const preserved = preservedKeys(container);
     const own = notes.filter(note => safeNote(note) && note.trader === trader).slice().sort((a, b) => b.ts - a.ts);
-    const pinned = latestSettlement(own, trader);
-    if (pinned) own.unshift(own.splice(own.indexOf(pinned), 1)[0]);
     const heading = element(doc, 'h3', trader + ' 交易員便利貼');
     const disclaimer = element(doc, 'p', 'AI 交易員自述，非投資建議', 'notes-disclaimer');
     const content = element(doc, 'div', undefined, 'notes-list');
     if (!own.length) content.append(element(doc, 'p', '目前沒有可顯示的便利貼', 'notes-empty'));
-    own.slice(0, 10).forEach(note => content.append(renderNote(doc, note, now, preserved)));
-    if (own.length > 10) {
-      const more = element(doc, 'details', undefined, 'notes-more');
-      more.open = expanded;
-      more.append(element(doc, 'summary', `看更多（${own.length - 10}）`));
-      own.slice(10).forEach(note => more.append(renderNote(doc, note, now, preserved)));
-      content.append(more);
+    const days = new Map();
+    for (const note of own) {
+      const date = new Date(note.ts * 1000).toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
+      if (!days.has(date)) days.set(date, []);
+      days.get(date).push(note);
+    }
+    const pinned = latestSettlement(own, trader);
+    if (pinned) {
+      const items = days.get(new Date(pinned.ts * 1000).toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' }));
+      items.unshift(items.splice(items.indexOf(pinned), 1)[0]);
+    }
+    for (const [date, items] of days) {
+      const group = element(doc, 'details', undefined, 'notes-more notes-day');
+      group.dataset.day = date;
+      group.open = openDates.has(date);
+      group.append(element(doc, 'summary', `${date.slice(5).replace('-', '/')}（${items.length} 則）`));
+      items.forEach(note => group.append(renderNote(doc, note, now, preserved)));
+      content.append(group);
     }
     container.replaceChildren(heading, disclaimer, content);
   }
@@ -1090,8 +1250,10 @@
     const cancel = options.clearTimeout || root.clearTimeout.bind(root);
     let notes = [];
     let loading = false;
+    let ageState = '';
     function render() {
-      columns.forEach(column => renderColumn(doc, column.node, column.trader, notes, clock()));
+      ageState = JSON.stringify(notes.map(note => [clock() - note.ts * 1000 > 86400000, clock() - note.ts * 1000 > STALE_MS]));
+      columns.forEach(column => (root.RaceStable || ((_node, fn) => fn()))(column.node, () => renderColumn(doc, column.node, column.trader, notes, clock())));
       renderSummaries(doc, notes, clock());
       if (typeof root.CustomEvent === 'function' && typeof doc.dispatchEvent === 'function') {
         doc.dispatchEvent(new root.CustomEvent('race:notes-updated', { detail: notes }));
@@ -1103,20 +1265,23 @@
       const controller = new AbortController();
       const timeout = delay(() => controller.abort(), 10000);
       try {
-        notes = await fetchNotes(fetcher, controller.signal, clock());
+        const next = await fetchNotes(fetcher, controller.signal, clock());
+        if (JSON.stringify(next) !== JSON.stringify(notes)) { notes = next; render(); }
       } catch (_) {
-        notes = [];
+        if (notes.length) { notes = []; render(); }
       } finally {
         cancel(timeout);
         loading = false;
-        render();
       }
     }
     render();
     const ready = refresh();
     schedule(refresh, REFRESH_MS);
     // Age labels continue to update without a successful network request.
-    schedule(render, 60000);
+    schedule(() => {
+      const next = JSON.stringify(notes.map(note => [clock() - note.ts * 1000 > 86400000, clock() - note.ts * 1000 > STALE_MS]));
+      if (next !== ageState) render();
+    }, 60000);
     doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
     doc.addEventListener('race:cards-updated', () => renderSummaries(doc, notes, clock()));
     return { refresh, render, ready };
