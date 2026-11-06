@@ -359,6 +359,29 @@ test('watchlist renders confidence dots, the expired disclosure and all outcome 
   assert.ok(text.includes('尚無觀察'));
 });
 
+test('watchlist summary labels are phone-only and the desktop expiry header is descriptive', () => {
+  const doc = makeDocument();
+  layout.renderWatchlist(doc, doc.nodes.watchlist, [watch(), watch({ id: 'A-old', status: 'expired' })], new Map(), now);
+  const active = doc.nodes.watchlist.querySelectorAll('.layout-details')[0].querySelector('summary');
+  const confidenceLabel = active.children[2].querySelector('.phone-only-label');
+  const timeCell = active.children[3];
+  const timeLabel = timeCell.querySelector('.phone-only-label');
+  assert.equal(confidenceLabel.textContent, '信心度：');
+  assert.equal(timeLabel.textContent, '觀察有效到：');
+  assert.match(timeCell.textContent, /^觀察有效到：.*2026\/11\/1.*台灣$/);
+  assert.equal(doc.nodes.watchlist.querySelector('.watch-head').children[3].textContent, '觀察有效到');
+
+  const expired = doc.nodes.watchlist.querySelector('.watch-expired-list').querySelector('.layout-details').querySelector('summary');
+  assert.equal(expired.children[2].querySelector('.phone-only-label').textContent, '信心度：');
+  assert.equal(expired.children[3].querySelector('.phone-only-label').textContent, '實際結果：');
+  assert.equal(expired.children[4].querySelector('.phone-only-label').textContent, '準不準：');
+  assert.equal([confidenceLabel, timeLabel, ...expired.querySelectorAll('.phone-only-label')].every(label => label.className === 'phone-only-label'), true);
+
+  const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+  assert.match(html, /\.phone-only-label\{display:none\}/);
+  assert.match(html, /@media\(max-width:1000px\)\{[^\r\n]*\.phone-only-label\{display:inline\}/);
+});
+
 test('missing, empty or oversized watchlist responses are harmless empty observations', async () => {
   const responses = [
     { ok: false, status: 404 },

@@ -355,9 +355,16 @@
       return;
     }
     const header = element(doc, 'div', undefined, `layout-summary ${expired ? 'watch-expired-head' : 'watch-head'}`);
-    const labels = ['標的與方向', '原因簡介', '信心度', ...(expired ? ['實際結果', '準不準'] : ['有效到'])];
+    const labels = ['標的與方向', '原因簡介', '信心度', ...(expired ? ['實際結果', '準不準'] : ['觀察有效到'])];
     labels.forEach(label => header.append(element(doc, 'span', label)));
     parent.append(header);
+    const prefix = (cell, label) => {
+      const value = cell.textContent;
+      const className = cell.className;
+      cell.textContent = '';
+      cell.className = '';
+      cell.append(element(doc, 'span', label, 'phone-only-label'), element(doc, 'span', value, className));
+    };
     let instrument = null;
     for (const item of items) {
       if (mode === 'instrument' && baseCoin(item.instrument) !== instrument) {
@@ -371,7 +378,14 @@
       if (expired) cells.push(result, { text: verdict[0], className: verdict[1] });
       else cells.push(localTime(item.expires_ts));
       const own = detailRow(doc, `watch:${item.id}`, cells, preserved);
-      own.details.children[0].children[2].append(confidence(doc, item.confidence));
+      const summary = own.details.children[0];
+      summary.children[2].append(element(doc, 'span', '信心度：', 'phone-only-label'), confidence(doc, item.confidence));
+      if (expired) {
+        prefix(summary.children[3], '實際結果：');
+        prefix(summary.children[4], '準不準：');
+      } else {
+        prefix(summary.children[3], '觀察有效到：');
+      }
       if (expired) {
         field(doc, own.body, '當時判斷', item.detail.reason || '尚無說明');
         field(doc, own.body, '打算怎麼做', item.detail.plan || '尚無說明');
