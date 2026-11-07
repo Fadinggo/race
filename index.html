@@ -73,12 +73,13 @@ button:focus-visible,.layout-section summary:focus-visible{outline:2px solid var
 @media(max-width:1000px){.layout-summary,.watch-active .layout-summary,.watch-expired-list .layout-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}.position-head,.watch-head,.watch-expired-head{display:none}.phone-only-label{display:inline}}
 @media(max-width:600px){.layout-summary,.watch-active .layout-summary,.watch-expired-list .layout-summary,.layout-detail-body{grid-template-columns:1fr}.layout-summary{gap:5px}.layout-summary>span:first-child{color:var(--c);font-weight:600}.layout-detail-body{margin-left:0}.layout-trader-block{padding:14px}}
 html,body,.wrap{overflow-anchor:auto}
+.quota-slot{position:relative;height:56px;margin:0 0 12px;font:13px/20px sans-serif}.quota-block{box-sizing:border-box;height:56px;padding:7px 11px;border:1px solid #2a3a44;border-radius:8px;overflow:hidden;color:#9bb;cursor:pointer;-webkit-tap-highlight-color:transparent}.quota-block>div{height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.quota-block[data-level=red]{background:#7a1020;border-color:#ff5a6e;color:#fff}.quota-block[data-level=amber]{background:#5a4300;border-color:#ffd166;color:#fff}.quota-list{position:absolute;z-index:5;top:60px;left:0;right:0;margin:0;padding:8px 12px 8px 28px;background:#0b1218;border:1px solid #2a3a44;border-radius:8px;color:#ddd;overflow-wrap:anywhere}
 .wrap.is-loading{visibility:hidden;position:fixed;inset:0;overflow:hidden;min-height:100vh}.wrap.is-loading:before{content:"資料讀取中…";visibility:visible;position:fixed;top:40vh;left:0;width:100%;text-align:center;color:#9bb}
 #cards:empty,#positions:has(>p),#watchlist:has(>p),.notes-column:has(>.notes-empty){min-height:220px}
 .notes-list{gap:12px}.notes-more{margin-top:0}.notes-more summary{padding:6px 0}.notes-more .note{margin-bottom:0}
 .confidence-dot{display:inline-block;box-sizing:border-box;width:.8em;height:.8em;border:1px solid currentColor;border-radius:50%;margin-right:.12em}.confidence-dot.filled{background:currentColor}
 </style>
-<div class="wrap is-loading"><div class="data-updated" id="data-updated">資料更新時間 —</div><span class="clock" id="clk"></span><h1>TRADING ARENA</h1>
+<div class="wrap is-loading"><div class="quota-slot" id="quota-slot"><div class="quota-block" id="quota-block" role="status" tabindex="0" aria-expanded="false" data-level="ok"><div>AI 額度讀取中…</div><div>AI 額度：—</div></div><ul class="quota-list" id="quota-list" hidden></ul></div><div class="data-updated" id="data-updated">資料更新時間 —</div><span class="clock" id="clk"></span><h1>TRADING ARENA</h1>
 <div class="sub">Grok-Trader-A / Grok-Trader-B ／ 唯讀帳戶概況</div>
 <div class="data-status muted" id="data-status" role="status" aria-live="polite">正在讀取資料…</div>
 <div class="cards" id="cards"></div>
