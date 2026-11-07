@@ -1424,3 +1424,98 @@
     else root.RaceNotesReady = start(document)?.ready;
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this);
+
+// AI quota block: one fixed-height box (2 lines) fed by ai_quota.json. Every value goes through textContent.
+(function (root) {
+  'use strict';
+
+  const REFRESH_MS = 30000;
+  const STALE_AFTER_S = 3 * 3600;
+  const CLIP = 200;
+  const DOWN = 'AI 額度資料暫無';
+  const clip = value => Array.from(String(value)).slice(0, CLIP).join('');
+  const taipei = (seconds, options) => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Taipei', hourCycle: 'h23', ...options }).format(new Date(seconds * 1000));
+  const hhmm = seconds => taipei(seconds, { hour: '2-digit', minute: '2-digit' });
+  const mmdd = seconds => taipei(seconds, { month: '2-digit', day: '2-digit' }).replace(/^(\d+)\/(\d+)$/, (_, d, m) => `${m}/${d}`);
+  const when = seconds => `${mmdd(seconds)} ${hhmm(seconds)}`;
+  const num = value => typeof value === 'number' && Number.isFinite(value);
+  const threshold = alert => { const m = /^threshold_(\d+)$/.exec(String(alert.key)); return m ? Number(m[1]) : null; };
+
+  // Pure: parsed file (or null when missing/invalid) -> { level: 'red'|'amber'|'ok', status, detail, alerts }.
+  function quotaView(data, nowSeconds) {
+    const down = { level: 'red', status: DOWN, detail: 'AI 額度：—', alerts: [] };
+    if (data === null || typeof data !== 'object' || Array.isArray(data) || !Array.isArray(data.alerts)) return down;
+    const alerts = data.alerts.filter(a => a && typeof a === 'object' && typeof a.message_zh === 'string');
+    const text = a => clip(a.message_zh);
+    const high = alerts.filter(a => a.level === 'high').sort((a, b) => (threshold(b) ?? 100) - (threshold(a) ?? 100));
+    const codex = data.codex;
+    const usable = !data.error && codex !== null && typeof codex === 'object' && num(codex.used_percent);
+    const view = { ...down, alerts: alerts.map(text) };
+    if (usable) {
+      const parts = [`Codex 每週 ${Math.round(codex.used_percent)}%`];
+      if (num(codex.resets_at)) parts.push(`重置 ${when(codex.resets_at)}`);
+      if (num(data.updated_at)) parts.push(`更新 ${when(data.updated_at)}`);
+      view.detail = parts.join('｜');
+    }
+    if (high.length) return { ...view, level: 'red', status: text(high[0]) + (high.length > 1 ? `（另 ${high.length - 1} 則）` : '') };
+    if (!usable || !num(data.updated_at)) return { ...view, level: 'red', status: DOWN };
+    if (nowSeconds - data.updated_at > STALE_AFTER_S) return { ...view, level: 'red', status: `AI 額度資料已過時（最後更新 ${when(data.updated_at)}）` };
+    const top = Math.max(-1, ...alerts.map(a => threshold(a) ?? -1));
+    // A low threshold is redundant once a higher one fired; pace/spike alerts outrank the remaining thresholds.
+    const medium = alerts.filter(a => a.level === 'medium' && (threshold(a) === null || threshold(a) === top))
+      .sort((a, b) => (threshold(a) === null ? 0 : 1) - (threshold(b) === null ? 0 : 1));
+    if (medium.length) return { ...view, level: 'amber', status: text(medium[0]) };
+    return { ...view, level: 'ok', status: 'AI 額度正常' };
+  }
+
+  async function load(fetcher) {
+    try {
+      const response = await fetcher(`ai_quota.json?v=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) return null;
+      return JSON.parse(await response.text());
+    } catch (error) { return null; }
+  }
+
+  function start(doc, options = {}) {
+    const fetcher = options.fetcher || root.fetch.bind(root);
+    const block = doc.getElementById('quota-block');
+    const list = doc.getElementById('quota-list');
+    if (!block || !list) return { refresh: async () => {} };
+    const [statusLine, detailLine] = block.children;
+    let shown = null;
+    let open = false;
+    function draw(view) {
+      const key = JSON.stringify([view, open]);
+      if (key === shown) return;
+      const alertNow = view.level === 'red' && (!shown || JSON.parse(shown)[0].status !== view.status || JSON.parse(shown)[0].level !== 'red');
+      shown = key;
+      block.dataset.level = view.level;
+      block.setAttribute('role', alertNow ? 'alert' : 'status');
+      statusLine.textContent = view.status;
+      detailLine.textContent = view.detail;
+      list.hidden = !open || view.alerts.length === 0;
+      list.replaceChildren(...view.alerts.map(t => { const li = doc.createElement('li'); li.textContent = t; return li; }));
+    }
+    let latest = quotaView(null, 0);
+    async function refresh() {
+      latest = quotaView(await load(fetcher), Date.now() / 1000);
+      const view = latest;
+      (root.RaceStable || ((_node, fn) => fn()))(block, () => draw(view));
+    }
+    const toggle = () => { open = !open; draw(latest); block.setAttribute('aria-expanded', String(open)); };
+    block.addEventListener('click', toggle);
+    block.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); } });
+    refresh();
+    root.setInterval(refresh, REFRESH_MS);
+    doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
+    return { refresh };
+  }
+
+  const api = { quotaView, start };
+  root.raceQuota = api;
+  if (typeof module === 'object' && module.exports) module.exports.quota = api;
+  if (typeof document !== 'undefined') {
+    const begin = () => { try { start(document); } catch (error) { root.console.error(error); } };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', begin); else begin();
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this);

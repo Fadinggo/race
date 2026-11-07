@@ -214,3 +214,7 @@ GitHub。（無日期-e）。[Using custom workflows with GitHub Pages](https://
 OKX。（無日期）。[OKX API documentation](https://www.okx.com/docs-v5/en/)。2026 年 10 月 30 日檢索。
 
 wuyulun0823-lab。（無日期）。[race](https://github.com/wuyulun0823-lab/race)［原始碼儲存庫］。GitHub。
+
+## AI 額度（ai_quota.json）
+
+桌機每 5 分鐘發布 `ai_quota.json`（時間為 epoch 秒），工作流程以選用檔打包，內容不是有效 JSON 時略過並警告，不使部署失敗。頁面頂端是固定高度（56px、兩行）的額度區塊，全部以 `textContent` 顯示：第一行為狀態（紅：high 警示、資料暫無、超過 3 小時未更新；琥珀：medium 警示；中性：AI 額度正常），第二行為額度明細。點一下可展開全部警示（浮層，不推擠版面）。與 `data.json` 一樣每 30 秒以 `no-store` 加 `?v=` 重新讀取，並透過 `RaceStable` 更新。本檔不得由頁面維護工單修改。
