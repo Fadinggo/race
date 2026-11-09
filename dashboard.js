@@ -482,7 +482,11 @@
       `${file}?v=${nonce}`, { cache: 'no-store', signal }
     )));
     if (responses.some(response => !response.ok)) throw new Error('Snapshot HTTP error');
-    const [data, history] = await Promise.all(responses.map(response => response.json()));
+    const [data, history] = await Promise.all(responses.map(async (response, index) => {
+      const rawData = await response.json();
+      if (index === 0) { try { root.raceBotStatus && root.raceBotStatus.update(rawData.bot_status); } catch (_) {} }
+      return rawData;
+    }));
     return pairSnapshot(data, history, previous);
   }
 
@@ -874,7 +878,10 @@
             next = await fetchPair(root.fetch.bind(root), current, controller.signal, `${Date.now()}-${attempt}`);
             break;
           } catch (error) {
-            if (attempt === 1) throw error;
+            if (attempt === 1) {
+              try { root.raceBotStatus && root.raceBotStatus.fail(); } catch (_) {}
+              throw error;
+            }
           } finally {
             clearTimeout(timeout);
           }
@@ -1514,6 +1521,91 @@
   const api = { quotaView, start };
   root.raceQuota = api;
   if (typeof module === 'object' && module.exports) module.exports.quota = api;
+  if (typeof document !== 'undefined') {
+    const begin = () => { try { start(document); } catch (error) { root.console.error(error); } };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', begin); else begin();
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+// Bot status banner fed by data.json.
+(function (root) {
+  'use strict';
+
+  const DOWN = '機器人狀態讀不到，無法確認 1 號機、2 號機能不能開新倉';
+  const clip = value => Array.from(value).slice(0, 200).join('');
+  const row = (level, text) => ({ level, text: clip(text) });
+
+  function botStatusView(data, nowSeconds) {
+    if (!data || typeof data !== 'object' || Array.isArray(data) || data.schema_version !== 1 ||
+        typeof data.updated !== 'number' || !Number.isFinite(data.updated) ||
+        data.updated - nowSeconds > 300 || !Array.isArray(data.bots)) {
+      return [row('amber', DOWN)];
+    }
+    if (nowSeconds - data.updated >= 1500) {
+      try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+      }).formatToParts(new Date(data.updated * 1000));
+      const part = type => parts.find(p => p.type === type).value;
+      return [row('amber', `機器人狀態太舊（最後更新 ${part('month')}/${part('day')} ${part('hour')}:${part('minute')}），無法確認 1 號機、2 號機能不能開新倉`)];
+      } catch (_) { return [row('amber', DOWN)]; }
+    }
+    return ['A', 'B'].map((bot, index) => {
+      const item = data.bots.find(entry => entry && entry.bot === bot);
+      const down = `${index + 1} 號機狀態讀不到，無法確認能不能開新倉`;
+      if (!item || !['ok', 'halted', 'unknown'].includes(item.state) ||
+          typeof item.message_zh !== 'string' || !item.message_zh.trim()) return row('amber', down);
+      if (item.state === 'ok') return null;
+      return row(item.state === 'halted' ? 'red' : 'amber', item.message_zh);
+    }).filter(Boolean).sort((a, b) => (a.level === 'red' ? 0 : 1) - (b.level === 'red' ? 0 : 1));
+  }
+
+  let hasData = false;
+  let latest;
+  let redraw = () => {};
+
+  function update(status) {
+    hasData = true;
+    latest = status;
+    redraw();
+  }
+
+  function fail() {
+    if (!hasData) update(undefined);
+  }
+
+  function start(doc) {
+    const block = doc.getElementById('bot-status');
+    if (!block) return;
+    let shown = null;
+    function draw(view) {
+      const key = JSON.stringify(view);
+      if (key === shown) return;
+      shown = key;
+      block.replaceChildren(...view.map(item => {
+        const line = doc.createElement('div');
+        line.className = 'bot-status-row';
+        line.dataset.level = item.level;
+        line.textContent = item.text;
+        return line;
+      }));
+      block.hidden = view.length === 0;
+      block.setAttribute('role', view.some(item => item.level === 'red') ? 'alert' : 'status');
+    }
+    redraw = () => {
+      if (!hasData) return;
+      const view = botStatusView(latest, Date.now() / 1000);
+      (root.RaceStable || ((_node, fn) => fn()))(block, () => draw(view));
+    };
+    redraw();
+    root.setInterval(redraw, 30000);
+    root.setTimeout(fail, 30000);
+  }
+
+  const api = { botStatusView, start, update, fail };
+  root.raceBotStatus = api;
+  if (typeof module === 'object' && module.exports) module.exports.botStatus = api;
   if (typeof document !== 'undefined') {
     const begin = () => { try { start(document); } catch (error) { root.console.error(error); } };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', begin); else begin();
