@@ -234,6 +234,9 @@
     };
   }
 
+  const DISPLAY_NAMES = { 'Grok-Trader-A': '1 號機（A0 回踩）', 'Grok-Trader-B': '2 號機（B0 突破）' };
+  const displayName = name => DISPLAY_NAMES[name] || name;
+
   function element(doc, tag, text, className) {
     const node = doc.createElement(tag);
     if (text !== undefined && text !== null) node.textContent = String(text);
@@ -251,7 +254,7 @@
   function renderCard(doc, trader, trades, now = Date.now(), staleAfterMs = STALE_MS) {
     const view = traderView(trader, trades, now);
     const card = element(doc, 'div', null, 'card');
-    card.append(element(doc, 'h2', trader.name));
+    card.append(element(doc, 'h2', displayName(trader.name)));
     const balance = element(doc, 'div', fixed(trader.equity) + ' ', 'big');
     balance.append(element(doc, 'small', currencyText(trader.currency)));
     card.append(balance);
@@ -309,7 +312,7 @@
     const timeCell = element(doc, 'td', time);
     timeCell.title = taipeiTime(trade.timestamp);
     line.append(timeCell);
-    for (const text of [trade.trader, trade.market, trade.side, price(trade.price), trade.qty]) {
+    for (const text of [displayName(trade.trader), trade.market, trade.side, price(trade.price), trade.qty]) {
       line.append(element(doc, 'td', text));
     }
     const pnl = trade.pnl === null ? '—' : `${trade.pnl.toFixed(4)} ${currencyText(trade.pnlCurrency)}`;
@@ -333,7 +336,7 @@
   }
 
   function tradeGroupLabel(trade, mode) {
-    if (mode === 'trader') return trade.trader || '交易員未提供';
+    if (mode === 'trader') return displayName(trade.trader) || '交易員未提供';
     if (mode === 'market') return !trade.market || trade.market === '—' ? '幣種未提供' : trade.market.split('-')[0] || '幣種未提供';
     if (mode === 'action') {
       if (trade.event === 'open' || trade.event === 'close') return `${trade.event === 'open' ? '開倉' : '平倉'}${trade.side ? ' ' + trade.side : ''}`;
@@ -433,7 +436,7 @@
         const time = trade.timestamp == null ? '—' : new Intl.DateTimeFormat('en-GB', {
           timeZone: TIME_ZONE, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
         }).format(trade.timestamp);
-        const trader = trade.trader === 'Grok-Trader-A' ? 'A' : trade.trader === 'Grok-Trader-B' ? 'B' : trade.trader;
+        const trader = displayName(trade.trader);
         const pnl = trade.pnl == null ? '—' : `${trade.pnl.toFixed(4)} ${currencyText(trade.pnlCurrency)}`;
         for (const value of [time, trader, trade.market, trade.side, price(trade.price), trade.qty, pnl]) {
           const cell = element(doc, 'td', value);
@@ -835,8 +838,8 @@
       }
       const visibility = new Map(chart ? chart.data.datasets.map((dataset, index) => [dataset.label, chart.isDatasetVisible(index)]) : []);
       const datasets = snapshot.series.map((item, index) => ({
-        label: item.name, data: item.points.map(([x, y]) => ({ x, y })),
-        hidden: visibility.has(item.name) ? !visibility.get(item.name) : false,
+        label: displayName(item.name), data: item.points.map(([x, y]) => ({ x, y })),
+        hidden: visibility.has(displayName(item.name)) ? !visibility.get(displayName(item.name)) : false,
         segment: { borderDash: context => context.p1.parsed.x - context.p0.parsed.x > snapshot.staleAfterMs ? [4, 4] : undefined },
         borderColor: colors[index % colors.length], backgroundColor: colors[index % colors.length] + '22',
         fill: true, tension: 0.3, pointRadius: item.points.length === 1 ? 2 : 0, borderWidth: 2
@@ -967,6 +970,7 @@
   'use strict';
 
   const TRADERS = ['Grok-Trader-A', 'Grok-Trader-B'];
+  const DISPLAY_NAMES = { 'Grok-Trader-A': '1 號機（A0 回踩）', 'Grok-Trader-B': '2 號機（B0 突破）' };
   const KINDS = { open: '開倉', close: '平倉', daily: '日報', daily_settlement: '每日結算' };
   const DAILY_TEXT = ['market_recap', 'trade_review', 'watch_next', 'strategy_adjustments'];
   const REASON_FIELDS = ['funding_rate', 'open_interest', 'key_levels', 'volume', 'events'];
@@ -1324,7 +1328,7 @@
     const ordinary = own.filter(note => note.kind !== 'daily_settlement');
     const visible = pinned ? [pinned, ...ordinary.slice(0, 4)] : ordinary.slice(0, 5);
     const remaining = own.filter(note => !visible.includes(note));
-    const heading = element(doc, 'h3', trader + ' \u4ea4\u6613\u54e1\u4fbf\u5229\u8cbc');
+    const heading = element(doc, 'h3', (DISPLAY_NAMES[trader] || trader) + '\u4fbf\u5229\u8cbc');
     const disclaimer = element(doc, 'p', 'AI \u4ea4\u6613\u54e1\u81ea\u8ff0\uff0c\u975e\u6295\u8cc7\u5efa\u8b70', 'notes-disclaimer');
     const content = element(doc, 'div', undefined, 'notes-list');
     if (!own.length) content.append(element(doc, 'p', '\u76ee\u524d\u6c92\u6709\u53ef\u986f\u793a\u7684\u4fbf\u5229\u8cbc', 'notes-empty'));

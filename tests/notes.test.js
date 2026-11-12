@@ -83,6 +83,9 @@ test('notes are sorted newest first, isolated by trader, and keep equal-time sou
   assert.equal(JSON.stringify(source), before);
   const doc = makeDocument();
   notes.renderColumn(doc, column(doc), 'Grok-Trader-A', normalized, now);
+  assert.equal(column(doc).children[0].tagName, 'h3');
+  assert.equal(column(doc).children[0].textContent, '1 號機（A0 回踩）便利貼');
+  assert.doesNotMatch(column(doc).textContent, /Grok-Trader-/);
   const cards = descendants(column(doc)).filter(node => node.tagName === 'article');
   assert.equal(cards.length, 3);
   assert.ok(cards[0].textContent.includes('同時一'));
