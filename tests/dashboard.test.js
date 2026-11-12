@@ -350,6 +350,8 @@ test('index.html sets notes-after-cards only in the one-column rule and lists th
   // Multi-column layouts keep this static order: trader cards, ..., ledger, then the notes shelf.
   const [cards, ledger, shelf] = ['id="cards"', 'class="ledger-section"', 'id="notes-shelf"'].map(marker => html.indexOf(marker));
   assert.ok(cards >= 0 && cards < ledger && ledger < shelf);
+  assert.match(html, /data-ledger-mode="A"[^>]*>1 號機（A0 回踩）<\/button>/);
+  assert.match(html, /data-ledger-mode="B"[^>]*>2 號機（B0 突破）<\/button>/);
 });
 
 test('new account fields display separate trading PNL and AI costs for both traders', () => {
@@ -430,7 +432,7 @@ test('new ledger rows use Taipei labels, four decimals, close price and quantity
   const container = new TextNode('tbody');
   dashboard.renderRows(documentSink, container, snapshot.trades);
   const cells = descendants(container).filter(node => node.tagName === 'td').map(node => node.textContent);
-  assert.deepEqual(cells.slice(0, 7), ['10/30 03:00:00', 'Grok-Trader-A', '—', '平多', '123.45', '2 張', '-0.1235 USDT']);
+  assert.deepEqual(cells.slice(0, 7), ['10/30 03:00:00', '1 號機（A0 回踩）', '—', '平多', '123.45', '2 張', '-0.1235 USDT']);
 });
 
 test('legacy account and ledger fields retain their existing fallback paths', () => {

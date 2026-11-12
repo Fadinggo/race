@@ -54,7 +54,7 @@ test('trader grouping sums fees and PNL with newest group first and never mutate
   const trades = [trade(), trade({ trader: 'Grok-Trader-B', pnl: -3 }), trade({ pnl: 4, fee: 0.02 })];
   const before = JSON.stringify(trades);
   const grouped = dashboard.groupTrades(trades, 'trader');
-  assert.deepEqual(grouped.map(item => item.label), ['Grok-Trader-A', 'Grok-Trader-B']);
+  assert.deepEqual(grouped.map(item => item.label), ['1 號機（A0 回踩）', '2 號機（B0 突破）']);
   assert.equal(grouped[0].trades.length, 2);
   assert.equal(grouped[0].pnl, '+6 USDT');
   assert.equal(grouped[0].fees, '+0.08 USDT');
@@ -139,7 +139,7 @@ test('Taipei day folds show filtered counts and four-decimal USDT net; desktop o
     '11/02（2 筆，淨 +1.5000 USDT）',     '11/01（1 筆，淨 -3.0000 USDT）'
   ]);
   assert.deepEqual(groups.map(group => group.open), [true, false]);
-  assert.deepEqual(tradeRows(container)[1].children.map(cell => cell.textContent).slice(0, 2), ['00:30:00', 'A']);
+  assert.deepEqual(tradeRows(container)[1].children.map(cell => cell.textContent).slice(0, 2), ['00:30:00', '1 號機（A0 回踩）']);
   assert.equal(nodes(container).some(node => node.tagName === 'img'), false);
   dashboard.renderGroupedRows(doc, container, dayTrades(), 'all', state(), dayNow, true);
   assert.deepEqual(dayGroups(container).map(group => group.open), [true, false]);

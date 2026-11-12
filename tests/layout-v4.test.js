@@ -178,8 +178,10 @@ test('positions render A and B as separate blocks with collapsed details and hon
   const doc = makeDocument();
   const node = doc.nodes.positions;
   layout.renderPositions(doc, node, snapshot(), [open()], now);
-  assert.ok(node.textContent.includes(traderA));
-  assert.ok(node.textContent.includes(traderB));
+  assert.deepEqual(node.querySelectorAll('h3').map(heading => heading.textContent), ['1 號機（A0 回踩）', '2 號機（B0 突破）']);
+  assert.ok(node.textContent.includes('1 號機（A0 回踩）'));
+  assert.ok(node.textContent.includes('2 號機（B0 突破）'));
+  assert.doesNotMatch(node.textContent, /Grok-Trader-/);
   assert.ok(node.textContent.includes('空手'));
   assert.ok(node.textContent.includes('支撐守住。'));
   assert.ok(!node.textContent.includes('2400'));
@@ -345,6 +347,11 @@ test('watchlist renders confidence dots, the expired disclosure and all outcome 
   }))];
   layout.renderWatchlist(doc, doc.nodes.watchlist, items, new Map(), now);
   const text = doc.nodes.watchlist.textContent;
+  assert.ok(text.includes('1 號機（A0 回踩）'));
+  assert.ok(text.includes('2 號機（B0 突破）'));
+  assert.doesNotMatch(text, /Grok-Trader-/);
+  assert.equal(doc.nodes.watchlist.children[0].querySelector('h3').textContent, '1 號機（A0 回踩）');
+  assert.equal(doc.nodes.watchlist.children[0].querySelector('.layout-filters').getAttribute('aria-label'), '1 號機（A0 回踩） 觀察分類');
   assert.ok(text.includes('70%'));
   assert.equal(doc.nodes.watchlist.querySelectorAll('.confidence-dot').length, 20);
   const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');

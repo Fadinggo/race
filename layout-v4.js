@@ -2,6 +2,7 @@
   'use strict';
 
   const TRADERS = ['Grok-Trader-A', 'Grok-Trader-B'];
+  const DISPLAY_NAMES = { 'Grok-Trader-A': '1 號機（A0 回踩）', 'Grok-Trader-B': '2 號機（B0 突破）' };
   const MAX_BYTES = 1024 * 1024;
   const FILTERS = [['all', '全部'], ['instrument', '依幣種（分組）'], ['long', '做多'], ['short', '做空'], ['confidence', '信心度高→低']];
   const REASONS = { funding_rate: '資金費率', open_interest: '未平倉量', key_levels: '關鍵價位', volume: '成交量', events: '事件' };
@@ -292,7 +293,7 @@
     const blocks = TRADERS.map(trader => {
       const block = element(doc, 'section', undefined, 'layout-trader-block');
       block.dataset.trader = trader;
-      block.append(element(doc, 'h3', trader));
+      block.append(element(doc, 'h3', DISPLAY_NAMES[trader] || trader));
       const recent = recentTrades(snapshot, trader, now);
       const account = snapshot?.traders?.find(item => item.name === trader);
       if (!account || account.positions === null || !Array.isArray(account.positions)) {
@@ -408,11 +409,11 @@
     const blocks = TRADERS.map(trader => {
       const block = element(doc, 'section', undefined, 'layout-trader-block');
       block.dataset.trader = trader;
-      block.append(element(doc, 'h3', trader));
+      block.append(element(doc, 'h3', DISPLAY_NAMES[trader] || trader));
       const mode = modes.get(trader) || 'all';
       const toolbar = element(doc, 'div', undefined, 'layout-filters');
       toolbar.setAttribute('role', 'group');
-      toolbar.setAttribute('aria-label', `${trader} 觀察分類`);
+      toolbar.setAttribute('aria-label', `${DISPLAY_NAMES[trader] || trader} 觀察分類`);
       FILTERS.forEach(([value, label]) => {
         const button = element(doc, 'button', label, mode === value ? 'active' : '');
         button.dataset.morphKey = 'filter:' + trader + ':' + value;
